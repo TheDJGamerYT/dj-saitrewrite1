@@ -40,6 +40,8 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         if(world.getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity) {
             consoleBlockEntity.markDirty();
+            /*if(!world.isClient())
+                consoleBlockEntity.onPlaced(world, pos, state, placer, itemStack);*/
         }
         super.onPlaced(world, pos, state, placer, itemStack);
     }

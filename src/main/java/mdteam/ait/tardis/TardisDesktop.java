@@ -32,7 +32,7 @@ public class TardisDesktop extends AbstractTardisComponent {
             return;
         }
 
-        door.setTardis(this.tardis);
+        door.setTardis(this.getTardis());
     }
 
     protected TardisDesktop(Tardis tardis, TardisDesktopSchema schema, Corners corners) {
@@ -77,7 +77,7 @@ public class TardisDesktop extends AbstractTardisComponent {
         }
         // this is needed for door and console initialization. when we call #setTardis(ITardis) the desktop field is still null.
         door.setDesktop(this);
-        door.setTardis(this.tardis);
+        door.setTardis(this.getTardis());
     }
     public void changeInterior(TardisDesktopSchema schema) {
         this.setSchema(schema);

@@ -67,7 +67,7 @@ public class RemoteItem extends Item {
             return ActionResult.FAIL;
 
         Tardis tardis = ServerTardisManager.getInstance().getTardis(nbt.getUuid("tardis"));
-        System.out.println(ServerTardisManager.getInstance().getTardis(nbt.getUuid("tardis")));
+        //System.out.println(ServerTardisManager.getInstance().getTardis(nbt.getUuid("tardis")));
 
         if (tardis != null) {
             tardis.getDoor().setLocked(tardis.getDoor().isLocked());

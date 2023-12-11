@@ -15,8 +15,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -33,8 +37,25 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity {
     public ConsoleBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.DISPLAY_CONSOLE_BLOCK_ENTITY_TYPE, pos, state);
 
+        // even though TardisDesktop links the door, we need to link it here as well to avoid desync
         this.setTardis(TardisUtil.findTardisByInterior(pos));
     }
+
+    /*public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+        if(world.isClient())
+            return;
+        this.setTardis(TardisUtil.findTardisByInterior(pos));
+        this.sync();
+    }*/
+
+    /*@Override
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
+
+        this.setTardis(TardisUtil.findTardisByInterior(pos));
+        this.sync();
+    }*/
+
 
     @Override
     public void setTardis(Tardis tardis) {
@@ -43,9 +64,9 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity {
     }
 
     public ConsoleEnum getConsoleType() {
-        if(this.getTardis() == null)
-            return ConsoleEnum.TEMP;
-        return this.getTardis().getConsole().getType();
+        if(this.getTardis() != null)
+            return this.getTardis().getConsole().getType();
+        return ConsoleEnum.BOREALIS;
     }
 
     @Override

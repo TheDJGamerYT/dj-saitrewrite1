@@ -1,3 +1,4 @@
+
 package mdteam.ait.tardis.linkable;
 
 import mdteam.ait.tardis.*;
@@ -6,8 +7,9 @@ public interface Linkable {
 
     Tardis getTardis();
     void setTardis(Tardis tardis);
-
-    default TardisDesktop getDesktop() { return this.getTardis().getDesktop(); }
+    default TardisDesktop getDesktop() {
+        return this.getTardis().getDesktop();
+    }
     default void setDesktop(TardisDesktop desktop) { }
 
     /**
@@ -21,7 +23,9 @@ public interface Linkable {
             this.setDesktop(this.getDesktop());
     }
 
-    default TardisTravel getTravel() { return this.getTardis().getTravel(); }
+    default TardisTravel getTravel() {
+        return this.getTardis().getTravel();
+    }
     default void setTravel(TardisTravel travel) { }
 
     /**
@@ -37,12 +41,15 @@ public interface Linkable {
             this.setTravel(travel);
     }
 
-    default TardisDoor getDoor() { return this.getTardis().getDoor(); }
-    default void setDoor(TardisDoor door) { }
+    default TardisDoor getDoor() {
+        return this.getTardis().getDoor();
+    }
+    default void setDoor(TardisDoor door) {}
 
-    default TardisConsole getConsole() { return this.getTardis().getConsole(); }
-    default void setConsole(TardisConsole console) { }
-
+    default TardisConsole getConsole() {
+        return this.getTardis().getConsole();
+    }
+    default void setConsole(TardisConsole console) {}
 
     /**
      * This method forces the {@link Linkable} to update its door.

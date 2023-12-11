@@ -10,10 +10,13 @@ import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktop;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.manager.TardisManager;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -33,10 +36,9 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
+
+import static mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager.CHANGE_EXTERIOR;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
@@ -56,7 +58,7 @@ public class TardisUtil {
         });
 
         ServerWorldEvents.LOAD.register((server, world) -> {
-            System.out.println("Loaded world " + world.getRegistryKey());
+            //System.out.println("Loaded world " + world.getRegistryKey());
             SAVE_PATH = server.getSavePath(WorldSavePath.ROOT);
 
             if (world.getRegistryKey() == World.OVERWORLD) {
@@ -79,6 +81,18 @@ public class TardisUtil {
 
     public static Path getSavePath() {
         return SAVE_PATH;
+    }
+
+    public static void changeExteriorWithScreen(UUID uuid) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(uuid);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ClientPlayNetworking.send(CHANGE_EXTERIOR, buf);
+            }
+        }, 10);
     }
 
     public static boolean inBox(Box box, BlockPos pos) {
@@ -204,15 +218,9 @@ public class TardisUtil {
             if (TardisUtil.inBox(corners, player.getBlockPos()))
                 return player;
         }
-
         return null;
     }
 
-    public static List<PlayerEntity> getPlayersInInterior(Tardis tardis) {
-        return getPlayersInInterior(tardis);
-    }
-
-    @Nullable
     public static List<PlayerEntity> getPlayersInInterior(Corners corners) {
         List<PlayerEntity> list = List.of();
 
@@ -224,7 +232,7 @@ public class TardisUtil {
     }
 
     public static ServerWorld findWorld(RegistryKey<World> key) {
-        System.out.println("Trying to find " + key);
+        //System.out.println("Trying to find " + key);
         return SERVER.getWorld(key);
     }
 

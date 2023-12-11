@@ -293,7 +293,8 @@ public class TardisTravel extends AbstractTardisComponent {
     }
 
     public void runAnimations(ExteriorBlockEntity exterior) {
-        exterior.getAnimation().setupAnimation(this.state);
+        if(exterior.getAnimation() != null)
+            exterior.getAnimation().setupAnimation(this.state);
     }
 
     public void setDestination(AbsoluteBlockPos.Directed pos, boolean withChecks) {
@@ -349,7 +350,7 @@ public class TardisTravel extends AbstractTardisComponent {
     public MatSound getMatSoundForCurrentState() {
         if (this.getTardis() != null)
             return this.getTardis().getExterior().getType().getSound(this.getState());
-        return AITSounds.LANDED_ANIM; // COUUULD be LANDED_ANIM but null is beteter
+        return AITSounds.LANDED_ANIM;
     }
 
     public enum State {

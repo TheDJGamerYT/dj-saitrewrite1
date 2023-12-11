@@ -62,7 +62,7 @@ public class MonitorScreen extends TardisScreen {
 
         // exterior change text button
         // fixme i think we're overloading with packets because the client side of all the code kinda desperately needs a redo / if you spam the button everything slows OR you get kicked
-        this.addButton(new PressableTextWidget((width / 2 - 105), (height / 2 + 28), this.textRenderer.getWidth("exterior"), 10, Text.literal("exterior"), button -> ServerTardisManager.changeExteriorWithScreen(this.tardisid), this.textRenderer));
+        this.addButton(new PressableTextWidget((width / 2 - 105), (height / 2 + 28), this.textRenderer.getWidth("exterior"), 10, Text.literal("exterior"), button -> TardisUtil.changeExteriorWithScreen(this.tardisid), this.textRenderer));
 
         this.buttons.forEach(buttons -> {
             // buttons.visible = false;
@@ -105,7 +105,7 @@ public class MonitorScreen extends TardisScreen {
         int i = ((this.height - this.backgroundHeight) / 2);
         int j = ((this.width - this.backgroundWidth) / 2);
         if (this.getTardis() == null) return;
-        AbsoluteBlockPos.Directed abpd = this.updateTardis().getTravel().getDestination();
+        AbsoluteBlockPos.Directed abpd = this.getTardis().getTravel().getDestination();
         String destinationText = abpd.getX() + ", " + abpd.getY() + ", " + abpd.getZ();
         String dimensionText = convertWorldToReadable(abpd.getWorld());
         String directionText = abpd.getDirection().toString().toUpperCase();

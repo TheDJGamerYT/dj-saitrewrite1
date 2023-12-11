@@ -13,6 +13,7 @@ import mdteam.ait.tardis.TardisTravel;
 
 import java.util.function.Function;
 
+@SuppressWarnings({"unchecked"})
 public abstract class ConsoleModel extends SinglePartEntityModel {
     public static int MAX_TICK_COUNT = 2 * 20;
 
@@ -33,6 +34,7 @@ public abstract class ConsoleModel extends SinglePartEntityModel {
 
         TardisTravel.State state = console.getTardis().getTravel().getState();
         this.updateAnimation(console.ANIM_FLIGHT, getAnimationForState(state), console.animationTimer);
+        console.sync();
     }
     public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         if (console.getTardis() == null) return;

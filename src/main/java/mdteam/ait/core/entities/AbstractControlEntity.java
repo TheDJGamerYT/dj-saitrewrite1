@@ -1,6 +1,7 @@
 package mdteam.ait.core.entities;
 
 import mdteam.ait.tardis.linkable.Linkable;
+import mdteam.ait.tardis.manager.TardisManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;

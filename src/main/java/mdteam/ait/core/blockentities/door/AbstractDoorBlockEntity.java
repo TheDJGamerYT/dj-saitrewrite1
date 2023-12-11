@@ -29,10 +29,13 @@ public abstract class AbstractDoorBlockEntity extends LinkableBlockEntity {
         super(type, pos, state);
     }
     public void useOn(World world, PlayerEntity player) {
+        if(this.door == null)
+            return;
         if(player == null)
             return;
-        if (this.getTravel().getState() != TardisTravel.State.LANDED)
-            return;
+        if(this.getTravel() != null)
+            if (this.getTravel().getState() != TardisTravel.State.LANDED)
+                return;
         if(player.getMainHandStack().getItem() instanceof KeyItem) {
             ItemStack key = player.getMainHandStack();
             NbtCompound tag = key.getOrCreateNbt();
@@ -65,9 +68,10 @@ public abstract class AbstractDoorBlockEntity extends LinkableBlockEntity {
         if (!(entity instanceof ServerPlayerEntity player))
             return;
 
-        if (this.door.getState() != TardisDoor.State.CLOSED) {
-            this.teleport(player);
-        }
+        if(this.door != null)
+            if (this.door.getState() != TardisDoor.State.CLOSED) {
+                this.teleport(player);
+            }
     }
     protected abstract void teleport(Entity entity);
     @Override

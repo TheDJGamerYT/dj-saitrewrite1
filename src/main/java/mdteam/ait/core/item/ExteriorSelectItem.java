@@ -44,7 +44,7 @@ public class ExteriorSelectItem extends Item {
                 ExteriorEnum[] values = ExteriorEnum.values();
                 int nextIndex = (exteriorBlock.getTardis().getExterior().getType().ordinal() + 1) % values.length;
                 exteriorBlock.getTardis().getExterior().setType(values[nextIndex]);
-                System.out.println(exteriorBlock.getTardis().getExterior().getType());
+                //System.out.println(exteriorBlock.getTardis().getExterior().getType());
 
                 exteriorBlock.sync();
             }

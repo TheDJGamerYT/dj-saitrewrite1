@@ -8,7 +8,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -64,6 +66,18 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
         }
 
         return ActionResult.CONSUME;
+    }
+
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if (world.isClient()) {
+            return;
+        }
+
+        /*if (world.getBlockEntity(pos) instanceof DoorBlockEntity door) {
+            door.onPlaced(world, pos, state, placer, itemStack);
+        }*/
+        super.onPlaced(world, pos, state, placer, itemStack);
     }
 
     @Override

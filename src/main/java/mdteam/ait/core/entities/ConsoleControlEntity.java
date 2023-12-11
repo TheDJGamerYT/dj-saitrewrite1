@@ -5,6 +5,7 @@ import mdteam.ait.core.AITItems;
 import mdteam.ait.core.blockentities.console.ConsoleBlockEntity;
 import mdteam.ait.core.entities.control.Control;
 import mdteam.ait.tardis.ControlTypes;
+import mdteam.ait.tardis.manager.TardisManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -94,11 +95,9 @@ public class ConsoleControlEntity extends AbstractControlEntity {
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        //if(this.controlTypes != null)
-        //    nbt.put("controlTypes", this.controlTypes.serializeTypes(nbt));
         if(consoleBlockPos != null)
-            nbt.put("console", NbtHelper.fromBlockPos(this.consoleBlockPos));
-
+            nbt.put("console",
+                    NbtHelper.fromBlockPos(this.consoleBlockPos));
         nbt.putString("identity", this.getIdentity());
         nbt.putFloat("width", this.getControlWidth());
         nbt.putFloat("height", this.getControlHeight());
@@ -110,8 +109,6 @@ public class ConsoleControlEntity extends AbstractControlEntity {
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        //if(this.controlTypes != null)
-        //    this.controlTypes = this.controlTypes.deserializeTypes(nbt);
         var console = (NbtCompound) nbt.get("console");
         if(console != null)
             this.consoleBlockPos = NbtHelper.toBlockPos(console);
@@ -160,9 +157,12 @@ public class ConsoleControlEntity extends AbstractControlEntity {
                 controlEditorHandler(player);
             }*/
 
-            if(this.consoleBlockPos != null)
-                this.getWorld().playSound(null, this.consoleBlockPos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 0.7f, 1f);
-                return this.control.runServer(this.getTardis(), (ServerPlayerEntity) player, (ServerWorld) world); // i dont gotta check these cus i know its server
+            if (this.consoleBlockPos != null) {
+                if(this.getWorld().getBlockEntity(this.consoleBlockPos) instanceof ConsoleBlockEntity consoleBlockEntity) {
+                    this.getWorld().playSound(null, this.consoleBlockPos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 0.7f, 1f);
+                    return this.control.runServer(consoleBlockEntity.getTardis(), (ServerPlayerEntity) player, (ServerWorld) world);
+                }
+            }
         }
         return false;
     }
@@ -184,22 +184,11 @@ public class ConsoleControlEntity extends AbstractControlEntity {
     public void setControlData(ConsoleEnum consoleType, ControlTypes type, BlockPos consoleBlockPosition) {
         this.consoleBlockPos = consoleBlockPosition;
         this.control = type.getControl();
-        if(this.getWorld().getBlockEntity(this.consoleBlockPos) instanceof ConsoleBlockEntity consoleBlockEntity)
-            this.setTardis(consoleBlockEntity.getTardis());
-        // System.out.println(type);
         if(consoleType != null) {
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);
-            this.setCustomName(Text.translatable(type.getControl().id)/*.fillStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true))*/);
+            this.setCustomName(Text.translatable(type.getControl().id));
         }
-    }
-
-    public Vec3d offsetFromCentre(BlockPos console, Vector3f vec) {
-        double x = vec.x - console.toCenterPos().x;
-        double y = vec.y - console.toCenterPos().y;
-        double z = vec.z - console.toCenterPos().z;
-
-        return new Vec3d(x, y, z);
     }
 
     @Override

@@ -33,16 +33,16 @@ public abstract class TardisManager {
 
     public TardisManager() {
         this.gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
-            @Override
-            public boolean shouldSkipField(FieldAttributes field) {
-                return field.getAnnotation(Exclude.class) != null;
-            }
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes field) {
+                        return field.getAnnotation(Exclude.class) != null;
+                    }
 
-            @Override
-            public boolean shouldSkipClass(Class<?> clazz) {
-                return false;
-            }
-        }).registerTypeAdapter(TardisDesktopSchema.class, TardisDesktopSchema.serializer())
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                }).registerTypeAdapter(TardisDesktopSchema.class, TardisDesktopSchema.serializer())
                 .registerTypeAdapter(SerialDimension.class, SerialDimension.serializer())
                 .registerTypeAdapter(Corners.class, Corners.serializer())
                 .create();

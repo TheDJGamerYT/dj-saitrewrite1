@@ -30,7 +30,7 @@ public class ExteriorBlockEntity extends AbstractDoorBlockEntity {
         if (this.getTardis() != null) {
             this.animation = this.getTardis().getExterior().getType().createAnimation(this);
             AITMod.LOGGER.debug("Created new animation for " + this);
-            this.animation.setupAnimation(this.tardis.getTravel().getState());
+            this.animation.setupAnimation(this.getTardis().getTravel().getState());
         }
 
         return this.animation;
@@ -46,18 +46,19 @@ public class ExteriorBlockEntity extends AbstractDoorBlockEntity {
 
     @Override
     protected void teleport(Entity entity) {
-        TardisUtil.teleportInside(this.tardis, (ServerPlayerEntity) entity);
+        TardisUtil.teleportInside(this.getTardis(), (ServerPlayerEntity) entity);
     }
 
     @Override
     public void setTardis(Tardis tardis) {
         super.setTardis(tardis);
         this.linkTravel();
+        System.out.println(this + ": " + tardis);
     }
 
     @Override
     public void setTravel(TardisTravel travel) {
-        this.animation = this.tardis.getExterior().getType().createAnimation(this);
+        this.animation = this.getTardis().getExterior().getType().createAnimation(this);
         this.animation.setupAnimation(travel.getState());
     }
 

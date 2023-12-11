@@ -2,19 +2,14 @@ package mdteam.ait.tardis.wrapper.server.manager;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import io.wispforest.owo.ops.WorldOps;
 import mdteam.ait.AITMod;
 import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
-import mdteam.ait.core.blockentities.door.DoorBlockEntity;
-import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
-import mdteam.ait.core.blocks.ExteriorBlock;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.wrapper.server.ServerTardis;
 import mdteam.ait.core.util.TardisUtil;
 import mdteam.ait.core.util.data.AbsoluteBlockPos;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -27,8 +22,6 @@ import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -56,6 +49,9 @@ public class ServerTardisManager extends TardisManager {
                     this.subscribers.put(uuid, player);
                 }
         );
+
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> this.reset());
+
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_EXTERIOR,
                 (server, player, handler, buf, responseSender) -> {
                     UUID uuid = buf.readUuid();
@@ -70,8 +66,6 @@ public class ServerTardisManager extends TardisManager {
 
                 }
         );
-
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> this.reset());
     }
 
     public ServerTardis create(AbsoluteBlockPos.Directed pos, ExteriorEnum exteriorType, TardisDesktopSchema schema, ConsoleEnum consoleType) {
@@ -81,18 +75,6 @@ public class ServerTardisManager extends TardisManager {
         this.lookup.put(uuid, tardis);
 
         return tardis;
-    }
-
-    public static void changeExteriorWithScreen(UUID uuid) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeUuid(uuid);
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                ClientPlayNetworking.send(CHANGE_EXTERIOR, buf);
-            }
-        }, 10);
     }
 
     public Tardis getTardis(UUID uuid) {
@@ -117,7 +99,7 @@ public class ServerTardisManager extends TardisManager {
                 throw new IOException("Tardis file " + file + " doesn't exist!");
 
             String json = Files.readString(file.toPath());
-            Tardis tardis = this.gson.fromJson(json, Tardis.class);
+            ServerTardis tardis = this.gson.fromJson(json, ServerTardis.class);
             this.lookup.put(tardis.getUuid(), tardis);
 
             return tardis;
@@ -135,7 +117,7 @@ public class ServerTardisManager extends TardisManager {
         savePath.getParentFile().mkdirs();
 
         try {
-            Files.writeString(savePath.toPath(), this.gson.toJson(tardis, Tardis.class));
+            Files.writeString(savePath.toPath(), this.gson.toJson(tardis, ServerTardis.class));
         } catch (IOException e) {
             AITMod.LOGGER.warn("Couldn't save Tardis {}", tardis.getUuid());
             AITMod.LOGGER.warn(e.getMessage());
