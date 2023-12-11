@@ -137,7 +137,6 @@ public class ConsoleControlEntity extends AbstractControlEntity {
     public ActionResult interactAt(PlayerEntity player, Vec3d hitPos, Hand hand) {
         if (hand == Hand.MAIN_HAND)
             this.run(player, player.getWorld());
-
         return ActionResult.SUCCESS;
     }
 
@@ -154,9 +153,6 @@ public class ConsoleControlEntity extends AbstractControlEntity {
     }
 
     public boolean run(PlayerEntity player, World world) {
-        if(this.consoleBlockPos != null)
-            this.getWorld().playSound(null, this.consoleBlockPos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 0.7f, 1f);
-
         if (!world.isClient()) {
             if (player.getMainHandStack().getItem() == AITItems.TARDIS_ITEM) {
                 this.remove(RemovalReason.DISCARDED);
@@ -164,7 +160,9 @@ public class ConsoleControlEntity extends AbstractControlEntity {
                 controlEditorHandler(player);
             }*/
 
-            return this.control.runServer(this.getTardis(), (ServerPlayerEntity) player, (ServerWorld) world); // i dont gotta check these cus i know its server
+            if(this.consoleBlockPos != null)
+                this.getWorld().playSound(null, this.consoleBlockPos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 0.7f, 1f);
+                return this.control.runServer(this.getTardis(), (ServerPlayerEntity) player, (ServerWorld) world); // i dont gotta check these cus i know its server
         }
         return false;
     }

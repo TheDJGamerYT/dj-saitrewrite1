@@ -7,6 +7,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
 import mdteam.ait.tardis.Tardis;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 
 public class DoorControl extends Control {
     public DoorControl() {
@@ -19,6 +21,8 @@ public class DoorControl extends Control {
             tardis.getDoor().nextOrClosed(tardis.getExterior().getType().isDoubleDoor());
         } else {
             tardis.getDoor().setLocked(!tardis.getDoor().isLocked());
+            String lockedState = tardis.getDoor().isLocked() ? "\uD83D\uDD12" : "\uD83D\uDD13";
+            player.sendMessage(Text.literal(lockedState).fillStyle(Style.EMPTY.withBold(true)), true);
         }
         return true;
     }
