@@ -1,8 +1,6 @@
 package mdteam.ait.client.animation;
 
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
-import mdteam.ait.tardis.handler.DoorHandler;
-import net.minecraft.server.world.ServerWorld;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
 import org.joml.Math;
 import mdteam.ait.tardis.TardisTravel;
 
@@ -11,13 +9,15 @@ public abstract class ExteriorAnimation {
     protected float alpha = 1;
     protected ExteriorBlockEntity exterior;
     protected int timeLeft, maxTime, startTime;
+    protected float alphaChangeAmount = 0.005f;
+
     public ExteriorAnimation(ExteriorBlockEntity exterior) {
         this.exterior = exterior;
     }
 
     // fixme bug that sometimes happens where server doesnt have animation
     protected void runAlphaChecks(TardisTravel.State state) {
-        if (this.exterior.getWorld().isClient)
+        if (this.exterior.getWorld().isClient())
             return;
 
         if (alpha <= 0f && state == TardisTravel.State.DEMAT) {
@@ -26,8 +26,6 @@ public abstract class ExteriorAnimation {
         if (alpha >= 1f && state == TardisTravel.State.MAT) {
             exterior.getTardis().getTravel().setState(TardisTravel.State.LANDED);
             exterior.getTardis().getTravel().runAnimations(exterior);
-            if (DoorHandler.isClient()) return;
-            DoorHandler.lockTardis(false, exterior.getTardis(), (ServerWorld) exterior.getWorld(), null, true); // force unlock door @todo should remember last locked state before takeoff
         }
     }
 

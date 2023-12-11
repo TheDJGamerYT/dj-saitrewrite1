@@ -1,34 +1,26 @@
-package mdteam.ait.tardis;
+package mdteam.ait.tardis.wrapper.server.manager;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.gson.GsonBuilder;
 import mdteam.ait.AITMod;
-import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
-import mdteam.ait.core.helper.TardisUtil;
-import mdteam.ait.data.AbsoluteBlockPos;
-import mdteam.ait.data.SerialDimension;
-import mdteam.ait.tardis.wrapper.server.ServerTardisDesktop;
-import net.fabricmc.api.DedicatedServerModInitializer;
+import mdteam.ait.tardis.Tardis;
+import mdteam.ait.tardis.TardisDesktopSchema;
+import mdteam.ait.tardis.wrapper.server.ServerTardis;
+import mdteam.ait.core.util.TardisUtil;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.mixin.networking.client.accessor.MinecraftClientAccessor;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.math.BlockPos;
-import mdteam.ait.tardis.wrapper.server.ServerTardis;
-import org.apache.logging.log4j.core.jmx.Server;
+import mdteam.ait.tardis.manager.TardisManager;
+import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -38,10 +30,15 @@ public class ServerTardisManager extends TardisManager {
 
     public static final Identifier SEND = new Identifier("ait", "send_tardis");
     public static final Identifier UPDATE = new Identifier("ait", "update_tardis");
-    private static final ServerTardisManager instance = new ServerTardisManager();
-    private final Multimap<UUID, ServerPlayerEntity> subscribers = ArrayListMultimap.create(); // fixme most of the issues with tardises on client when the world gets reloaded is because the subscribers dont get readded so the client stops getting informed, either save this somehow or make sure the client reasks on load.
+    private static final String SAVE_PATH = TardisUtil.getSavePath() + "ait/";
+
+    private static ServerTardisManager instance;
+
+    private final Multimap<UUID, ServerPlayerEntity> subscribers = ArrayListMultimap.create();
 
     public ServerTardisManager() {
+        this.loadTardises();
+
         ServerPlayNetworking.registerGlobalReceiver(
                 ClientTardisManager.ASK, (server, player, handler, buf, responseSender) -> {
                     UUID uuid = buf.readUuid();
@@ -51,49 +48,15 @@ public class ServerTardisManager extends TardisManager {
                 }
         );
 
-        ServerPlayNetworking.registerGlobalReceiver(
-                ClientTardisManager.ASK_POS, (server, player, handler, buf, responseSender) -> {
-                    BlockPos pos = buf.readBlockPos();
-                    UUID uuid = null;
-
-                    for (Tardis tardis : this.getLookup().values()) {
-                        if (!tardis.getTravel().getPosition().equals(pos)) continue;
-
-                        uuid = tardis.getUuid();
-                    }
-
-                    if (uuid == null)
-                        return;
-
-                    this.sendTardis(player, uuid);
-                    this.subscribers.put(uuid, player);
-                }
-        );
-
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> this.reset());
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.loadTardises());
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            // fixme would this cause lag?
-            for (Tardis tardis : ServerTardisManager.getInstance().getLookup().values()) {
-                tardis.tick(server);
-            }
-        });
-        ServerTickEvents.END_WORLD_TICK.register(world -> {
-            // fixme lag?
-            for (Tardis tardis : ServerTardisManager.getInstance().getLookup().values()) {
-                tardis.tick(world);
-            }
-        });
     }
 
-    public ServerTardis create(AbsoluteBlockPos.Directed pos, ExteriorEnum exteriorType, ConsoleEnum consoleType, TardisDesktopSchema schema, boolean locked) {
+    public ServerTardis create(AbsoluteBlockPos.Directed pos, ExteriorEnum exteriorType, TardisDesktopSchema schema) {
         UUID uuid = UUID.randomUUID();
 
-        ServerTardis tardis = new ServerTardis(uuid, pos, schema, exteriorType, consoleType, locked);
+        ServerTardis tardis = new ServerTardis(uuid, pos, schema, exteriorType);
         this.lookup.put(uuid, tardis);
 
-        tardis.getTravel().runAnimations();
-        tardis.getTravel().placeExterior();
         return tardis;
     }
 
@@ -109,6 +72,7 @@ public class ServerTardisManager extends TardisManager {
         consumer.accept(this.loadTardis(uuid));
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private Tardis loadTardis(UUID uuid) {
         File file = ServerTardisManager.getSavePath(uuid);
         file.getParentFile().mkdirs();
@@ -130,12 +94,7 @@ public class ServerTardisManager extends TardisManager {
         return null;
     }
 
-    @Override
-    public GsonBuilder init(GsonBuilder builder) {
-        builder.registerTypeAdapter(SerialDimension.class, SerialDimension.serializer());
-        return builder;
-    }
-
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void saveTardis(Tardis tardis) {
         File savePath = ServerTardisManager.getSavePath(tardis);
         savePath.getParentFile().mkdirs();
@@ -154,28 +113,9 @@ public class ServerTardisManager extends TardisManager {
         }
     }
 
-    // fixme this shit broken bro something about being edited while iterating through it
     public void sendToSubscribers(Tardis tardis) {
-        if (!this.subscribers.containsKey(tardis.getUuid())) this.subscribeEveryone(tardis);
-
-        for (Iterator<ServerPlayerEntity> it = this.subscribers.get(tardis.getUuid()).iterator(); it.hasNext(); ) {
-            ServerPlayerEntity player = it.next();
+        for (ServerPlayerEntity player : this.subscribers.get(tardis.getUuid())) {
             this.sendTardis(player, tardis);
-        }
-    }
-
-    // fixme i think its easier if all clients just get updated about the tardises
-    public void subscribeEveryone(Tardis tardis) {
-        for (ServerPlayerEntity player : TardisUtil.getServer().getPlayerManager().getPlayerList()) {
-            if (this.subscribers.containsKey(player.getUuid())) continue;
-
-            this.subscribers.put(tardis.getUuid(), player);
-        }
-    }
-    // fixme im desperate ok
-    public void subscribeEveryoneToEverything() {
-        for (Tardis tardis : this.lookup.values()) {
-            this.subscribeEveryone(tardis);
         }
     }
 
@@ -205,22 +145,15 @@ public class ServerTardisManager extends TardisManager {
 
     private static File getSavePath(UUID uuid) {
         // TODO: maybe, make WorldSavePath.AIT?
-        return new File(TardisUtil.getServer().getSavePath(WorldSavePath.ROOT) + "ait/" + uuid + ".json");
+        return new File(SAVE_PATH + uuid + ".json");
     }
 
     private static File getSavePath(Tardis tardis) {
         return ServerTardisManager.getSavePath(tardis.getUuid());
     }
 
-    public static ServerTardisManager getInstance() {
-        //System.out.println("getInstance() = " + instance);
-        return instance;
-    }
-
-
     public void loadTardises() {
-        File[] saved = new File(TardisUtil.getServer().getSavePath(
-                WorldSavePath.ROOT) + "ait/").listFiles();
+        File[] saved = new File(SAVE_PATH).listFiles();
 
         if (saved == null)
             return;
@@ -236,5 +169,13 @@ public class ServerTardisManager extends TardisManager {
             UUID uuid = UUID.fromString(name.substring(name.lastIndexOf("/") + 1, name.lastIndexOf(".")));
             this.loadTardis(uuid);
         }
+    }
+
+    public static void init() {
+        instance = new ServerTardisManager();
+    }
+
+    public static ServerTardisManager getInstance() {
+        return instance;
     }
 }

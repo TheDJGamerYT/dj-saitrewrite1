@@ -1,6 +1,6 @@
 package mdteam.ait.core.entities;
 
-import mdteam.ait.api.tardis.ILinkable;
+import mdteam.ait.tardis.linkable.Linkable;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -19,7 +19,7 @@ import mdteam.ait.tardis.Tardis;
 
 import java.util.Collections;
 
-public abstract class BaseControlEntity extends MobEntity implements ILinkable {
+public abstract class BaseControlEntity extends MobEntity implements Linkable {
 
     private Tardis tardis;
 

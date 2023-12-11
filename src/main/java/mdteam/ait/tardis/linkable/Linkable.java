@@ -1,10 +1,11 @@
-package mdteam.ait.api.tardis;
+package mdteam.ait.tardis.linkable;
 
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktop;
+import mdteam.ait.tardis.TardisDoor;
 import mdteam.ait.tardis.TardisTravel;
 
-public interface ILinkable {
+public interface Linkable {
 
     Tardis getTardis();
     void setTardis(Tardis tardis);
@@ -13,21 +14,12 @@ public interface ILinkable {
     default void setDesktop(TardisDesktop desktop) { }
 
     /**
-     * This method forces the {@link ILinkable} to update its desktop!
+     * This method forces the {@link Linkable} to update its desktop!
      */
-    /*default void linkDesktop() {
-        if (this.getTardis() == null)
-            return;
-
-        TardisDesktop desktop = this.getTardis().getDesktop();
-
-        if (desktop != null)
-            this.setDesktop(desktop);
-    }*/
-
     default void linkDesktop() {
         if (this.getTardis() == null)
             return;
+
         if (this.getDesktop() != null)
             this.setDesktop(this.getDesktop());
     }
@@ -36,7 +28,7 @@ public interface ILinkable {
     default void setTravel(TardisTravel travel) { }
 
     /**
-     * This method forces the {@link ILinkable} to update its travel!
+     * This method forces the {@link Linkable} to update its travel!
      */
     default void linkTravel() {
         if (this.getTardis() == null)
@@ -48,8 +40,24 @@ public interface ILinkable {
             this.setTravel(travel);
     }
 
+    default TardisDoor getDoor() { return this.getTardis().getDoor(); }
+    default void setDoor(TardisDoor door) { }
+
     /**
-     * If false, calling {@link ILinkable#setTardis(Tardis)} might throw an exception!
+     * This method forces the {@link Linkable} to update its travel!
+     */
+    default void linkDoor() {
+        if (this.getTardis() == null)
+            return;
+
+        TardisDoor door = this.getTardis().getDoor();
+
+        if (door != null)
+            this.setDoor(door);
+    }
+
+    /**
+     * If false, calling {@link Linkable#setTardis(Tardis)} might throw an exception!
      */
     default boolean linkable() {
         return true;

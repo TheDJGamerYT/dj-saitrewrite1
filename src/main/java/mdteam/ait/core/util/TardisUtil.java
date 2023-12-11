@@ -1,27 +1,13 @@
 package mdteam.ait.core.helper;
 
-import io.wispforest.owo.ops.WorldOps;
-import mdteam.ait.AITMod;
-import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
 import mdteam.ait.core.AITDimensions;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.data.AbsoluteBlockPos;
 import mdteam.ait.data.Corners;
-import mdteam.ait.tardis.*;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
@@ -31,23 +17,26 @@ import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import org.apache.logging.log4j.core.jmx.Server;
-import org.jetbrains.annotations.Nullable;
+import the.mdteam.ait.Tardis;
+import the.mdteam.ait.TardisDesktop;
+import the.mdteam.ait.TardisManager;
+import the.mdteam.ait.TardisTravel;
 
-import java.util.*;
-
-import static javax.management.timer.Timer.ONE_SECOND;
+import java.util.List;
+import java.util.Random;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
 
     private static final Random RANDOM = new Random();
-    private static MinecraftServer SERVER; //@TODO fixme this does not work on multiplayer.
+
+    private static MinecraftServer SERVER;
     private static ServerWorld TARDIS_DIMENSION;
-    public static final Identifier CHANGE_EXTERIOR = new Identifier(AITMod.MOD_ID, "change_exterior");
 
     public static void init() {
         ServerWorldEvents.UNLOAD.register((server, world) -> {
@@ -63,28 +52,9 @@ public class TardisUtil {
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             SERVER = null;
         });
-        ServerPlayNetworking.registerGlobalReceiver(CHANGE_EXTERIOR,
-                (server, player, handler, buf, responseSender) -> {
-                    UUID uuid = buf.readUuid();
-
-                    ExteriorEnum[] values = ExteriorEnum.values();
-                    int nextIndex = (ServerTardisManager.getInstance().getTardis(uuid).getExterior().getType().ordinal() + 1) % values.length;
-                    ServerTardisManager.getInstance().getTardis(uuid).getExterior().setType(values[nextIndex]);
-                    WorldOps.updateIfOnServer(server.getWorld(ServerTardisManager.getInstance().getTardis(uuid)
-                                    .getTravel().getPosition().getWorld().getRegistryKey()),
-                            ServerTardisManager.getInstance().getTardis(uuid).getTravel().getPosition());
-                }
-        );
-    }
-
-    public static void changeExteriorWithScreen(UUID uuid) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeUuid(uuid);
-        ClientPlayNetworking.send(CHANGE_EXTERIOR, buf);
     }
 
     public static MinecraftServer getServer() {
-        //MinecraftServer server = TARDIS_DIMENSION.getServer();
         return SERVER;
     }
 
@@ -193,8 +163,10 @@ public class TardisUtil {
 
     private static void teleportWithDoorOffset(ServerPlayerEntity player, AbsoluteBlockPos.Directed pos) {
         Vec3d vec = TardisUtil.offsetDoorPosition(pos).toCenterPos();
-        SERVER.execute(() -> {WorldOps.teleportToWorld(player, (ServerWorld) pos.getWorld(), vec, pos.getDirection().asRotation(), player.getPitch());
-            player.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player)); });
+
+        player.teleport((ServerWorld) pos.getWorld(), vec.getX(), vec.getY(), vec.getZ(),
+                pos.getDirection().asRotation(), player.getPitch()
+        );
     }
 
     public static Tardis findTardisByInterior(BlockPos pos) {
@@ -204,46 +176,6 @@ public class TardisUtil {
         }
 
         return null;
-    }
-
-    public static Tardis findTardisByPosition(AbsoluteBlockPos.Directed pos) {
-        for (Tardis tardis : TardisManager.getInstance().getLookup().values()) {
-            if (tardis.getTravel().getPosition() != pos) continue;
-
-            return tardis;
-        }
-
-        return null;
-    }
-
-    @Nullable
-    public static PlayerEntity getPlayerInsideInterior(Tardis tardis) {
-        return getPlayerInsideInterior(tardis.getDesktop().getCorners());
-    }
-
-    @Nullable
-    public static PlayerEntity getPlayerInsideInterior(Corners corners) {
-        for (PlayerEntity player : TardisUtil.getTardisDimension().getPlayers()) {
-            if (TardisUtil.inBox(corners, player.getBlockPos()))
-                return player;
-        }
-
-        return null;
-    }
-
-    public static List<PlayerEntity> getPlayersInInterior(Tardis tardis) {
-        return getPlayersInInterior(tardis);
-    }
-
-    @Nullable
-    public static List<PlayerEntity> getPlayersInInterior(Corners corners) {
-        List<PlayerEntity> list = List.of();
-
-        for (PlayerEntity player : TardisUtil.getTardisDimension().getPlayers()) {
-            if (inBox(corners, player.getBlockPos())) list.add(player);
-        }
-
-        return list;
     }
 
     public static ServerWorld findWorld(RegistryKey<World> key) {
@@ -257,11 +189,7 @@ public class TardisUtil {
     public static ServerWorld findWorld(String identifier) {
         return TardisUtil.findWorld(new Identifier(identifier));
     }
-
-    @Nullable
     public static ExteriorBlockEntity findExteriorEntity(Tardis tardis) {
-        if(tardis.getTravel().getPosition().getWorld().isClient())
-            return null;
         if (tardis.getTravel().getPosition().getWorld() == null)
             return null;
 

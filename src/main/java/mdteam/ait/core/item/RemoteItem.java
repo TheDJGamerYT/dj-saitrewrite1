@@ -1,6 +1,5 @@
 package mdteam.ait.core.item;
 
-import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.helper.TardisUtil;
@@ -14,19 +13,19 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import mdteam.ait.tardis.ServerTardisManager;
-import mdteam.ait.tardis.Tardis;
-import mdteam.ait.tardis.TardisTravel;
+import the.mdteam.ait.ServerTardisManager;
+import the.mdteam.ait.Tardis;
+import the.mdteam.ait.TardisTravel;
 
 import java.util.List;
 
-import static mdteam.ait.tardis.TardisTravel.State.*;
+import static the.mdteam.ait.TardisTravel.State.*;
 
 public class RemoteItem extends Item {
 
@@ -48,11 +47,16 @@ public class RemoteItem extends Item {
 
         // Link to exteriors tardis if it exists and player is crouching
         if (player.isSneaking()) {
-            if (world.getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlock) {
-                if (consoleBlock.getTardis() == null)
+            if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior) {
+                if (exterior.getTardis() == null)
                     return ActionResult.FAIL;
 
-                nbt.putUuid("tardis", consoleBlock.getTardis().getUuid());
+                nbt.putUuid("tardis", exterior.getTardis().getUuid());
+                return ActionResult.SUCCESS;
+            } else if (world.getBlockEntity(pos) instanceof DoorBlockEntity door) {
+                if (door.getTardis() == null)
+                    return ActionResult.FAIL;
+                nbt.putUuid("tardis", door.getTardis().getUuid());
                 return ActionResult.SUCCESS;
             }
         }
@@ -62,9 +66,10 @@ public class RemoteItem extends Item {
             return ActionResult.FAIL;
 
         Tardis tardis = ServerTardisManager.getInstance().getTardis(nbt.getUuid("tardis"));
-        //System.out.println(ServerTardisManager.getInstance().getTardis(nbt.getUuid("tardis")));
+        System.out.println(ServerTardisManager.getInstance().getTardis(nbt.getUuid("tardis")));
 
         if (tardis != null) {
+            tardis.setLockedTardis(true);
             if(world != TardisUtil.getTardisDimension()) {
                 world.playSound(null, pos, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS);
 
@@ -73,16 +78,18 @@ public class RemoteItem extends Item {
                 travel.setDestination(new AbsoluteBlockPos.Directed(pos.up(), world, player.getMovementDirection().getOpposite()), true);
                 // travel.toggleHandbrake();
 
-                //FIXME: this is not how you do it! (cope)
+                //FIXME: this is not how you do it!
                 if (travel.getState() == LANDED)
                     travel.dematerialise(true);
                 if (travel.getState() == FLIGHT)
-                    travel.checkPositionAndMaterialise(true);
+                    travel.materialise();
+
+                //System.out.println(ServerTardisManager.getInstance().getLookup());
 
                 return ActionResult.SUCCESS;
             } else {
                 world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F, 0.2F);
-                player.sendMessage(Text.literal("Cannot translocate exterior to interior dimension"), true);
+                player.sendMessage(Text.literal("Cannot translocate exterior to interior dimension!"), true);
                 return ActionResult.PASS;
             }
         }
@@ -98,9 +105,9 @@ public class RemoteItem extends Item {
         }
 
         NbtCompound tag = stack.getOrCreateNbt();
-        String text = tag.contains("tardis") ? tag.getUuid("tardis").toString().substring(0, 8)
-                : "Remote does not identify with any TARDIS";
+        String text = tag.contains("tardis") ? tag.getUuid("tardis").toString()
+                : "When a TARDIS is linked, it's UUID will show here.";
 
-        tooltip.add(Text.literal("→ " + text).formatted(Formatting.DARK_AQUA));
+        tooltip.add(Text.literal(text).fillStyle(Style.EMPTY.withBold(true)));
     }
 }

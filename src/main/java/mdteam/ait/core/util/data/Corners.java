@@ -1,14 +1,14 @@
-package mdteam.ait.data;
+package mdteam.ait.core.util.data;
 
 import com.google.gson.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import mdteam.ait.tardis.Exclude;
 
 import java.lang.reflect.Type;
 
 public class Corners {
-    @Exclude private final Box box;
+    @Exclude
+    private final Box box;
     private final BlockPos first;
     private final BlockPos second;
 

@@ -1,16 +1,7 @@
 package mdteam.ait.tardis;
 
-import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
-import mdteam.ait.data.AbsoluteBlockPos;
-import mdteam.ait.tardis.handler.DoorHandler;
-import mdteam.ait.tardis.handler.PropertiesHolder;
-import mdteam.ait.tardis.handler.WaypointHandler;
-import mdteam.ait.tardis.handler.loyalty.LoyaltyHandler;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import org.apache.logging.log4j.core.jmx.Server;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -21,27 +12,34 @@ public class Tardis {
     private final UUID uuid;
     private TardisDesktop desktop;
     private final TardisExterior exterior;
-    private final TardisConsole console;
-    private final DoorHandler door;
-    private final PropertiesHolder properties;
-    private final WaypointHandler waypoints;
-    private final LoyaltyHandler loyalties;
+    private final TardisDoor door;
 
-    public Tardis(UUID uuid, AbsoluteBlockPos.Directed pos, TardisDesktopSchema schema, ExteriorEnum exteriorType, ConsoleEnum consoleType) {
-        this(uuid, tardis -> new TardisTravel(tardis, pos), tardis -> new TardisDesktop(tardis, schema), (tardis) -> new TardisExterior(tardis, exteriorType), (tardis) -> new TardisConsole(tardis, consoleType, consoleType.getControlTypesList()), false);
+    public Tardis(UUID uuid, AbsoluteBlockPos.Directed pos, TardisDesktopSchema schema, ExteriorEnum exteriorType) {
+        this(uuid, tardis -> new TardisTravel(tardis, pos), tardis -> new TardisDesktop(tardis, schema),
+                tardis -> new TardisExterior(tardis, exteriorType), TardisDoor::new);
     }
 
-    protected Tardis(UUID uuid, Function<Tardis, TardisTravel> travel, Function<Tardis, TardisDesktop> desktop, Function<Tardis, TardisExterior> exterior, Function<Tardis, TardisConsole> console, boolean locked) {
+    protected Tardis(UUID uuid, Function<Tardis, TardisTravel> travel, Function<Tardis, TardisDesktop> desktop,
+                     Function<Tardis, TardisExterior> exterior, Function<Tardis, TardisDoor> door) {
         this.uuid = uuid;
         this.travel = travel.apply(this);
-        this.door = new DoorHandler(uuid);
-        this.door.setLocked(locked);
-        this.properties = new PropertiesHolder(uuid);
-        this.waypoints = new WaypointHandler(uuid);
-        this.loyalties = new LoyaltyHandler(uuid);
         this.desktop = desktop.apply(this);
         this.exterior = exterior.apply(this);
-        this.console = console.apply(this);
+        this.door = door.apply(this);
+
+        this.init();
+    }
+
+    private void init() {
+        this.init(this.travel);
+        this.init(this.desktop);
+        this.init(this.exterior);
+        this.init(this.door);
+    }
+
+    private void init(AbstractTardisComponent component) {
+        if (component.shouldInit())
+            component.init();
     }
 
     public UUID getUuid() {
@@ -60,41 +58,11 @@ public class Tardis {
         return exterior;
     }
 
-    public TardisConsole getConsole() {
-        return console;
-    }
-    public DoorHandler getDoor() {
-        return door;
-    }
-
-    public void setLockedTardis(boolean bool) {
-        this.getDoor().setLocked(bool);
-    }
-
-    public boolean getLockedTardis() {
-        return this.getDoor().locked();
-    }
-
     public TardisTravel getTravel() {
         return travel;
     }
 
-    public PropertiesHolder getProperties() { return properties; }
-    public WaypointHandler getWaypoints() { return waypoints; }
-    public LoyaltyHandler getLoyalties() { return loyalties; }
-
-    /**
-     * Called at the end of a servers tick
-     * @param server the server being ticked
-     */
-    public void tick(MinecraftServer server) {
-//         this one line alone increased the percentage by ticks from 1% to 5% :)
-//         ServerTardisManager.getInstance().subscribeEveryone(this); // fixme god every tick too?? this is getting bad.
+    public TardisDoor getDoor() {
+        return door;
     }
-
-    /**
-     * Called at the end of a worlds tick
-     * @param world the world being ticked
-     */
-    public void tick(ServerWorld world) {}
 }

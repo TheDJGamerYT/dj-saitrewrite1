@@ -1,4 +1,4 @@
-package mdteam.ait.core.helper;
+package mdteam.ait.core.util;
 
 import mdteam.ait.AITMod;
 import mdteam.ait.core.AITBlocks;

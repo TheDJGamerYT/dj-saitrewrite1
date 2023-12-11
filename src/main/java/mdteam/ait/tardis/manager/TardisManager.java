@@ -1,17 +1,25 @@
-package mdteam.ait.tardis;
+package mdteam.ait.tardis.manager;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import mdteam.ait.api.tardis.ILinkable;
 import mdteam.ait.core.events.BlockEntityPreLoadEvent;
-import mdteam.ait.core.helper.TardisUtil;
-import mdteam.ait.data.Corners;
+import mdteam.ait.tardis.Tardis;
+import mdteam.ait.tardis.TardisDesktopSchema;
+import mdteam.ait.tardis.linkable.Linkable;
+import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
+import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
+import mdteam.ait.core.util.data.Exclude;
+import mdteam.ait.core.util.data.Corners;
+import mdteam.ait.core.util.data.SerialDimension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,25 +32,23 @@ public abstract class TardisManager {
     protected final Gson gson;
 
     public TardisManager() {
-        GsonBuilder builder = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes field) {
-                        return field.getAnnotation(Exclude.class) != null;
-                    }
+        this.gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes field) {
+                return field.getAnnotation(Exclude.class) != null;
+            }
 
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
-                    }
-                }).registerTypeAdapter(TardisDesktopSchema.class, TardisDesktopSchema.serializer())
-                .registerTypeAdapter(Corners.class, Corners.serializer());
-        builder = this.init(builder);
-        this.gson = builder.create();
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+        }).registerTypeAdapter(TardisDesktopSchema.class, TardisDesktopSchema.serializer())
+                .registerTypeAdapter(SerialDimension.class, SerialDimension.serializer())
+                .registerTypeAdapter(Corners.class, Corners.serializer())
+                .create();
     }
 
     public static void init() {
-        // nicked this off theo
-
         // this will re-register the client tardis manager on every join (that includes local worlds as well)
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             ClientPlayConnectionEvents.INIT.register((handler, client) -> ClientTardisManager.init());
@@ -64,13 +70,25 @@ public abstract class TardisManager {
         });
     }
 
-    public GsonBuilder init(GsonBuilder builder) {
-        return builder;
+    public static TardisManager getInstance(Entity entity) {
+        return TardisManager.getInstance(entity.getWorld());
     }
 
+    public static TardisManager getInstance(BlockEntity entity) {
+        return TardisManager.getInstance(entity.getWorld());
+    }
+
+    public static TardisManager getInstance(World world) {
+        return TardisManager.getInstance(!world.isClient());
+    }
+
+    @Deprecated
     public static TardisManager getInstance() {
-//        return FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.SERVER ? ServerTardisManager.getInstance() : ClientTardisManager.getInstance();
-        return TardisUtil.isServer() ? ServerTardisManager.getInstance() : ClientTardisManager.getInstance();
+        return TardisManager.getInstance(FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER);
+    }
+
+    public static TardisManager getInstance(boolean isServer) {
+        return isServer ? ServerTardisManager.getInstance() : ClientTardisManager.getInstance();
     }
 
     public void getTardis(UUID uuid, Consumer<Tardis> consumer) {
@@ -82,7 +100,7 @@ public abstract class TardisManager {
         this.loadTardis(uuid, consumer);
     }
 
-    public void link(UUID uuid, ILinkable linkable) {
+    public void link(UUID uuid, Linkable linkable) {
         this.getTardis(uuid, linkable::setTardis);
     }
 
@@ -92,6 +110,7 @@ public abstract class TardisManager {
         this.lookup.clear();
     }
 
+    @Deprecated
     public Map<UUID, Tardis> getLookup() {
         return this.lookup;
     }

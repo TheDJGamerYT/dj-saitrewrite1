@@ -1,12 +1,11 @@
 package mdteam.ait.client.animation;
 
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
-import mdteam.ait.core.helper.TardisUtil;
 import mdteam.ait.core.sounds.MatSound;
-import mdteam.ait.tardis.Tardis;
-import mdteam.ait.tardis.TardisTravel;
+import the.mdteam.ait.TardisTravel;
 
 public class ClassicAnimation extends ExteriorAnimation {
+
     public ClassicAnimation(ExteriorBlockEntity exterior) {
         super(exterior);
     }
@@ -19,15 +18,13 @@ public class ClassicAnimation extends ExteriorAnimation {
         TardisTravel.State state = exterior.getTardis().getTravel().getState();
 
         if (state == TardisTravel.State.DEMAT) {
-            alpha = (float) timeLeft / (maxTime);
+            alpha -= alphaChangeAmount;
             timeLeft--;
 
             runAlphaChecks(state);
         } else if (state == TardisTravel.State.MAT) {
-            if (timeLeft < startTime) {
-                // System.out.println(alpha + alphaChangeAmount);
-                this.setAlpha(1f - ((float) timeLeft / (startTime))); // fixme takes too long
-            }
+            if (timeLeft < startTime)
+                this.setAlpha(alpha + alphaChangeAmount);
             else
                 this.setAlpha(0f);
 
@@ -41,7 +38,7 @@ public class ClassicAnimation extends ExteriorAnimation {
 
     @Override
     public void setupAnimation(TardisTravel.State state) {
-        MatSound sound = exterior.getTardis().getExterior().getType().getSound(state);
+        MatSound sound = exterior.getExterior().getSound(state);
 
         timeLeft = sound.timeLeft();
         maxTime = sound.maxTime();

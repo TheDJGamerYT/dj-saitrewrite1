@@ -2,14 +2,13 @@ package mdteam.ait.tardis;
 
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
 
-public class TardisExterior {
+public class TardisExterior extends AbstractTardisComponent {
 
-    @Exclude
-    protected final Tardis tardis;
     private ExteriorEnum exterior;
 
     public TardisExterior(Tardis tardis, ExteriorEnum exterior) {
-        this.tardis = tardis;
+        super(tardis);
+
         this.exterior = exterior;
     }
 

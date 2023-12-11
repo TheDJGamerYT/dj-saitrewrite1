@@ -2,7 +2,7 @@ package mdteam.ait.tardis;
 
 import com.google.gson.*;
 import mdteam.ait.core.AITDesktops;
-import mdteam.ait.core.helper.TardisUtil;
+import mdteam.ait.core.util.TardisUtil;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.Identifier;
 

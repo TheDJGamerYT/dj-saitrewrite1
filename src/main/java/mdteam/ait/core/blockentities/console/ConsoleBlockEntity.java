@@ -1,14 +1,13 @@
 package mdteam.ait.core.blockentities;
 
-import mdteam.ait.api.tardis.ILinkable;
 import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.core.AITBlockEntityTypes;
 import mdteam.ait.core.AITEntityTypes;
 import mdteam.ait.core.blocks.types.HorizontalDirectionalBlock;
 import mdteam.ait.core.entities.ConsoleControlEntity;
+import mdteam.ait.core.util.TardisUtil;
 import mdteam.ait.tardis.ControlTypes;
-import mdteam.ait.core.helper.TardisUtil;
-import mdteam.ait.data.AbsoluteBlockPos;
+import mdteam.ait.tardis.manager.TardisManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -22,14 +21,13 @@ import net.minecraft.world.World;
 import org.joml.Vector3f;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktop;
-import mdteam.ait.tardis.TardisManager;
 import mdteam.ait.tardis.TardisTravel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ConsoleBlockEntity extends BlockEntity implements ILinkable, BlockEntityTicker<ConsoleBlockEntity> {
+public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker<ConsoleBlockEntity> {
     public final AnimationState ANIM_FLIGHT = new AnimationState();
     public int animationTimer = 0;
     public final List<ConsoleControlEntity> controlEntities = new ArrayList<>();
