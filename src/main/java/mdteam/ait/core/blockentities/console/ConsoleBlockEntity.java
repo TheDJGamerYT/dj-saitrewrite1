@@ -61,6 +61,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity {
     public void setTardis(Tardis tardis) {
         super.setTardis(tardis);
         this.linkDesktop();
+        this.linkTravel();
     }
 
     public ConsoleEnum getConsoleType() {

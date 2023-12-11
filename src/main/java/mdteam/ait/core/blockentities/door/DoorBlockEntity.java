@@ -21,6 +21,7 @@ public class DoorBlockEntity extends AbstractDoorBlockEntity {
 
         // even though TardisDesktop links the door, we need to link it here as well to avoid desync
         this.setTardis(TardisUtil.findTardisByInterior(pos));
+        this.sync();
     }
 
     @Override

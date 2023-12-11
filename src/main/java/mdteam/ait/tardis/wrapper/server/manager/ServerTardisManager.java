@@ -45,7 +45,7 @@ public class ServerTardisManager extends TardisManager {
                 ClientTardisManager.ASK, (server, player, handler, buf, responseSender) -> {
                     UUID uuid = buf.readUuid();
                     this.sendTardis(player, uuid);
-
+                    System.out.println("ASKED BY: " + ClientTardisManager.ASK + ", " + player + " | " + uuid);
                     this.subscribers.put(uuid, player);
                 }
         );

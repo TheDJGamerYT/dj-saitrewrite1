@@ -196,12 +196,14 @@ public class TardisTravel extends AbstractTardisComponent {
 
         if (!this.checkDestination(CHECK_LIMIT, CHECK_DOWN)) {
             // Not safe to land here!
-            ServerPlayerEntity player = (ServerPlayerEntity) TardisUtil.getPlayerInsideInterior(this.getTardis()); // may not necessarily be the person piloting the tardis, but todo this can be replaced with the player with the highest loyalty in future
+            if(this.getTardis() != null) {
+                ServerPlayerEntity player = (ServerPlayerEntity) TardisUtil.getPlayerInsideInterior(this.getTardis()); // may not necessarily be the person piloting the tardis, but todo this can be replaced with the player with the highest loyalty in future
 
-            if (player == null) return; // Interior is probably empty
+                if (player == null) return; // Interior is probably empty
 
-            player.sendMessage(Text.literal("Unable to land!")); // fixme translatable
-            return;
+                player.sendMessage(Text.literal("Unable to land!")); // fixme translatable
+                return;
+            }
         }
 
         this.shouldRemat = false;
@@ -224,6 +226,7 @@ public class TardisTravel extends AbstractTardisComponent {
 
         Timer animTimer = new Timer();
         TardisTravel travel = this;
+        Tardis tardis = this.getTardis();
 
         animTimer.schedule(new TimerTask() {
             @Override
@@ -233,8 +236,9 @@ public class TardisTravel extends AbstractTardisComponent {
 
                 travel.setState(TardisTravel.State.LANDED);
                 travel.setDestination(travel.getPosition(), true);
-                travel.runAnimations(blockEntity);
-                travel.getTardis().getDoor().setLocked(travel.getTardis().getDoor().isLocked()); // force unlock door @todo should remember last locked state before takeoff
+                /*travel.runAnimations(blockEntity);
+                blockEntity.sync();*/
+                if(tardis != null) tardis.getDoor().setLocked(tardis.getDoor().isLocked()); // force unlock door @todo should remember last locked state before takeoff
             }
         }, (long) getSoundLength(this.getMatSoundForCurrentState()) * 1000L);
     }

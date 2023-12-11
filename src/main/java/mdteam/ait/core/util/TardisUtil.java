@@ -86,13 +86,7 @@ public class TardisUtil {
     public static void changeExteriorWithScreen(UUID uuid) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeUuid(uuid);
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                ClientPlayNetworking.send(CHANGE_EXTERIOR, buf);
-            }
-        }, 10);
+        ClientPlayNetworking.send(CHANGE_EXTERIOR, buf);
     }
 
     public static boolean inBox(Box box, BlockPos pos) {

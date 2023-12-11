@@ -19,17 +19,17 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class ClientTardisManager extends TardisManager {
-
     public static final Identifier ASK = new Identifier("ait", "ask_tardis");
     private static ClientTardisManager instance;
-
     private final Multimap<UUID, Consumer<Tardis>> subscribers = ArrayListMultimap.create();
     private final Deque<PacketByteBuf> buffers = new ArrayDeque<>();
 
     public ClientTardisManager() {
         ClientPlayNetworking.registerGlobalReceiver(ServerTardisManager.SEND,
-                (client, handler, buf, responseSender) -> this.sync(buf)
-        );
+                (client, handler, buf, responseSender) -> {
+            this.sync(buf);
+            System.out.println("RECIEVED FROM: " + ServerTardisManager.SEND + ", " + client + " | " + buf);
+        });
 
         ClientPlayNetworking.registerGlobalReceiver(ServerTardisManager.UPDATE,
                 (client, handler, buf, responseSender) -> {
@@ -57,6 +57,7 @@ public class ClientTardisManager extends TardisManager {
 
         this.subscribers.put(uuid, consumer);
         this.buffers.add(data);
+        System.out.println("UUID: " + uuid + ", Consumer/TARDIS: " + consumer);
     }
 
     private void sync(UUID uuid, String json) {

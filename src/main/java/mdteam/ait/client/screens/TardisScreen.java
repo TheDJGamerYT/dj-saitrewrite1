@@ -12,11 +12,18 @@ import java.util.UUID;
 public abstract class TardisScreen extends Screen implements Linkable {
 
     protected Tardis tardis;
+    private final UUID tardisid;
 
     protected TardisScreen(Text title, UUID tardisID) {
         super(title);
-
+        this.tardisid = tardisID;
         TardisManager.getInstance(false).link(tardisID, this);
+    }
+
+    public Tardis updateTardis() {
+        if(this.getTardis() == null)
+            TardisManager.getInstance(false).link(this.tardisid, this);
+        return this.getTardis();
     }
 
     @Override

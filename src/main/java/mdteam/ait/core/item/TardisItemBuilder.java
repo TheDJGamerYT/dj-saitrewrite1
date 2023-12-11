@@ -4,8 +4,11 @@ import mdteam.ait.AITMod;
 import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
 import mdteam.ait.core.AITDesktops;
+import mdteam.ait.core.util.TardisUtil;
 import mdteam.ait.core.util.data.AbsoluteBlockPos;
+import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktopSchema;
+import mdteam.ait.tardis.wrapper.server.ServerTardis;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
@@ -14,6 +17,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
+
+import java.util.Objects;
 
 public class TardisItemBuilder extends Item {
     public static final Identifier DEFAULT_INTERIOR = new Identifier(AITMod.MOD_ID, "regal");
@@ -50,7 +55,9 @@ public class TardisItemBuilder extends Item {
         AbsoluteBlockPos.Directed pos = new AbsoluteBlockPos.Directed(context.getBlockPos().up(), world, player.getHorizontalFacing().getOpposite());
 
         if (context.getHand() == Hand.MAIN_HAND) {
-            ServerTardisManager.getInstance().create(pos, this.exterior, AITDesktops.get(this.desktop), ConsoleEnum.BOREALIS);
+            Tardis tardis = ServerTardisManager.getInstance().create(pos, this.exterior, AITDesktops.get(this.desktop), ConsoleEnum.BOREALIS);
+            Objects.requireNonNull(TardisUtil.getExterior(tardis)).sync();
+            Objects.requireNonNull(TardisUtil.getDoor(tardis)).sync();
             context.getStack().decrement(1);
         }
 
