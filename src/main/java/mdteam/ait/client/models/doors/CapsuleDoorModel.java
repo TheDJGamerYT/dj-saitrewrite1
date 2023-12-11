@@ -1,7 +1,7 @@
 package mdteam.ait.client.models.doors;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
+import mdteam.ait.core.blockentities.door.DoorBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -63,8 +63,8 @@ public class CapsuleDoorModel extends DoorModel {
 		matrices.translate(0, -1.5f, 0);
 		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
 
-		this.body.getChild("doors").getChild("left_door").yaw = door.getLeftDoorRotation();
-		this.body.getChild("doors").getChild("right_door").yaw = -door.getRightDoorRotation();
+		this.body.getChild("doors").getChild("left_door").yaw = door.getDoor().getState().getLeft();
+		this.body.getChild("doors").getChild("right_door").yaw = -door.getDoor().getState().getRight();
 
 		super.renderWithAnimations(door, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 		matrices.pop();

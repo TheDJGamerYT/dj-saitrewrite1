@@ -1,9 +1,6 @@
 package mdteam.ait.tardis.linkable;
 
-import mdteam.ait.tardis.Tardis;
-import mdteam.ait.tardis.TardisDesktop;
-import mdteam.ait.tardis.TardisDoor;
-import mdteam.ait.tardis.TardisTravel;
+import mdteam.ait.tardis.*;
 
 public interface Linkable {
 
@@ -43,8 +40,12 @@ public interface Linkable {
     default TardisDoor getDoor() { return this.getTardis().getDoor(); }
     default void setDoor(TardisDoor door) { }
 
+    default TardisConsole getConsole() { return this.getTardis().getConsole(); }
+    default void setConsole(TardisConsole console) { }
+
+
     /**
-     * This method forces the {@link Linkable} to update its travel!
+     * This method forces the {@link Linkable} to update its door.
      */
     default void linkDoor() {
         if (this.getTardis() == null)
@@ -54,6 +55,16 @@ public interface Linkable {
 
         if (door != null)
             this.setDoor(door);
+    }
+
+    default void linkConsole() {
+        if (this.getTardis() == null)
+            return;
+
+        TardisConsole console = this.getTardis().getConsole();
+
+        if (console != null)
+            this.setConsole(console);
     }
 
     /**

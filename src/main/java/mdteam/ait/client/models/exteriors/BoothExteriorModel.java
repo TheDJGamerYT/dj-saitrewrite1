@@ -1,9 +1,7 @@
 package mdteam.ait.client.models.exteriors;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.client.models.doors.DoorModel;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -58,7 +56,7 @@ public class BoothExteriorModel extends ExteriorModel {
 	@Override
 	public void renderWithAnimations(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
 		matrices.push();
-		this.booth.getChild("door").yaw = exterior.getLeftDoorRotation() == 0 ? 0: -1.575f;
+		this.booth.getChild("door").yaw = exterior.getDoor().getState().getLeft() == 0 ? 0: -1.575f;
 		matrices.scale(0.95f, 0.95f, 0.95f);
 		matrices.translate(0, -1.5f, 0);
 

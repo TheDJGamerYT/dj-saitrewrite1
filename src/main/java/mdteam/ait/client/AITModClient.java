@@ -2,7 +2,6 @@ package mdteam.ait.client;
 
 import mdteam.ait.AITMod;
 import mdteam.ait.client.renderers.AITRadioRenderer;
-import mdteam.ait.client.renderers.AITRenderLayers;
 import mdteam.ait.client.renderers.consoles.ConsoleRenderer;
 import mdteam.ait.client.renderers.doors.DoorRenderer;
 import mdteam.ait.client.renderers.entities.ControlEntityRenderer;
@@ -10,10 +9,7 @@ import mdteam.ait.client.renderers.exteriors.ExteriorRenderer;
 import mdteam.ait.client.screens.MonitorScreen;
 import mdteam.ait.core.AITBlockEntityTypes;
 import mdteam.ait.core.AITEntityTypes;
-import mdteam.ait.core.AITScreenHandlers;
-import mdteam.ait.core.entities.BaseControlEntity;
 import mdteam.ait.core.entities.ConsoleControlEntity;
-import mdteam.ait.tardis.ServerTardisManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,34 +17,19 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.renderer.v1.Renderer;
-import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-import net.fabricmc.fabric.impl.client.rendering.FabricShaderProgram;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gl.ShaderStage;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.debug.GameEventDebugRenderer;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.RegistryLoader;
-import net.minecraft.resource.ResourceReloader;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.UUID;
 
 @Environment(value= EnvType.CLIENT)
@@ -149,14 +130,6 @@ public class AITModClient implements ClientModInitializer {
 				GLFW.GLFW_KEY_B,
 				"category." + AITMod.MOD_ID + ".snap"
 		));
-		//ClientTickEvents.END_CLIENT_TICK.register(client -> {
-		//	if (keyBinding.wasPressed()) {
-		//		if(client.player.getMainHandStack().getItem() instanceof PipboyItem) {
-		//			//item.setPipColor(client.player.getMainHandStack(), item.getPipColor(client.player.getMainHandStack()));
-		//			client.setScreen(new PipboyMainScreen(MinecraftClient.getInstance().player, null));
-		//		}
-		//	}
-		//});
 	}
 
 	public void setupBlockRendering() {

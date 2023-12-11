@@ -2,23 +2,18 @@ package mdteam.ait.core.util;
 
 import mdteam.ait.AITMod;
 import mdteam.ait.core.AITBlocks;
-import mdteam.ait.data.Corners;
+import mdteam.ait.core.util.data.Corners;
+import mdteam.ait.tardis.TardisDesktopSchema;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.decoration.GlowItemFrameEntity;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import mdteam.ait.tardis.TardisDesktopSchema;
 
-import java.util.List;
 import java.util.Optional;
 
 public class DesktopGenerator {

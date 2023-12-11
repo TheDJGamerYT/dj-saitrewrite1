@@ -1,10 +1,6 @@
 package mdteam.ait.core.entities.control.impl;
 
-import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.entities.control.Control;
-import mdteam.ait.core.helper.TardisUtil;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import mdteam.ait.tardis.Tardis;
@@ -14,11 +10,6 @@ import net.minecraft.sound.SoundCategory;
 public class ThrottleControl extends Control {
     public ThrottleControl() {
         super("throttle");
-    }
-
-    @Override
-    public boolean runClient(Tardis tardis, ClientPlayerEntity player, ClientWorld world) {
-        return true;
     }
 
     @Override

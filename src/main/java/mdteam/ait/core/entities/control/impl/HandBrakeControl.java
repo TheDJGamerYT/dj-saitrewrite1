@@ -11,13 +11,6 @@ public class HandBrakeControl extends Control {
     public HandBrakeControl() {
         super("handbrake");
     }
-
-    // todo
-    @Override
-    public boolean runClient(Tardis tardis, ClientPlayerEntity player, ClientWorld world) {
-        return false;
-    }
-
     @Override
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
         return false;

@@ -9,7 +9,7 @@ import mdteam.ait.core.util.data.Exclude;
 public abstract class AbstractTardisComponent {
 
     @Exclude
-    protected final Tardis tardis;
+    protected Tardis tardis;
     private final boolean shouldInit;
 
     public AbstractTardisComponent(Tardis tardis) {

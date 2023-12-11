@@ -1,52 +1,55 @@
 package mdteam.ait.tardis.handler;
 
-import mdteam.ait.data.AbsoluteBlockPos;
-import net.minecraft.registry.entry.RegistryEntry;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
+import mdteam.ait.tardis.AbstractTardisComponent;
+import mdteam.ait.tardis.Tardis;
+import mdteam.ait.tardis.linkable.Linkable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.UUID;
 
-public class WaypointHandler extends TardisHandler implements Iterable<AbsoluteBlockPos.Directed> { // todo eventually move into a positionhandler but thats too much work for rn
-    private ArrayList<AbsoluteBlockPos.Directed> data;
+public class WaypointHandler extends AbstractTardisComponent implements Iterable<AbsoluteBlockPos.Directed>, Linkable {
+    private final ArrayList<AbsoluteBlockPos.Directed> data;
 
-    public WaypointHandler(UUID tardisId, ArrayList<AbsoluteBlockPos.Directed> waypoints) {
-        super(tardisId);
-        this.data = waypoints;
-    }
-    public WaypointHandler(UUID tardis) {
+    public WaypointHandler(Tardis tardis) {
         this(tardis, new ArrayList<>());
     }
 
-    public ArrayList<AbsoluteBlockPos.Directed> data() {
+    public WaypointHandler(Tardis tardis, ArrayList<AbsoluteBlockPos.Directed> waypoints) {
+        super(tardis);
+
+        this.data = waypoints;
+    }
+    public ArrayList<AbsoluteBlockPos.Directed> getData() {
         return this.data;
     }
     public boolean contains(AbsoluteBlockPos.Directed var) {
-        return this.data().contains(var);
+        return this.getData().contains(var);
     }
     public void add(AbsoluteBlockPos.Directed var) {
-        this.data().add(var);
-
-        this.sync();
+        this.getData().add(var);
     }
     public void remove(AbsoluteBlockPos.Directed var) {
-        if (!this.data().contains(var)) return;
+        if (!this.getData().contains(var)) return;
 
-        this.data().remove(var);
-        this.sync();
+        this.getData().remove(var);
     }
     public void remove(int index) {
-        this.data().remove(index);
-        this.sync();
+        this.getData().remove(index);
     }
     public AbsoluteBlockPos.Directed get(int index) {
-        return this.data().get(index);
+        return this.getData().get(index);
     }
 
     @NotNull
     @Override
     public Iterator<AbsoluteBlockPos.Directed> iterator() {
-        return this.data().iterator();
+        return this.getData().iterator();
+    }
+
+    @Override
+    public void setTardis(Tardis tardis) {
+        this.tardis = tardis;
     }
 }

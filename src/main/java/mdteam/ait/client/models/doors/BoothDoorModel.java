@@ -1,7 +1,7 @@
 package mdteam.ait.client.models.doors;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
+import mdteam.ait.core.blockentities.door.DoorBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -44,7 +44,7 @@ public class BoothDoorModel extends DoorModel {
 	@Override
 	public void renderWithAnimations(DoorBlockEntity door, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
 		matrices.push();
-		this.booth_door.getChild("door").yaw = door.getLeftDoorRotation() == 0 ? 0 : -1.575f;
+		this.booth_door.getChild("door").yaw = door.getDoor().getState().getLeft() == 0 ? 0 : -1.575f;
 		matrices.scale(0.95f, 0.95f, 0.95f);
 		matrices.translate(0, -1.5f, 0);
 		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));

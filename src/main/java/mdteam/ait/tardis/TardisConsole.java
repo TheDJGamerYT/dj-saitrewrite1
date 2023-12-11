@@ -2,15 +2,25 @@ package mdteam.ait.tardis;
 
 import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 
-public class TardisConsole {
+public class TardisConsole extends AbstractTardisComponent {
 
-    @Exclude
-    protected final Tardis tardis;
     private ConsoleEnum console;
     private ControlTypes[] controlTypes;
 
-    public TardisConsole(Tardis tardis, ConsoleEnum console, ControlTypes[] controlTypes) {
-        this.tardis = tardis;
+    public TardisConsole(Tardis tardis) {
+        this(tardis, ConsoleEnum.BOREALIS, ConsoleEnum.BOREALIS.getControlTypesList());
+    }
+
+    public TardisConsole(Tardis tardis, ConsoleEnum consoleType) {
+        this(tardis, consoleType, consoleType.getControlTypesList());
+    }
+
+    public TardisConsole(Tardis tardis, ControlTypes[] controlTypes) {
+        this(tardis, ConsoleEnum.BOREALIS, controlTypes);
+    }
+
+    protected TardisConsole(Tardis tardis, ConsoleEnum console, ControlTypes[] controlTypes) {
+        super(tardis);
         this.console = console;
         this.controlTypes = controlTypes;
     }

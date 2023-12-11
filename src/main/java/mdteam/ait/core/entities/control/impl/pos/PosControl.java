@@ -1,7 +1,7 @@
 package mdteam.ait.core.entities.control.impl.pos;
 
 import mdteam.ait.core.entities.control.Control;
-import mdteam.ait.data.AbsoluteBlockPos;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,11 +19,6 @@ public abstract class PosControl extends Control {
     }
     public PosControl(PosType type) {
         this(type,type.asString());
-    }
-
-    @Override
-    public boolean runClient(Tardis tardis, ClientPlayerEntity player, ClientWorld world) {
-        return true;
     }
 
     @Override

@@ -1,8 +1,8 @@
 package mdteam.ait.client.animation;
 
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
 import mdteam.ait.core.sounds.MatSound;
-import the.mdteam.ait.TardisTravel;
+import mdteam.ait.tardis.TardisTravel;
 
 public class ClassicAnimation extends ExteriorAnimation {
 
@@ -38,7 +38,7 @@ public class ClassicAnimation extends ExteriorAnimation {
 
     @Override
     public void setupAnimation(TardisTravel.State state) {
-        MatSound sound = exterior.getExterior().getSound(state);
+        MatSound sound = exterior.getExteriorType().getSound(state);
 
         timeLeft = sound.timeLeft();
         maxTime = sound.maxTime();

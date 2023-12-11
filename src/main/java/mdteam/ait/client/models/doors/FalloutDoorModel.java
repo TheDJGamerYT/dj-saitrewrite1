@@ -1,24 +1,15 @@
 package mdteam.ait.client.models.doors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.wispforest.owo.mixin.shader.ShaderProgramAccessor;
 import mdteam.ait.AITMod;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
-import net.minecraft.client.MinecraftClient;
+import mdteam.ait.core.blockentities.door.DoorBlockEntity;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gl.PostEffectProcessor;
-import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationAxis;
 
 // Made with Blockbench 4.8.3
 // Exported for Minecraft version 1.17+ for Yarn

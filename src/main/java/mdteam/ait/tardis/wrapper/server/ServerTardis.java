@@ -1,5 +1,6 @@
 package mdteam.ait.tardis.wrapper.server;
 
+import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
 import mdteam.ait.core.util.data.AbsoluteBlockPos;
 import mdteam.ait.tardis.Tardis;
@@ -12,9 +13,9 @@ import java.util.UUID;
 
 public class ServerTardis extends Tardis {
 
-    public ServerTardis(UUID uuid, AbsoluteBlockPos.Directed pos, TardisDesktopSchema schema, ExteriorEnum exteriorType) {
+    public ServerTardis(UUID uuid, AbsoluteBlockPos.Directed pos, TardisDesktopSchema schema, ExteriorEnum exteriorType, ConsoleEnum consoleType) {
         super(uuid, tardis -> new ServerTardisTravel(tardis, pos), tardis -> new ServerTardisDesktop(tardis, schema),
-                tardis -> new ServerTardisExterior(tardis, exteriorType), ServerTardisDoor::new);
+                tardis -> new ServerTardisExterior(tardis, exteriorType), ServerTardisDoor::new, tardis -> new ServerTardisConsole(tardis, consoleType, consoleType.getControlTypesList()));
     }
 
     @Override

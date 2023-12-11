@@ -1,4 +1,4 @@
-package mdteam.ait.core.blockentities;
+package mdteam.ait.core.blockentities.console;
 
 import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.core.AITBlockEntityTypes;
@@ -6,33 +6,29 @@ import mdteam.ait.core.AITEntityTypes;
 import mdteam.ait.core.blocks.types.HorizontalDirectionalBlock;
 import mdteam.ait.core.entities.ConsoleControlEntity;
 import mdteam.ait.core.util.TardisUtil;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
 import mdteam.ait.tardis.ControlTypes;
-import mdteam.ait.tardis.manager.TardisManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.joml.Vector3f;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktop;
 import mdteam.ait.tardis.TardisTravel;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.AnimationState;
+import net.minecraft.entity.Entity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker<ConsoleBlockEntity> {
+public class ConsoleBlockEntity extends AbstractConsoleBlockEntity {
     public final AnimationState ANIM_FLIGHT = new AnimationState();
     public int animationTimer = 0;
     public final List<ConsoleControlEntity> controlEntities = new ArrayList<>();
     private boolean markedDirty = true;
-    private Tardis tardis;
 
     public ConsoleBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.DISPLAY_CONSOLE_BLOCK_ENTITY_TYPE, pos, state);
@@ -41,67 +37,21 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
-
-        if (this.tardis != null) {
-            nbt.putUuid("tardis", this.tardis.getUuid());
-        }
-
-        for(ConsoleControlEntity entity : this.controlEntities) {
-
-        }
-
-    }
-
-    @Override
-    public void readNbt(NbtCompound nbt) {
-
-        if (nbt.contains("tardis")) {
-            TardisManager.getInstance().link(nbt.getUuid("tardis"), this);
-        }
-
-        super.readNbt(nbt);
-
-        spawnControls();
-    }
-
-    @Override
-    public Tardis getTardis() {
-        if (this.tardis == null) {
-            Tardis found = TardisUtil.findTardisByInterior(this.getPos());
-            if (found != null)
-                this.setTardis(found);
-        }
-
-        return tardis;
-    }
-
-    public ConsoleEnum getConsole() {
-        return this.tardis.getConsole().getType();
-    }
-
-    @Override
     public void setTardis(Tardis tardis) {
-        this.tardis = tardis;
-
-        // force re-link a desktop if it's not null
+        super.setTardis(tardis);
         this.linkDesktop();
     }
 
-    public void useOn(ServerWorld world, boolean sneaking, PlayerEntity player) {
-
-        if(player == null)
-            return;
-
-        if(world != TardisUtil.getTardisDimension())
-            return;
+    public ConsoleEnum getConsoleType() {
+        if(this.getTardis() == null)
+            return ConsoleEnum.TEMP;
+        return this.getTardis().getConsole().getType();
     }
 
     @Override
     public void setDesktop(TardisDesktop desktop) {
         desktop.setConsolePos(new AbsoluteBlockPos.Directed(
-                this.pos, TardisUtil.getTardisDimension(), this.getCachedState().get(HorizontalDirectionalBlock.FACING))
+                this.getPos(), TardisUtil.getTardisDimension(), this.getCachedState().get(HorizontalDirectionalBlock.FACING))
         );
     }
 
@@ -122,13 +72,9 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
         ANIM_FLIGHT.stop();
     }
 
-    public void onBroken() {
-    }
-
     public void killControls() {
         controlEntities.forEach(Entity::discard);
         controlEntities.clear();
-        //System.out.println("KillControls(): I'm getting run :) somewhere..");
     }
 
     public void spawnControls() {
@@ -139,7 +85,7 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
             return;
 
         killControls();
-        ConsoleEnum consoleType = this.getConsole();
+        ConsoleEnum consoleType = this.getConsoleType();
         ControlTypes[] controls = consoleType.getControlTypesList();
         Arrays.stream(controls).toList().forEach(control -> {
 
@@ -157,26 +103,24 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
         });
 
         this.markedDirty = false;
-        //System.out.println("SpawnControls(): I'm getting run :) somewhere..");
     }
     public void markDirty() {
         this.markedDirty = true;
     }
 
-    @Override
-    public void tick(World world, BlockPos pos, BlockState state, ConsoleBlockEntity blockEntity) {
-        if(this.markedDirty) {
-            spawnControls();
-        }
-//        if (this.controlEntities.isEmpty()) {
-//            killControls();
-//            spawnControls();
-//        }
+    public static <T extends BlockEntity> void tick(T t) {
+        if (!(t instanceof ConsoleBlockEntity console))
+            return;
 
-        // idk
-        if (world.isClient()) {
-            this.checkAnimations();
+        if(console.markedDirty) {
+            console.spawnControls();
         }
+
+        if(console.getWorld() == null)
+            return;
+
+        if (console.getWorld().isClient())
+            console.checkAnimations();
     }
 
 }

@@ -1,9 +1,11 @@
 package mdteam.ait.core.item;
 
 import mdteam.ait.AITMod;
+import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
 import mdteam.ait.core.AITDesktops;
 import mdteam.ait.core.util.data.AbsoluteBlockPos;
+import mdteam.ait.tardis.TardisDesktopSchema;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
@@ -14,9 +16,10 @@ import net.minecraft.world.World;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 
 public class TardisItemBuilder extends Item {
-
-    public static final Identifier DEFAULT_INTERIOR = new Identifier(AITMod.MOD_ID, "cave");
-    public static final ExteriorEnum DEFAULT_EXTERIOR = ExteriorEnum.SHELTER;
+    public static final Identifier DEFAULT_INTERIOR = new Identifier(AITMod.MOD_ID, "regal");
+    public static final ExteriorEnum DEFAULT_EXTERIOR = ExteriorEnum.CAPSULE;
+    //public static final ConsoleEnum DEFAULT_CONSOLE = ConsoleEnum.BOREALIS; // new Identifier(AITMod.MOD_ID, "borealis");
+    // fixme add TardisConsole stuff like TardisDesktop interior registry (datapack console entity positions/models/textures from imgur/datapacks?)
 
     private final ExteriorEnum exterior;
     private final Identifier desktop;
@@ -47,7 +50,7 @@ public class TardisItemBuilder extends Item {
         AbsoluteBlockPos.Directed pos = new AbsoluteBlockPos.Directed(context.getBlockPos().up(), world, player.getHorizontalFacing().getOpposite());
 
         if (context.getHand() == Hand.MAIN_HAND) {
-            ServerTardisManager.getInstance().create(pos, this.exterior, AITDesktops.get(this.desktop));
+            ServerTardisManager.getInstance().create(pos, this.exterior, AITDesktops.get(this.desktop), ConsoleEnum.BOREALIS);
             context.getStack().decrement(1);
         }
 

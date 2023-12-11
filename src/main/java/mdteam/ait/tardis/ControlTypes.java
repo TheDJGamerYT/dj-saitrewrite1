@@ -35,11 +35,6 @@ public class ControlTypes {
     public void setControl(String id) {
         this.control = new Control(id) {
             @Override
-            public boolean runClient(Tardis tardis, ClientPlayerEntity player, ClientWorld world) {
-                return true;
-            }
-
-            @Override
             public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
                 return true;
             }

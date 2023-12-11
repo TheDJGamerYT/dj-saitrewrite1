@@ -6,7 +6,7 @@ import mdteam.ait.client.animation.PulsatingAnimation;
 import mdteam.ait.client.models.doors.*;
 import mdteam.ait.client.models.exteriors.*;
 import mdteam.ait.core.AITSounds;
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
 import mdteam.ait.core.sounds.MatSound;
 import mdteam.ait.tardis.TardisTravel;
 import net.fabricmc.api.EnvType;

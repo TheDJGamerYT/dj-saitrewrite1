@@ -1,13 +1,20 @@
-package mdteam.ait.core.helper;
+package mdteam.ait.core.util;
 
+import io.wispforest.owo.ops.WorldOps;
 import mdteam.ait.core.AITDimensions;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
-import mdteam.ait.data.AbsoluteBlockPos;
-import mdteam.ait.data.Corners;
+import mdteam.ait.core.blockentities.door.DoorBlockEntity;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
+import mdteam.ait.core.util.data.Corners;
+import mdteam.ait.tardis.Tardis;
+import mdteam.ait.tardis.TardisDesktop;
+import mdteam.ait.tardis.TardisTravel;
+import mdteam.ait.tardis.manager.TardisManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
@@ -17,18 +24,19 @@ import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import the.mdteam.ait.Tardis;
-import the.mdteam.ait.TardisDesktop;
-import the.mdteam.ait.TardisManager;
-import the.mdteam.ait.TardisTravel;
+import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
@@ -38,36 +46,39 @@ public class TardisUtil {
     private static MinecraftServer SERVER;
     private static ServerWorld TARDIS_DIMENSION;
 
+    private static Path SAVE_PATH;
+
     public static void init() {
         ServerWorldEvents.UNLOAD.register((server, world) -> {
-            SERVER = server;
-            TARDIS_DIMENSION = server.getWorld(AITDimensions.TARDIS_DIM_WORLD);
+            if (world.getRegistryKey() == World.OVERWORLD) {
+                SERVER = null;
+            }
         });
 
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            SERVER = server;
-            TARDIS_DIMENSION = server.getWorld(AITDimensions.TARDIS_DIM_WORLD);
-        });
+        ServerWorldEvents.LOAD.register((server, world) -> {
+            System.out.println("Loaded world " + world.getRegistryKey());
+            SAVE_PATH = server.getSavePath(WorldSavePath.ROOT);
 
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            SERVER = null;
+            if (world.getRegistryKey() == World.OVERWORLD) {
+                SERVER = server;
+            }
+
+            if (world.getRegistryKey() == AITDimensions.TARDIS_DIM_WORLD) {
+                TARDIS_DIMENSION = world;
+            }
         });
     }
 
-    public static MinecraftServer getServer() {
-        return SERVER;
-    }
-
-    public static boolean isClient() {
-        return !TardisUtil.isServer();
-    }
-
-    public static boolean isServer() {
-        return SERVER != null;
+    public static void setServer(MinecraftServer server) {
+        SERVER = server;
     }
 
     public static ServerWorld getTardisDimension() {
         return TARDIS_DIMENSION;
+    }
+
+    public static Path getSavePath() {
+        return SAVE_PATH;
     }
 
     public static boolean inBox(Box box, BlockPos pos) {
@@ -163,10 +174,14 @@ public class TardisUtil {
 
     private static void teleportWithDoorOffset(ServerPlayerEntity player, AbsoluteBlockPos.Directed pos) {
         Vec3d vec = TardisUtil.offsetDoorPosition(pos).toCenterPos();
-
-        player.teleport((ServerWorld) pos.getWorld(), vec.getX(), vec.getY(), vec.getZ(),
-                pos.getDirection().asRotation(), player.getPitch()
-        );
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                SERVER.executeSync(() -> {WorldOps.teleportToWorld(player, (ServerWorld) pos.getWorld(), vec, pos.getDirection().asRotation(), player.getPitch());
+                    player.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player)); });
+            }
+        }, 20);
     }
 
     public static Tardis findTardisByInterior(BlockPos pos) {
@@ -178,8 +193,39 @@ public class TardisUtil {
         return null;
     }
 
+    @Nullable
+    public static PlayerEntity getPlayerInsideInterior(Tardis tardis) {
+        return getPlayerInsideInterior(tardis.getDesktop().getCorners());
+    }
+
+    @Nullable
+    public static PlayerEntity getPlayerInsideInterior(Corners corners) {
+        for (PlayerEntity player : TardisUtil.getTardisDimension().getPlayers()) {
+            if (TardisUtil.inBox(corners, player.getBlockPos()))
+                return player;
+        }
+
+        return null;
+    }
+
+    public static List<PlayerEntity> getPlayersInInterior(Tardis tardis) {
+        return getPlayersInInterior(tardis);
+    }
+
+    @Nullable
+    public static List<PlayerEntity> getPlayersInInterior(Corners corners) {
+        List<PlayerEntity> list = List.of();
+
+        for (PlayerEntity player : TardisUtil.getTardisDimension().getPlayers()) {
+            if (inBox(corners, player.getBlockPos())) list.add(player);
+        }
+
+        return list;
+    }
+
     public static ServerWorld findWorld(RegistryKey<World> key) {
-        return TardisUtil.getServer().getWorld(key);
+        System.out.println("Trying to find " + key);
+        return SERVER.getWorld(key);
     }
 
     public static ServerWorld findWorld(Identifier identifier) {
@@ -188,11 +234,5 @@ public class TardisUtil {
 
     public static ServerWorld findWorld(String identifier) {
         return TardisUtil.findWorld(new Identifier(identifier));
-    }
-    public static ExteriorBlockEntity findExteriorEntity(Tardis tardis) {
-        if (tardis.getTravel().getPosition().getWorld() == null)
-            return null;
-
-        return (ExteriorBlockEntity) tardis.getTravel().getPosition().getWorld().getBlockEntity(tardis.getTravel().getPosition());
     }
 }

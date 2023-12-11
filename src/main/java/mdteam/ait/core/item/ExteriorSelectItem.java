@@ -2,10 +2,9 @@ package mdteam.ait.core.item;
 
 import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
-import mdteam.ait.core.blockentities.ConsoleBlockEntity;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
-import mdteam.ait.tardis.ServerTardisManager;
+import mdteam.ait.core.blockentities.console.ConsoleBlockEntity;
+import mdteam.ait.core.blockentities.door.DoorBlockEntity;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -14,8 +13,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import mdteam.ait.tardis.TardisTravel;
-
-import java.io.Console;
 
 @Deprecated
 /**
@@ -49,7 +46,7 @@ public class ExteriorSelectItem extends Item {
                 exteriorBlock.getTardis().getExterior().setType(values[nextIndex]);
                 System.out.println(exteriorBlock.getTardis().getExterior().getType());
 
-                ServerTardisManager.getInstance().sendToSubscribers(exteriorBlock.getTardis());
+                exteriorBlock.sync();
             }
             if (entity instanceof DoorBlockEntity doorBlock) {
                 TardisTravel.State state = doorBlock.getTardis().getTravel().getState();
@@ -62,7 +59,7 @@ public class ExteriorSelectItem extends Item {
                 int nextIndex = (doorBlock.getTardis().getExterior().getType().ordinal() + 1) % values.length;
                 doorBlock.getTardis().getExterior().setType(values[nextIndex]);
 
-                ServerTardisManager.getInstance().sendToSubscribers(doorBlock.getTardis());
+                doorBlock.sync();
             }
             if (entity instanceof ConsoleBlockEntity consoleBlock) {
                 TardisTravel.State state = consoleBlock.getTardis().getTravel().getState();
@@ -77,7 +74,7 @@ public class ExteriorSelectItem extends Item {
                 consoleBlock.getTardis().getConsole().setType(values[nextIndex]);
                 consoleBlock.spawnControls();
 
-                ServerTardisManager.getInstance().sendToSubscribers(consoleBlock.getTardis());
+                consoleBlock.sync();
             }
         }
 

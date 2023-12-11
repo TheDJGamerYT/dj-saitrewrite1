@@ -1,7 +1,7 @@
 package mdteam.ait.client.models.consoles;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.core.blockentities.ConsoleBlockEntity;
+import mdteam.ait.core.blockentities.console.ConsoleBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;

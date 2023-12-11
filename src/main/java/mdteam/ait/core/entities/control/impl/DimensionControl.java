@@ -1,10 +1,8 @@
 package mdteam.ait.core.entities.control.impl;
 
 import mdteam.ait.core.entities.control.Control;
-import mdteam.ait.core.helper.TardisUtil;
-import mdteam.ait.data.AbsoluteBlockPos;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
+import mdteam.ait.core.util.TardisUtil;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -18,11 +16,6 @@ import java.util.List;
 public class DimensionControl extends Control {
     public DimensionControl() {
         super("dimension");
-    }
-
-    @Override
-    public boolean runClient(Tardis tardis, ClientPlayerEntity player, ClientWorld world) {
-        return true;
     }
 
     @Override
@@ -80,9 +73,8 @@ public class DimensionControl extends Control {
 
     private List<ServerWorld> getDimensions() {
         List<ServerWorld> dims = new ArrayList<>();
-        Iterable<ServerWorld> allDims = TardisUtil.getServer().getWorlds();
+        Iterable<ServerWorld> allDims = TardisUtil.getTardisDimension().getServer().getWorlds();
 
-        // fixme this is easiest/stupidest way to do this without letting them get to the tardis dim :p - Loqor
         allDims.forEach(dim -> {
             if(dim.getRegistryKey() != TardisUtil.getTardisDimension().getRegistryKey())
                 dims.add(dim);

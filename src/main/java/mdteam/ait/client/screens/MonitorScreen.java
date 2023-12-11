@@ -4,13 +4,11 @@ import com.google.common.collect.Lists;
 import mdteam.ait.AITMod;
 import mdteam.ait.client.models.exteriors.ExteriorModel;
 import mdteam.ait.client.renderers.AITRenderLayers;
-import mdteam.ait.core.helper.TardisUtil;
-import mdteam.ait.data.AbsoluteBlockPos;
-import mdteam.ait.tardis.ClientTardisManager;
+import mdteam.ait.core.util.TardisUtil;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
 import mdteam.ait.tardis.Tardis;
+import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.CreditsAndAttributionScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.PressableTextWidget;
@@ -18,7 +16,6 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextReorderingProcessor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
@@ -31,11 +28,12 @@ import static mdteam.ait.core.entities.control.impl.DimensionControl.convertWorl
 public class MonitorScreen extends TardisScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID, "textures/gui/tardis/consoles/monitors/borealis_monitor.png");
     private final List<ButtonWidget> buttons = Lists.newArrayList();
-
     int backgroundHeight = 128;
     int backgroundWidth = 256;
-    public MonitorScreen(UUID tardis) {
-        super(Text.translatable("screen." + AITMod.MOD_ID + ".monitor"), tardis);
+    private UUID tardisid;
+    public MonitorScreen(UUID tardisid) {
+        super(Text.translatable("screen." + AITMod.MOD_ID + ".monitor"), tardisid);
+        this.tardisid = tardisid;
     }
 
     @Override
@@ -64,7 +62,7 @@ public class MonitorScreen extends TardisScreen {
 
         // exterior change text button
         // fixme i think we're overloading with packets because the client side of all the code kinda desperately needs a redo / if you spam the button everything slows OR you get kicked
-        this.addButton(new PressableTextWidget((width / 2 - 105), (height / 2 + 28), this.textRenderer.getWidth("exterior"), 10, Text.literal("exterior"), button -> TardisUtil.changeExteriorWithScreen(this.tardisId), this.textRenderer));
+        this.addButton(new PressableTextWidget((width / 2 - 105), (height / 2 + 28), this.textRenderer.getWidth("exterior"), 10, Text.literal("exterior"), button -> ServerTardisManager.changeExteriorWithScreen(this.tardisid), this.textRenderer));
 
         this.buttons.forEach(buttons -> {
             // buttons.visible = false;
@@ -83,17 +81,17 @@ public class MonitorScreen extends TardisScreen {
 
     protected void drawTardisExterior(DrawContext context, int x, int y, float scale, float mouseX) {
         // testing @todo
-        if (tardis() == null) return;
+        if (getTardis() == null) return;
 
-        ExteriorModel model = updateTardis().getExterior().getType().createModel();
+        ExteriorModel model = getTardis().getExterior().getType().createModel();
 
         MatrixStack stack = context.getMatrices();
 
         // fixme is bad
         stack.push();
-        stack.translate(x,tardis().getExterior().getType() != SHELTER ? tardis().getExterior().getType() == TOYOTA ? y + 12 : tardis().getExterior().getType() == BOOTH ? y + 4 : y : y + 24,100f);
-        if(tardis().getExterior().getType() == TOYOTA) stack.scale(-9, 9, 9);
-        else if(tardis().getExterior().getType() == BOOTH) stack.scale(-14f, 14f, 14f);
+        stack.translate(x,getTardis().getExterior().getType() != SHELTER ? getTardis().getExterior().getType() == TOYOTA ? y + 12 : getTardis().getExterior().getType() == BOOTH ? y + 4 : y : y + 24,100f);
+        if(getTardis().getExterior().getType() == TOYOTA) stack.scale(-9, 9, 9);
+        else if(getTardis().getExterior().getType() == BOOTH) stack.scale(-14f, 14f, 14f);
         else stack.scale(-scale, scale, scale);
         //stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-180f));
         stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(mouseX));
@@ -106,7 +104,7 @@ public class MonitorScreen extends TardisScreen {
     protected void drawDestinationText(DrawContext context) {
         int i = ((this.height - this.backgroundHeight) / 2);
         int j = ((this.width - this.backgroundWidth) / 2);
-        if (this.tardis() == null) return;
+        if (this.getTardis() == null) return;
         AbsoluteBlockPos.Directed abpd = this.updateTardis().getTravel().getDestination();
         String destinationText = abpd.getX() + ", " + abpd.getY() + ", " + abpd.getZ();
         String dimensionText = convertWorldToReadable(abpd.getWorld());

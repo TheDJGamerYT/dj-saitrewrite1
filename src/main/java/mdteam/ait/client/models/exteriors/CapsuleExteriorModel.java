@@ -1,9 +1,7 @@
 package mdteam.ait.client.models.exteriors;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.client.models.doors.DoorModel;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -70,8 +68,8 @@ public class CapsuleExteriorModel extends ExteriorModel {
 		matrices.push();
 		matrices.translate(0, -1.5f, 0);
 
-		this.body.getChild("doors").getChild("left_door").yaw = exterior.getLeftDoorRotation();
-		this.body.getChild("doors").getChild("right_door").yaw = -exterior.getRightDoorRotation();
+		this.body.getChild("doors").getChild("left_door").yaw = exterior.getDoor().getState().getLeft();
+		this.body.getChild("doors").getChild("right_door").yaw = -exterior.getDoor().getState().getRight();
 
 		super.renderWithAnimations(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 		matrices.pop();

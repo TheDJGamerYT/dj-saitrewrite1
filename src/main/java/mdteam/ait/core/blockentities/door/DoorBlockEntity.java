@@ -14,6 +14,10 @@ public class DoorBlockEntity extends AbstractDoorBlockEntity {
 
     public DoorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.DOOR_BLOCK_ENTITY_TYPE, pos, state);
+
+        if(this.getTardis() != null)
+            if(this.getDesktop() != null)
+                this.getDesktop().updateDoor();
     }
 
     @Override

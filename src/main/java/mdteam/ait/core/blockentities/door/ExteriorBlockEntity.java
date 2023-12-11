@@ -2,12 +2,14 @@ package mdteam.ait.core.blockentities.door;
 
 import mdteam.ait.AITMod;
 import mdteam.ait.client.animation.ExteriorAnimation;
+import mdteam.ait.client.renderers.exteriors.ExteriorEnum;
 import mdteam.ait.core.AITBlockEntityTypes;
 import mdteam.ait.core.util.TardisUtil;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTravel;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -15,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 public class ExteriorBlockEntity extends AbstractDoorBlockEntity {
 
     private ExteriorAnimation animation;
+    public final AnimationState ANIMATION_STATE = new AnimationState();
 
     public ExteriorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.EXTERIOR_BLOCK_ENTITY_TYPE, pos, state);
@@ -24,17 +27,21 @@ public class ExteriorBlockEntity extends AbstractDoorBlockEntity {
         if (this.animation != null)
             return this.animation;
 
-        this.animation = this.tardis.getExterior().getType().createAnimation(this);
-        AITMod.LOGGER.debug("Created new animation for " + this);
-
-        if (this.tardis != null)
+        if (this.getTardis() != null) {
+            this.animation = this.getTardis().getExterior().getType().createAnimation(this);
+            AITMod.LOGGER.debug("Created new animation for " + this);
             this.animation.setupAnimation(this.tardis.getTravel().getState());
+        }
 
         return this.animation;
     }
 
     public float getAlpha() {
         return this.getAnimation().getAlpha();
+    }
+
+    public ExteriorEnum getExteriorType() {
+        return this.getTardis().getExterior().getType();
     }
 
     @Override

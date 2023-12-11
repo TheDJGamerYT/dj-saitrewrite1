@@ -1,6 +1,5 @@
 package mdteam.ait.client.models.consoles;
 
-import mdteam.ait.core.entities.BaseControlEntity;
 import mdteam.ait.core.entities.ConsoleControlEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

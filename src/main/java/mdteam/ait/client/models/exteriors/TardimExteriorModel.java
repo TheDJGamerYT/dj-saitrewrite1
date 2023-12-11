@@ -1,7 +1,7 @@
 package mdteam.ait.client.models.exteriors;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
+import mdteam.ait.core.blockentities.door.ExteriorBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -56,8 +56,8 @@ public class TardimExteriorModel extends ExteriorModel {
         // matrices.scale(0.6F,0.6f,0.6f);
         matrices.translate(0, -1.5f, 0);
 
-        this.tardis.getChild("left_door").yaw = exterior.getCorrectDoorRotations()[0] == 0 ? 0: -1.575f;
-        this.tardis.getChild("right_door").yaw = exterior.getCorrectDoorRotations()[1] == 0 ? 0: 1.575f;
+        this.tardis.getChild("left_door").yaw = exterior.getDoor().getState().getLeft() == 0 ? 0: -1.575f;
+        this.tardis.getChild("right_door").yaw = exterior.getDoor().getState().getRight() == 0 ? 0: 1.575f;
 
         super.renderWithAnimations(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 

@@ -12,6 +12,8 @@ import mdteam.ait.core.entities.control.impl.pos.XControl;
 import mdteam.ait.core.entities.control.impl.pos.YControl;
 import mdteam.ait.core.entities.control.impl.pos.ZControl;
 import mdteam.ait.core.sounds.MatSound;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.EntityDimensions;
 import org.joml.Vector3f;
 import mdteam.ait.tardis.TardisTravel;
@@ -21,11 +23,13 @@ import java.util.Arrays;
 public enum ConsoleEnum {
     TEMP() {
         @Override
+        @Environment(value= EnvType.CLIENT)
         public ConsoleModel createModel() {
             return new TempConsoleModel(TempConsoleModel.getTexturedModelData().createModel());
         }
 
         @Override
+        @Environment(value= EnvType.CLIENT)
         public Class<? extends ConsoleModel> getModelClass() {
             return TempConsoleModel.class;
         }
@@ -54,11 +58,13 @@ public enum ConsoleEnum {
     BOREALIS() {
 
         @Override
+        @Environment(value= EnvType.CLIENT)
         public ConsoleModel createModel() {
             return new BorealisConsoleModel(BorealisConsoleModel.getTexturedModelData().createModel());
         }
 
         @Override
+        @Environment(value= EnvType.CLIENT)
         public Class<? extends ConsoleModel> getModelClass() {
             return BorealisConsoleModel.class;
         }
@@ -99,7 +105,9 @@ public enum ConsoleEnum {
             return CONTROL_TYPES;
         }
     };
+    @Environment(value= EnvType.CLIENT)
     public abstract ConsoleModel createModel();
+    @Environment(value= EnvType.CLIENT)
     public abstract Class<? extends ConsoleModel> getModelClass();
 
     public abstract ControlTypes[] getControlTypesList();

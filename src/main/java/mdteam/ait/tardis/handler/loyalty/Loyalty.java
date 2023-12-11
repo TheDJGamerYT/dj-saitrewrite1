@@ -1,6 +1,6 @@
 package mdteam.ait.tardis.handler.loyalty;
 
-public enum Loyalty { // fixme someone like loqor who had that hour long rant on how this will work can change all this.
+public enum Loyalty { // fixme someone like loqor who had that hour long rant on how this will work can change all this. hahaha, i love it - Loqor
     NONE("none", 0),
     LOW("low", 5),
     MEDIUM("medium", 10),

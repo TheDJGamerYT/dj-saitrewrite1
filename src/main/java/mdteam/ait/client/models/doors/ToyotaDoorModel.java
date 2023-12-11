@@ -1,7 +1,7 @@
 package mdteam.ait.client.models.doors;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
+import mdteam.ait.core.blockentities.door.DoorBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -54,8 +54,8 @@ public class ToyotaDoorModel extends DoorModel {
 
     @Override
     public void renderWithAnimations(DoorBlockEntity doorEntity, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        this.door.getChild("Doors").getChild("Right").yaw = doorEntity.getLeftDoorRotation();
-        this.door.getChild("Doors").getChild("Left").yaw = -doorEntity.getRightDoorRotation();
+        this.door.getChild("Doors").getChild("Right").yaw = doorEntity.getDoor().getState().getLeft();
+        this.door.getChild("Doors").getChild("Left").yaw = -doorEntity.getDoor().getState().getRight();
 
         matrices.push();
         matrices.scale(0.68F,0.68f,0.68f);

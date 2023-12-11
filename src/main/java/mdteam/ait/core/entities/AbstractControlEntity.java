@@ -19,11 +19,10 @@ import mdteam.ait.tardis.Tardis;
 
 import java.util.Collections;
 
-public abstract class BaseControlEntity extends MobEntity implements Linkable {
-
+public abstract class AbstractControlEntity extends MobEntity implements Linkable {
     private Tardis tardis;
 
-    public BaseControlEntity(EntityType<? extends MobEntity> type, World world) {
+    public AbstractControlEntity(EntityType<? extends MobEntity> type, World world) {
         super(type, world);
     }
 

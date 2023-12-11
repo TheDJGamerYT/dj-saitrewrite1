@@ -37,6 +37,16 @@ public class TardisDoor extends AbstractTardisComponent {
         this.state = this.state.getNext();
     }
 
+    public void nextOrClosed(boolean isDoubleDoored) {
+        if (this.locked)
+            return;
+        if(isDoubleDoored) {
+            this.next();
+        } else {
+            this.setState(this.state == State.CLOSED ? State.OPEN : State.CLOSED);
+        }
+    }
+
     public boolean isLocked() {
         return locked;
     }

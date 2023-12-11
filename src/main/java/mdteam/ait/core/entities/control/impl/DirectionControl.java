@@ -1,9 +1,7 @@
 package mdteam.ait.core.entities.control.impl;
 
 import mdteam.ait.core.entities.control.Control;
-import mdteam.ait.data.AbsoluteBlockPos;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
+import mdteam.ait.core.util.data.AbsoluteBlockPos;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -14,11 +12,6 @@ import mdteam.ait.tardis.TardisTravel;
 public class DirectionControl extends Control {
     public DirectionControl() {
         super("direction");
-    }
-
-    @Override
-    public boolean runClient(Tardis tardis, ClientPlayerEntity player, ClientWorld world) {
-        return true;
     }
 
     @Override

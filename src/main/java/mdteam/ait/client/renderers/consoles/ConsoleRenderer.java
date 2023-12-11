@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import mdteam.ait.client.models.consoles.BorealisConsoleModel;
 import mdteam.ait.client.models.consoles.ConsoleModel;
 import mdteam.ait.client.models.consoles.TempConsoleModel;
-import mdteam.ait.core.blockentities.ConsoleBlockEntity;
+import mdteam.ait.core.blockentities.console.ConsoleBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
@@ -18,26 +18,14 @@ import mdteam.ait.tardis.TardisConsole;
 import java.util.Map;
 
 public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntityRenderer<T> {
-
-    private final Map<ConsoleEnum, ModelPart> consolemap;
-
     private ConsoleModel console;
-
-    public Map<ConsoleEnum, ModelPart> getModels() {
-        ImmutableMap.Builder<ConsoleEnum, ModelPart> builder = ImmutableMap.builder();
-        builder.put(ConsoleEnum.TEMP, TempConsoleModel.getTexturedModelData().createModel());
-        builder.put(ConsoleEnum.BOREALIS, BorealisConsoleModel.getTexturedModelData().createModel());
-        return builder.build();
-    }
-
-    public ConsoleRenderer(BlockEntityRendererFactory.Context ctx) {
-        this.consolemap = this.getModels();
-    }
-
+    public ConsoleRenderer(BlockEntityRendererFactory.Context ctx) {}
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if (entity.getTardis() == null)
+        if (entity.getTardis() == null) {
+            entity.sync();
             return;
+        }
 
         TardisConsole tardisConsole = entity.getTardis().getConsole();
         Class<? extends ConsoleModel> modelClass = tardisConsole.getType().getModelClass();

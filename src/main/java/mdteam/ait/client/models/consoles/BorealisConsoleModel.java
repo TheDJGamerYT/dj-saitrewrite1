@@ -3,14 +3,12 @@ package mdteam.ait.client.models.consoles;
 
 import mdteam.ait.AITMod;
 import mdteam.ait.client.animation.console.borealis.BorealisAnimations;
-import mdteam.ait.core.blockentities.ConsoleBlockEntity;
-import mdteam.ait.core.entities.ConsoleControlEntity;
+import mdteam.ait.core.blockentities.console.ConsoleBlockEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import mdteam.ait.tardis.TardisTravel;
 

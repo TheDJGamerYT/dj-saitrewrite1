@@ -1,7 +1,7 @@
 package mdteam.ait.client.renderers.doors;
 
 import mdteam.ait.client.models.doors.DoorModel;
-import mdteam.ait.core.blockentities.DoorBlockEntity;
+import mdteam.ait.core.blockentities.door.DoorBlockEntity;
 import mdteam.ait.core.blocks.ExteriorBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.RenderLayer;

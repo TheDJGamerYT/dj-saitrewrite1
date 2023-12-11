@@ -2,12 +2,9 @@ package mdteam.ait.core.entities;
 
 import mdteam.ait.client.renderers.consoles.ConsoleEnum;
 import mdteam.ait.core.AITItems;
-import mdteam.ait.core.blockentities.ConsoleBlockEntity;
+import mdteam.ait.core.blockentities.console.ConsoleBlockEntity;
 import mdteam.ait.core.entities.control.Control;
-import mdteam.ait.tardis.ClientTardisManager;
 import mdteam.ait.tardis.ControlTypes;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -38,12 +35,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import mdteam.ait.tardis.Tardis;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
-public class ConsoleControlEntity extends BaseControlEntity {
-
+public class ConsoleControlEntity extends AbstractControlEntity {
     private BlockPos consoleBlockPos;
     private Control control;
     private static final TrackedData<String> IDENTITY = DataTracker.registerData(ConsoleControlEntity.class, TrackedDataHandlerRegistry.STRING);
@@ -51,7 +45,7 @@ public class ConsoleControlEntity extends BaseControlEntity {
     private static final TrackedData<Float> HEIGHT = DataTracker.registerData(ConsoleControlEntity.class, TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Vector3f> OFFSET = DataTracker.registerData(ConsoleControlEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
 
-    public ConsoleControlEntity(EntityType<? extends BaseControlEntity> entityType, World world) {
+    public ConsoleControlEntity(EntityType<? extends AbstractControlEntity> entityType, World world) {
         super(entityType, world);
     }
 
@@ -170,26 +164,9 @@ public class ConsoleControlEntity extends BaseControlEntity {
                 controlEditorHandler(player);
             }*/
 
-            return this.control.runServer(this.getTardis(world), (ServerPlayerEntity) player, (ServerWorld) world); // i dont gotta check these cus i know its server
-        } else {
-            if(this.getTardis() != null) {
-                System.out.println(this.getCustomName());
-                for (ControlTypes control : this.getTardis().getConsole().getType().getControlTypesList()) {
-                    if (control.getControl().getId().matches("monitor")) {
-                        return control.getControl().runClient(this.getTardis(), (ClientPlayerEntity) player, (ClientWorld) world);
-                    }
-                }
-            }
-            return false;
+            return this.control.runServer(this.getTardis(), (ServerPlayerEntity) player, (ServerWorld) world); // i dont gotta check these cus i know its server
         }
-    }
-
-    // clearly loqor has trust issues with running this so i do too so im overwriting it to do what he did fixme pls
-    public Tardis getTardis(World world) {
-        if (!(this.consoleBlockPos != null && this.control != null && world.getBlockEntity(this.consoleBlockPos) instanceof ConsoleBlockEntity console))
-            return null;
-
-        return console.getTardis();
+        return false;
     }
 
     public void setScaleAndCalculate(float width, float height) {
@@ -209,6 +186,8 @@ public class ConsoleControlEntity extends BaseControlEntity {
     public void setControlData(ConsoleEnum consoleType, ControlTypes type, BlockPos consoleBlockPosition) {
         this.consoleBlockPos = consoleBlockPosition;
         this.control = type.getControl();
+        if(this.getWorld().getBlockEntity(this.consoleBlockPos) instanceof ConsoleBlockEntity consoleBlockEntity)
+            this.setTardis(consoleBlockEntity.getTardis());
         // System.out.println(type);
         if(consoleType != null) {
             this.setControlWidth(type.getScale().width);
@@ -255,9 +234,6 @@ public class ConsoleControlEntity extends BaseControlEntity {
                 }
             }
         }
-        /*PlayerEntity player = MinecraftClient.getInstance().player;
-        if(player != null)
-            this.setCustomNameVisible(isPlayerLookingAtControl(player, this)); System.out.println("im being looked at ;) : " + this);*/
     }
 
     public static boolean isPlayerLookingAtControl(HitResult hitResult, ConsoleControlEntity entity) {
