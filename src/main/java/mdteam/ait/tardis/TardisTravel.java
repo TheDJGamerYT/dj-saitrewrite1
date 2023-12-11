@@ -46,7 +46,7 @@ public class TardisTravel extends AbstractTardisComponent {
         super(tardis);
 
         this.position = pos;
-        this.destination = this.getPosition();
+        this.destination = pos;
         this.state = State.LANDED;
     }
 
@@ -226,7 +226,6 @@ public class TardisTravel extends AbstractTardisComponent {
 
         Timer animTimer = new Timer();
         TardisTravel travel = this;
-        Tardis tardis = this.getTardis();
 
         animTimer.schedule(new TimerTask() {
             @Override
@@ -236,9 +235,10 @@ public class TardisTravel extends AbstractTardisComponent {
 
                 travel.setState(TardisTravel.State.LANDED);
                 travel.setDestination(travel.getPosition(), true);
-                /*travel.runAnimations(blockEntity);
-                blockEntity.sync();*/
-                if(tardis != null) tardis.getDoor().setLocked(tardis.getDoor().isLocked()); // force unlock door @todo should remember last locked state before takeoff
+                travel.runAnimations(blockEntity);
+                if(travel.getDestination().getWorld().isClient()) {
+                    travel.getTardis().getDoor().setLocked(travel.getTardis().getDoor().isLocked());
+                }
             }
         }, (long) getSoundLength(this.getMatSoundForCurrentState()) * 1000L);
     }

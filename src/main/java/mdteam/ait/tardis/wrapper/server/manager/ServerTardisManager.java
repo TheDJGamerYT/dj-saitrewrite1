@@ -72,6 +72,7 @@ public class ServerTardisManager extends TardisManager {
         UUID uuid = UUID.randomUUID();
 
         ServerTardis tardis = new ServerTardis(uuid, pos, schema, exteriorType, consoleType);
+        System.out.println(tardis);
         this.lookup.put(uuid, tardis);
 
         return tardis;

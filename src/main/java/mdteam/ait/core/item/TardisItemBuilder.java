@@ -19,6 +19,8 @@ import net.minecraft.world.World;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TardisItemBuilder extends Item {
     public static final Identifier DEFAULT_INTERIOR = new Identifier(AITMod.MOD_ID, "regal");
@@ -55,9 +57,7 @@ public class TardisItemBuilder extends Item {
         AbsoluteBlockPos.Directed pos = new AbsoluteBlockPos.Directed(context.getBlockPos().up(), world, player.getHorizontalFacing().getOpposite());
 
         if (context.getHand() == Hand.MAIN_HAND) {
-            Tardis tardis = ServerTardisManager.getInstance().create(pos, this.exterior, AITDesktops.get(this.desktop), ConsoleEnum.BOREALIS);
-            Objects.requireNonNull(TardisUtil.getExterior(tardis)).sync();
-            Objects.requireNonNull(TardisUtil.getDoor(tardis)).sync();
+            ServerTardisManager.getInstance().create(pos, this.exterior, AITDesktops.get(this.desktop), ConsoleEnum.BOREALIS);
             context.getStack().decrement(1);
         }
 
