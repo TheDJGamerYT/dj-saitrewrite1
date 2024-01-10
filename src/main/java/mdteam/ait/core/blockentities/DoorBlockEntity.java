@@ -61,6 +61,10 @@ public class DoorBlockEntity extends BlockEntity {
         }
     }
 
+    public UUID getTardisId() {
+        return tardisId;
+    }
+
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState blockState, T door) {
         if(world.isClient()) {
             ((DoorBlockEntity) door).checkAnimations();

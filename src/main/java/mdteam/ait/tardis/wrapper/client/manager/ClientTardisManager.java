@@ -3,8 +3,6 @@ package mdteam.ait.tardis.wrapper.client.manager;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.GsonBuilder;
-import mdteam.ait.AITMod;
-import mdteam.ait.client.AITModClient;
 import mdteam.ait.client.sounds.ClientSoundManager;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
@@ -21,13 +19,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import mdteam.ait.tardis.wrapper.client.ClientTardis;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class ClientTardisManager extends TardisManager {
@@ -83,7 +78,7 @@ public class ClientTardisManager extends TardisManager {
     }
 
     private void sync(UUID uuid, String json) {
-        Tardis tardis = this.gson.fromJson(json, ClientTardis.class);
+
 
         ExteriorBlockEntity entity = TardisUtil.findExteriorEntity(tardis);
         if (entity != null && entity.getAnimation() != null) {

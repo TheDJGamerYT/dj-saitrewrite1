@@ -141,6 +141,10 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
         return ServerTardisManager.getInstance().getTardis(this.tardisId);
     }
 
+    public UUID getTardisId() {
+        return this.tardisId;
+    }
+
     public void setTardis(Tardis tardis) {
         this.tardisId = tardis.getUuid();
     }

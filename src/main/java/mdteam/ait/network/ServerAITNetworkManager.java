@@ -28,7 +28,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
-import java.util.UUID;
+import java.util.*;
 
 public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_DEMAT = new Identifier(AITMod.MOD_ID, "send_tardis_demat");
@@ -36,12 +36,13 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_EXTERIOR_CHANGED = new Identifier(AITMod.MOD_ID, "send_exterior_changed");
     public static final Identifier SEND_INTERIOR_DOOR_TYPE_CHANGED = new Identifier(AITMod.MOD_ID, "send_interior_door_type_changed");
     public static final Identifier SEND_EXTERIOR_ANIMATION_UPDATE_SETUP = new Identifier(AITMod.MOD_ID, "send_exterior_animation_update_setup");
+    public static final Identifier SEND_INITIAL_TARDIS_SYNC = new Identifier(AITMod.MOD_ID, "send_initial_tardis_sync");
+    public static final Identifier SEND_SYNC_NEW_TARDIS = new Identifier(AITMod.MOD_ID, "send_sync_new_tardis");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
             ServerTardisManager.getInstance().removePlayerFromAllTardis(handler.getPlayer());
         }));
-
         ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_ADD_TO_EXTERIOR_SUBSCRIBERS, ((server, player, handler, buf, responseSender) -> {
             UUID uuid = buf.readUuid();
             if (player == null) return;
@@ -118,6 +119,20 @@ public class ServerAITNetworkManager {
             if (tardis == null || desktop == null) return;
             tardis.getHandlers().getInteriorChanger().queueInteriorChange(desktop);
         }));
+        ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_INITIAL_TARDIS_SYNC, ((server, player, handler, buf, responseSender) -> {
+            setSendInitialTardisSync(player);
+        }));
+    }
+
+    public static void setSendInitialTardisSync(ServerPlayerEntity player) {
+        PacketByteBuf data = PacketByteBufs.create();
+        Collection<UUID> tardisUUIDs = ServerTardisManager.getInstance().getLookup().keySet();
+        Map<UUID, Identifier> uuidToExteriorVariantSchema = new HashMap<>();
+        Map<UUID, Identifier> uuidToExteriorSchema = new HashMap<>();
+        data.writeCollection(tardisUUIDs, PacketByteBuf::writeUuid);
+        data.writeMap(uuidToExteriorVariantSchema, PacketByteBuf::writeUuid, PacketByteBuf::writeIdentifier);
+        data.writeMap(uuidToExteriorSchema, PacketByteBuf::writeUuid, PacketByteBuf::writeIdentifier);
+        ServerPlayNetworking.send(player, SEND_INITIAL_TARDIS_SYNC, data);
     }
 
     public static void setSendExteriorAnimationUpdateSetup(UUID tardisUUID, TardisTravel.State state) {
@@ -131,6 +146,17 @@ public class ServerAITNetworkManager {
             ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(player_uuid);
             if (player == null) return;
             ServerPlayNetworking.send(player, SEND_EXTERIOR_ANIMATION_UPDATE_SETUP, data);
+        }
+    }
+
+    public static void setSendSyncNewTardis(Tardis tardis) {
+        List<ServerPlayerEntity> players = TardisUtil.getServer().getPlayerManager().getPlayerList();
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeIdentifier(tardis.getExterior().getVariant().id());
+        data.writeIdentifier(tardis.getExterior().getType().id());
+        for (ServerPlayerEntity player : players) {
+            ServerPlayNetworking.send(player, SEND_SYNC_NEW_TARDIS, data);
         }
     }
 }

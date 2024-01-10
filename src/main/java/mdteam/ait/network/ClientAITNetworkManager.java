@@ -9,7 +9,9 @@ import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
+import mdteam.ait.tardis.wrapper.client.manager.NewClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -20,6 +22,9 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 public class ClientAITNetworkManager {
@@ -31,9 +36,11 @@ public class ClientAITNetworkManager {
     public static final Identifier SEND_SNAP_TO_OPEN_DOORS = new Identifier(AITMod.MOD_ID, "send_snap_to_open_doors");
     public static final Identifier SEND_REQUEST_FIND_PLAYER_FROM_MONITOR = new Identifier(AITMod.MOD_ID, "send_request_find_player_from_monitor");
     public static final Identifier SEND_REQUEST_INTERIOR_CHANGE_FROM_MONITOR = new Identifier(AITMod.MOD_ID, "send_request_interior_change_from_monitor");
+    public static final Identifier SEND_REQUEST_INITIAL_TARDIS_SYNC = new Identifier(AITMod.MOD_ID, "send_request_initial_tardis_sync");
 
     public static void init() {
         ClientPlayConnectionEvents.DISCONNECT.register((client, handler) -> ClientTardisManager.getInstance().reset());
+        ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> send_request_initial_tardis_sync()));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_EXTERIOR_ANIMATION_UPDATE_SETUP, ((client, handler, buf, responseSender) -> {
             int p = buf.readInt();
             UUID uuid = buf.readUuid();
@@ -43,6 +50,15 @@ public class ClientAITNetworkManager {
                 if (!(blockEntity instanceof ExteriorBlockEntity exteriorBlockEntity)) return;
                 exteriorBlockEntity.getAnimation().setupAnimation(TardisTravel.State.values()[p]);
             }));
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_INITIAL_TARDIS_SYNC, ((client, handler, buf, responseSender) -> {
+            Collection<UUID> tardisUUIDs = buf.readCollection(ArrayList::new, PacketByteBuf::readUuid);
+            Map<UUID, Identifier> uuidToExteriorVariantSchema = buf.readMap(PacketByteBuf::readUuid, PacketByteBuf::readIdentifier);
+            Map<UUID, Identifier> uuidToExteriorSchema = buf.readMap(PacketByteBuf::readUuid, PacketByteBuf::readIdentifier);
+            for (UUID uuid : tardisUUIDs) {
+                ClientTardis clientTardis = new ClientTardis(uuid, ExteriorVariantRegistry.REGISTRY.get(uuidToExteriorVariantSchema.get(uuid)), ExteriorRegistry.REGISTRY.get(uuidToExteriorSchema.get(uuid)));
+                NewClientTardisManager.getInstance().LOOKUP.put(uuid, () -> clientTardis);
+            }
         }));
     }
 
@@ -101,5 +117,9 @@ public class ClientAITNetworkManager {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeUuid(uuid);
         buf.writeUuid(playerUUID);
+    }
+    public static void send_request_initial_tardis_sync() {
+        PacketByteBuf buf = PacketByteBufs.create(); // Empty packet
+        ClientPlayNetworking.send(SEND_REQUEST_INITIAL_TARDIS_SYNC, buf);
     }
 }
