@@ -243,19 +243,10 @@ public class TardisUtil {
         for (Map.Entry<UUID, Tardis> entry : TardisManager.getInstance().getLookup().entrySet()) {
             Tardis tardis = entry.getValue();
             if (TardisUtil.inBox(tardis.getDesktop().getCorners(), pos)) {
-                matchingTardises.put(entry.getKey(), tardis);
+                return tardis;
             }
         }
-
-        if (matchingTardises.isEmpty()) {
-            if (isClient()) {
-                ClientTardisManager.getInstance().ask(pos);
-            }
-            return null;
-        } else {
-            // Return the first Tardis object in the Map
-            return matchingTardises.values().iterator().next();
-        }
+        return null;
     }
 
     public static Tardis findTardisByPosition(AbsoluteBlockPos.Directed pos) {

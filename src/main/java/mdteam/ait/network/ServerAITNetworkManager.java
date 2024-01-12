@@ -15,6 +15,7 @@ import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
+import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
@@ -27,6 +28,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
@@ -34,6 +36,8 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_EXTERIOR_ANIMATION_UPDATE_SETUP = new Identifier(AITMod.MOD_ID, "send_exterior_animation_update_setup");
     public static final Identifier SEND_INITIAL_TARDIS_SYNC = new Identifier(AITMod.MOD_ID, "send_initial_tardis_sync");
     public static final Identifier SEND_SYNC_NEW_TARDIS = new Identifier(AITMod.MOD_ID, "send_sync_new_tardis");
+    public static final Identifier SEND_TARDIS_CORNERS = new Identifier(AITMod.MOD_ID, "send_tardis_corners");
+    public static final Identifier SEND_TARDIS_CONSOLE_BLOCK_POS = new Identifier(AITMod.MOD_ID, "send_tardis_console_block_pos");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -118,6 +122,35 @@ public class ServerAITNetworkManager {
         ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_INITIAL_TARDIS_SYNC, ((server, player, handler, buf, responseSender) -> {
             setSendInitialTardisSync(player);
         }));
+        ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_TARDIS_CORNERS, ((server, player, handler, buf, responseSender) -> {
+            Tardis tardis = ServerTardisManager.getInstance().getTardis(buf.readUuid());
+            if (tardis == null) return;
+            Corners corners = tardis.getDesktop().getCorners();
+            setSendTardisCorners(tardis.getUuid(), player.getUuid(), corners);
+        }));
+        ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_TARDIS_CONSOLE_POS, ((server, player, handler, buf, responseSender) -> {
+            Tardis tardis = ServerTardisManager.getInstance().getTardis(buf.readUuid());
+            BlockPos consolePos = tardis.getDesktop().getConsolePos();
+            setSendTardisConsoleBlockPosToPlayer(player, consolePos, tardis);
+        }));
+    }
+
+    public static void setSendTardisConsoleBlockPosToPlayer(ServerPlayerEntity player, BlockPos consolePos, Tardis tardis) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBlockPos(consolePos);
+        ServerPlayNetworking.send(player, SEND_TARDIS_CONSOLE_BLOCK_POS, data);
+    }
+    public static void setSendTardisConsoleBlockPosToSubscribers(BlockPos consolePos, Tardis tardis) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBlockPos(consolePos);
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(tardis.getUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardis.getUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, SEND_TARDIS_CONSOLE_BLOCK_POS, data);
+        }
     }
 
     public static void setSendInitialTardisSync(ServerPlayerEntity player) {
@@ -154,5 +187,16 @@ public class ServerAITNetworkManager {
         for (ServerPlayerEntity player : players) {
             ServerPlayNetworking.send(player, SEND_SYNC_NEW_TARDIS, data);
         }
+    }
+
+    public static void setSendTardisCorners(UUID tardisUUID, UUID playerUUID, Corners corners) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardisUUID);
+        BlockPos firstBlockPos = corners.getFirst();
+        BlockPos secondBlockPos = corners.getSecond();
+        data.writeLong(firstBlockPos.asLong());
+        data.writeLong(secondBlockPos.asLong());
+        ServerPlayNetworking.send(Objects.requireNonNull(TardisUtil.getServer().getPlayerManager().getPlayer(playerUUID)), SEND_TARDIS_CORNERS, data);
+
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class FlightSound extends PositionedLoopingSound {
     }
 
     private static float getRandomPitch() {
-        int speed = ClientTardisUtil.getCurrentTardis().getTravel().getSpeed();
+        int speed = Objects.requireNonNull(ClientTardisUtil.getCurrentClientTardis()).getTravel().getSpeed();
 
         if (ClientSoundManager.getFlight().hasThrottleAndHandbrakeDown()) {
             // todo i hate switch

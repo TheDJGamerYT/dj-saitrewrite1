@@ -1,26 +1,24 @@
 package mdteam.ait.network;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.client.registry.ClientExteriorVariantRegistry;
 import mdteam.ait.client.registry.exterior.ClientExteriorVariantSchema;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.registry.ExteriorRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
-import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
+import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.client.manager.NewClientTardisManager;
-import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +35,8 @@ public class ClientAITNetworkManager {
     public static final Identifier SEND_REQUEST_FIND_PLAYER_FROM_MONITOR = new Identifier(AITMod.MOD_ID, "send_request_find_player_from_monitor");
     public static final Identifier SEND_REQUEST_INTERIOR_CHANGE_FROM_MONITOR = new Identifier(AITMod.MOD_ID, "send_request_interior_change_from_monitor");
     public static final Identifier SEND_REQUEST_INITIAL_TARDIS_SYNC = new Identifier(AITMod.MOD_ID, "send_request_initial_tardis_sync");
+    public static final Identifier SEND_REQUEST_TARDIS_CORNERS = new Identifier(AITMod.MOD_ID, "send_request_tardis_corners");
+    public static final Identifier SEND_REQUEST_TARDIS_CONSOLE_POS = new Identifier(AITMod.MOD_ID, "send_request_tardis_console_pos");
 
     public static void init() {
         ClientPlayConnectionEvents.DISCONNECT.register((client, handler) -> ClientTardisManager.getInstance().reset());
@@ -60,6 +60,20 @@ public class ClientAITNetworkManager {
                 NewClientTardisManager.getInstance().LOOKUP.put(uuid, () -> clientTardis);
             }
         }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_CORNERS, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            BlockPos firstBlockPos = BlockPos.fromLong(buf.readLong());
+            BlockPos secondBlockPos = BlockPos.fromLong(buf.readLong());
+            Corners corners = new Corners(firstBlockPos, secondBlockPos);
+            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getDesktop().setCorners(corners);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_CONSOLE_BLOCK_POS, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            BlockPos consoleBlockPos = buf.readBlockPos();
+            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getDesktop().setConsolePos(consoleBlockPos);
+        }));
     }
 
     public static void send_request_interior_change_from_monitor(UUID uuid, Identifier selected_interior) {
@@ -74,6 +88,12 @@ public class ClientAITNetworkManager {
         buf.writeUuid(uuid);
 
         ClientPlayNetworking.send(SEND_REQUEST_ADD_TO_INTERIOR_SUBSCRIBERS, buf);
+        ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(uuid).get();
+        if (clientTardis == null) return;
+        send_request_tardis_console_pos(uuid); // Request new console pos every time the TARDIS is loaded as we don't know if the console pos has changed
+        if (clientTardis.getDesktop().isCornersSynced()) return;
+        send_request_tardis_corners(uuid);
+
     }
 
     public static void ask_for_exterior_subscriber(UUID uuid) {
@@ -122,4 +142,16 @@ public class ClientAITNetworkManager {
         PacketByteBuf buf = PacketByteBufs.create(); // Empty packet
         ClientPlayNetworking.send(SEND_REQUEST_INITIAL_TARDIS_SYNC, buf);
     }
+    public static void send_request_tardis_corners(UUID uuid) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(uuid);
+        ClientPlayNetworking.send(SEND_REQUEST_TARDIS_CORNERS, buf);
+    }
+
+    public static void send_request_tardis_console_pos(UUID uuid) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(uuid);
+        ClientPlayNetworking.send(SEND_REQUEST_TARDIS_CONSOLE_POS, buf);
+    }
+
 }

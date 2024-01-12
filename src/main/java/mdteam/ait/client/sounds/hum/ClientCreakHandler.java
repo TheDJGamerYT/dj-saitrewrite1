@@ -29,6 +29,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import static mdteam.ait.AITMod.AIT_CONFIG;
@@ -65,16 +66,7 @@ public class ClientCreakHandler extends SoundHandler {
         return list;
     }
 
-    public boolean isPlayerInATardis() {
-        if (MinecraftClient.getInstance().world == null || MinecraftClient.getInstance().world.getRegistryKey() != AITDimensions.TARDIS_DIM_WORLD)
-            return false;
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        Tardis found = TardisUtil.findTardisByInterior(player.getBlockPos());
-
-        return found != null;
-    }
-
-    public BlockPos randomNearConsolePos(AbsoluteBlockPos.Directed consolePos) {
+    public BlockPos randomNearConsolePos(BlockPos consolePos) {
         return consolePos.add(random.nextInt(8) - 1, 0, random.nextInt(8) - 1);
     }
 
@@ -87,8 +79,8 @@ public class ClientCreakHandler extends SoundHandler {
 
     public void playRandomCreak() {
         CreakSound chosen = CreakRegistry.getRandomCreak();
-        if(chosen.equals(CreakRegistry.WHISPER) && ClientTardisUtil.getCurrentTardis().getDesktop().getConsolePos() != null) {
-            startIfNotPlaying(new PositionedSoundInstance(chosen.sound(), SoundCategory.HOSTILE, 0.5f, 1.0f, net.minecraft.util.math.random.Random.create(), randomNearConsolePos(ClientTardisUtil.getCurrentTardis().getDesktop().getConsolePos())));
+        if(chosen.equals(CreakRegistry.WHISPER) && Objects.requireNonNull(ClientTardisUtil.getCurrentClientTardis()).getDesktop().getConsolePos() != null) {
+            startIfNotPlaying(new PositionedSoundInstance(chosen.sound(), SoundCategory.HOSTILE, 0.5f, 1.0f, net.minecraft.util.math.random.Random.create(), randomNearConsolePos(ClientTardisUtil.getCurrentClientTardis().getDesktop().getConsolePos())));
             return;
         }
         PlayerFollowingSound following = new PlayerFollowingSound(chosen.sound(), SoundCategory.AMBIENT, AIT_CONFIG.INTERIOR_HUM_VOLUME());
@@ -100,7 +92,7 @@ public class ClientCreakHandler extends SoundHandler {
 
         if (client.player == null) return;
 
-        if (!isPlayerInATardis() || tardis().hasPower()) { // todo should they play even with power? just make them more rare??
+        if (!ClientTardisUtil.isPlayerInATardis() || tardis().hasPower()) { // todo should they play even with power? just make them more rare??
             this.stopSounds();
             return;
         }

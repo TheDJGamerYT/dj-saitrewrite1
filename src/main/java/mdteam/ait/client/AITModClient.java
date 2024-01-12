@@ -4,7 +4,6 @@ import mdteam.ait.AITMod;
 import mdteam.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
 import mdteam.ait.core.*;
 import mdteam.ait.network.ClientAITNetworkManager;
-import mdteam.ait.tardis.animation.ExteriorAnimation;
 import mdteam.ait.client.registry.ClientConsoleVariantRegistry;
 import mdteam.ait.client.registry.ClientDoorRegistry;
 import mdteam.ait.client.registry.ClientExteriorVariantRegistry;
@@ -19,7 +18,6 @@ import mdteam.ait.client.renderers.exteriors.ExteriorRenderer;
 import mdteam.ait.client.screens.MonitorScreen;
 import mdteam.ait.client.screens.OwOFindPlayerScreen;
 import mdteam.ait.client.screens.interior.OwOInteriorSelectScreen;
-import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
@@ -27,9 +25,10 @@ import mdteam.ait.core.item.KeyItem;
 import mdteam.ait.core.item.SonicItem;
 import mdteam.ait.core.item.WaypointItem;
 import mdteam.ait.registry.ConsoleRegistry;
-import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.console.ConsoleSchema;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
+import mdteam.ait.tardis.wrapper.client.manager.NewClientTardisManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -42,14 +41,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.impl.client.rendering.BlockEntityRendererRegistryImpl;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -109,52 +105,54 @@ public class AITModClient implements ClientModInitializer {
 
         ClientBlockEntityEvents.BLOCK_ENTITY_LOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exterior) {
-                if (exterior.getTardis() == null) return;
-                ClientAITNetworkManager.ask_for_exterior_subscriber(exterior.getTardis().getUuid());
-                if (ClientTardisManager.getInstance().exteriorToTardis.containsKey(exterior)) return;
-                ClientTardisManager.getInstance().exteriorToTardis.put(exterior, exterior.getTardis());
-                exterior.getTardis().getDoor().clearExteriorAnimationState();
+                ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(exterior.getTardisId()).get();
+                if (clientTardis == null || clientTardis.isSubscribedToExterior() || clientTardis.getLoadedCache().isExteriorBlockLoaded(exterior)) return;
+                clientTardis.getLoadedCache().loadExteriorBlock(exterior);
+                clientTardis.subscribeToExterior();
+//                exterior.getTardis().getDoor().clearExteriorAnimationState();
+                // @TODO: Find an alternative way of clearing exterior animation state
             }
             else if (block instanceof DoorBlockEntity door) {
-                if (door.getTardis() == null) return;
-                ClientAITNetworkManager.ask_for_interior_subscriber(door.getTardis().getUuid());
-                if (ClientTardisManager.getInstance().interiorDoorToTardis.containsKey(door)) return;
-                ClientTardisManager.getInstance().interiorDoorToTardis.put(door, door.getTardis());
-                door.getTardis().getDoor().clearInteriorAnimationState();
+                ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(door.getTardisId()).get();
+                if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadedCache().isDoorBlockLoaded(door)) return;
+                clientTardis.getLoadedCache().loadDoorBlock(door);
+                clientTardis.subscribeToInterior();
+//                door.getTardis().getDoor().clearInteriorAnimationState();
+                // @TODO: Find an alternative way of clearing interior animation state
             }
             else if (block instanceof ConsoleBlockEntity console) {
-                if (console.getTardis() == null) return;
-                ClientAITNetworkManager.ask_for_interior_subscriber(console.getTardis().getUuid());
-                if (ClientTardisManager.getInstance().consoleToTardis.containsKey(console)) return;
-                ClientTardisManager.getInstance().consoleToTardis.put(console, console.getTardis());
+                ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(console.getTardisId()).get();
+                if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadedCache().isConsoleBlockLoaded(console)) return;
+                clientTardis.getLoadedCache().loadConsoleBlock(console);
+                clientTardis.subscribeToInterior();
             }
         });
 
         ClientBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exteriorBlock) {
-                if (!ClientTardisManager.getInstance().exteriorToTardis.containsKey(exteriorBlock)) return;
-                UUID uuid = ClientTardisManager.getInstance().exteriorToTardis.get(exteriorBlock).getUuid();
-                ClientTardisManager.getInstance().exteriorToTardis.remove(exteriorBlock);
-                ClientAITNetworkManager.send_exterior_unloaded(uuid);
+                ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(exteriorBlock.getTardisId()).get();
+                if (clientTardis == null || !clientTardis.getLoadedCache().isExteriorBlockLoaded(exteriorBlock) || !clientTardis.isSubscribedToExterior()) return;
+                clientTardis.getLoadedCache().unloadExteriorBlock(exteriorBlock);
+                clientTardis.unsubscribeToExterior();
             }
             else if (block instanceof DoorBlockEntity doorBlockEntity) {
-                if (!ClientTardisManager.getInstance().interiorDoorToTardis.containsKey(doorBlockEntity)) return;
-                UUID uuid = ClientTardisManager.getInstance().interiorDoorToTardis.get(doorBlockEntity).getUuid();
-                ClientTardisManager.getInstance().interiorDoorToTardis.remove(doorBlockEntity);
-                if (!ClientTardisManager.getInstance().consoleToTardis.isEmpty()) return;
-                ClientAITNetworkManager.send_interior_unloaded(uuid);
+                ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(doorBlockEntity.getTardisId()).get();
+                if (clientTardis == null || !clientTardis.getLoadedCache().isDoorBlockLoaded(doorBlockEntity) || !clientTardis.isSubscribedToInterior()) return;
+                clientTardis.getLoadedCache().unloadDoorBlock(doorBlockEntity);
+                if (clientTardis.getLoadedCache().hasAnyConsolesLoaded()) return;
+                clientTardis.unsubscribeToInterior();
             }
             else if (block instanceof ConsoleBlockEntity consoleBlockEntity) {
-                if (!ClientTardisManager.getInstance().consoleToTardis.containsKey(consoleBlockEntity)) return;
-                UUID uuid = ClientTardisManager.getInstance().consoleToTardis.get(consoleBlockEntity).getUuid();
-                ClientTardisManager.getInstance().consoleToTardis.remove(consoleBlockEntity);
-                if (!ClientTardisManager.getInstance().consoleToTardis.isEmpty()) return;
-                ClientAITNetworkManager.send_interior_unloaded(uuid);
+                ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(consoleBlockEntity.getTardisId()).get();
+                if (clientTardis == null || !clientTardis.getLoadedCache().isConsoleBlockLoaded(consoleBlockEntity) || !clientTardis.isSubscribedToInterior()) return;
+                clientTardis.getLoadedCache().unloadConsoleBlock(consoleBlockEntity);
+                if (clientTardis.getLoadedCache().hasAnyDoorsLoaded()) return;
+                clientTardis.unsubscribeToInterior();
             }
         });
 
         ClientPlayNetworking.registerGlobalReceiver(ConsoleBlockEntity.SYNC_TYPE, (client, handler, buf, responseSender) -> {
-            if (client.world.getRegistryKey() != AITDimensions.TARDIS_DIM_WORLD || client.world == null) return;
+            if (client.world == null || client.world.getRegistryKey() != AITDimensions.TARDIS_DIM_WORLD) return;
 
             String id = buf.readString();
             ConsoleSchema type = ConsoleRegistry.REGISTRY.get(Identifier.tryParse(id));
@@ -163,7 +161,7 @@ public class AITModClient implements ClientModInitializer {
         });
 
         ClientPlayNetworking.registerGlobalReceiver(ConsoleBlockEntity.SYNC_VARIANT, (client, handler, buf, responseSender) -> {
-            if (client.world.getRegistryKey() != AITDimensions.TARDIS_DIM_WORLD || client.world == null) return;
+            if (client.world == null || client.world.getRegistryKey() != AITDimensions.TARDIS_DIM_WORLD) return;
 
             Identifier id = Identifier.tryParse(buf.readString());
             BlockPos consolePos = buf.readBlockPos();

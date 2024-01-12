@@ -7,6 +7,7 @@ import mdteam.ait.core.AITDimensions;
 import mdteam.ait.core.AITEntityTypes;
 import mdteam.ait.core.blocks.types.HorizontalDirectionalBlock;
 import mdteam.ait.core.entities.ConsoleControlEntity;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.registry.ConsoleRegistry;
 import mdteam.ait.registry.ConsoleVariantRegistry;
 import mdteam.ait.tardis.console.ConsoleSchema;
@@ -68,6 +69,9 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
         Tardis found = TardisUtil.findTardisByPosition(pos);
         if (found != null)
             this.setTardis(found);
+    }
+    public UUID getTardisId() {
+        return tardisId;
     }
 
     @Override
@@ -298,23 +302,7 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
     }
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
-        if (player == null)
-            return;
 
-//        if (world != TardisUtil.getTardisDimension())
-//            return;
-
-       /* if (player.getMainHandStack().getItem() == Items.STICK) changeConsole(nextConsole(getConsoleSchema()));
-        if (player.getMainHandStack().getItem() == Items.BONE) setVariant(nextVariant(getVariant()));
-        if (player.getMainHandStack().getItem() == Items.SHEARS) {
-            world.breakBlock(pos, true);
-            for (ConsoleControlEntity entity : controlEntities) {
-                entity.discard();
-            }
-            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f, new ItemStack(AITBlocks.CONSOLE)));
-            this.getDesktop().setConsolePos(null);
-            markRemoved();
-        }*/
     }
 
     @Override
@@ -387,6 +375,8 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
 
     public void markNeedsControl() {
         this.needsControls = true;
+        if (TardisUtil.isClient()) return;
+        ServerAITNetworkManager.setSendTardisConsoleBlockPosToSubscribers(this.getPos(), this.getTardis());
     }
     public void markNeedsSyncing() {
         this.needsSync = true;

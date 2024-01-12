@@ -12,13 +12,6 @@ public class ClientShakeUtil {
     private static final float SHAKE_INTENSITY = 0.5f; // Adjust this value to control the intensity of the shake
     private static final int MAX_DISTANCE = 5; // The radius from the console where the player will feel the shake
 
-    public static boolean shouldShake(Tardis tardis) {
-        return Objects.equals(ClientTardisUtil.getCurrentTardis(), tardis)
-                && tardis.getTravel() != null
-                && tardis.getTravel().getState() != TardisTravel.State.LANDED
-                && ClientTardisUtil.distanceFromConsole() < MAX_DISTANCE;
-    }
-
     /**
      * Shakes based off the distance of the gpu fixme how high was i when i wrong "distance of the gpu" - fixme how high was duzo when he wrote gpu and wrong???
      */

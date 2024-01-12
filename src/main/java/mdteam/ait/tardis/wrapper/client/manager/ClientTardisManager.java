@@ -9,6 +9,7 @@ import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.util.SerialDimension;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisManager;
@@ -31,9 +32,6 @@ public class ClientTardisManager extends TardisManager {
     public static final Identifier ASK_POS = new Identifier("ait", "ask_pos_tardis");
     public static final Identifier LET_KNOW_UNLOADED = new Identifier("ait", "let_know_unloaded");
     private static final ClientTardisManager instance = new ClientTardisManager();
-    public final Map<ConsoleBlockEntity, Tardis> consoleToTardis = new HashMap<>();
-    public final Map<ExteriorBlockEntity, Tardis> exteriorToTardis = new HashMap<>();
-    public final Map<DoorBlockEntity, Tardis> interiorDoorToTardis = new HashMap<>();
     public final List<UUID> loadedTardises = new ArrayList<>();
     private final Multimap<UUID, Consumer<Tardis>> subscribers = ArrayListMultimap.create();
     private final Deque<PacketByteBuf> buffers = new ArrayDeque<>();
@@ -129,9 +127,6 @@ public class ClientTardisManager extends TardisManager {
     @Override
     public void reset() {
         this.subscribers.clear();
-        this.exteriorToTardis.clear();
-        this.consoleToTardis.clear();
-        this.interiorDoorToTardis.clear();
         super.reset();
     }
 

@@ -8,6 +8,8 @@ import mdteam.ait.core.AITDimensions;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.TardisUtil;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
+import mdteam.ait.tardis.wrapper.client.manager.NewClientTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
@@ -15,7 +17,9 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static mdteam.ait.tardis.util.TardisUtil.*;
 
@@ -27,11 +31,7 @@ public class ClientTardisUtil {
     private static int powerDeltaTick;
 
     public static boolean isPlayerInATardis() {
-        if (MinecraftClient.getInstance().world == null || MinecraftClient.getInstance().world.getRegistryKey() != AITDimensions.TARDIS_DIM_WORLD) return false;
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        Tardis found = TardisUtil.findTardisByInterior(player.getBlockPos());
-
-        return found != null;
+        return MinecraftClient.getInstance().world != null && MinecraftClient.getInstance().world.getRegistryKey() == AITDimensions.TARDIS_DIM_WORLD;
     }
 
     /**
@@ -44,6 +44,22 @@ public class ClientTardisUtil {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return null;
         return TardisUtil.findTardisByInterior(player.getBlockPos());
+    }
+
+    public static ClientTardis getCurrentClientTardis() {
+        if (!isPlayerInATardis()) return null;
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player == null) return null;
+        return findClientTardisByInterior(player.getBlockPos());
+
+    }
+
+    public static ClientTardis findClientTardisByInterior(BlockPos pos) {
+        for (Map.Entry<UUID, Supplier<ClientTardis>> entry : NewClientTardisManager.getInstance().LOOKUP.entrySet()) {
+            ClientTardis tardis = entry.getValue().get();
+            if (TardisUtil.inBox(tardis.getDesktop().getCorners(), pos)) return tardis;
+        }
+        return null;
     }
 
     public static double distanceFromConsole() {
