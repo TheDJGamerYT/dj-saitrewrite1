@@ -41,6 +41,8 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_SIEGE_MODE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_siege_mode_update");
     public static final Identifier SEND_TARDIS_TRAVEL_SPEED_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_travel_speed_update");
     public static final Identifier SEND_TARDIS_TRAVEL_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_travel_state_update");
+    public static final Identifier SEND_TARDIS_POWERED_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_powered_update");
+    public static final Identifier SEND_TARDIS_ALARMS_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_alarms_update");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -234,6 +236,30 @@ public class ServerAITNetworkManager {
             ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
             if (player == null) continue;
             ServerPlayNetworking.send(player, SEND_TARDIS_TRAVEL_STATE_UPDATE, data);
+        }
+    }
+
+    public static void setSendTardisPoweredUpdate(Tardis tardis, boolean powered) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(powered);
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(tardis.getUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardis.getUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, SEND_TARDIS_POWERED_UPDATE, data);
+        }
+    }
+
+    public static void setSendTardisAlarmsUpdate(Tardis tardis, boolean alarms) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(alarms);
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(tardis.getUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardis.getUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, SEND_TARDIS_ALARMS_UPDATE, data);
         }
     }
 }

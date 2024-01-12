@@ -87,12 +87,12 @@ public class ClientTardisUtil {
 
     public static void tickPowerDelta() {
         if (!isPlayerInATardis()) return;
-        Tardis tardis = getCurrentTardis();
-
-        if (tardis.hasPower() && getPowerDelta() < MAX_POWER_DELTA_TICKS) {
+        ClientTardis clientTardis = getCurrentClientTardis();
+        if (clientTardis == null) return;
+        if (clientTardis.isPowered() && getPowerDelta() < MAX_POWER_DELTA_TICKS) {
             setPowerDelta(getPowerDelta() + 1);
         }
-        else if (!tardis.hasPower() && getPowerDelta() > 0) {
+        else if (!clientTardis.isPowered() && getPowerDelta() > 0) {
             setPowerDelta(getPowerDelta() - 1);
         }
     }
@@ -110,9 +110,9 @@ public class ClientTardisUtil {
 
     public static void tickAlarmDelta() {
         if (!isPlayerInATardis()) return;
-        Tardis tardis = getCurrentTardis();
-
-        if (!tardis.getHandlers().getAlarms().isEnabled()) {
+        ClientTardis clientTardis = getCurrentClientTardis();
+        if (clientTardis == null) return;
+        if (!clientTardis.isAlarmsEnabled()) {
             if (getAlarmDelta() != MAX_ALARM_DELTA_TICKS)
                 setAlarmDelta(getAlarmDelta() + 1);
             return;

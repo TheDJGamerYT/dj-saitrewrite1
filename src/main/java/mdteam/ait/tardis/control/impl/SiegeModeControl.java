@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.control.impl;
 
 import mdteam.ait.core.AITSounds;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.control.Control;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -19,6 +20,7 @@ public class SiegeModeControl extends Control {
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
         tardis.setSiegeMode(!tardis.isSiegeMode());
         PropertiesHandler.set(tardis.getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, false);
+        ServerAITNetworkManager.setSendTardisAlarmsUpdate(tardis, false);
         Text enabled = Text.translatable("tardis.message.control.siege.enabled");
         Text disabled = Text.translatable("tardis.message.control.siege.disabled");
         player.sendMessage((tardis.isSiegeMode() ? enabled : disabled), true);

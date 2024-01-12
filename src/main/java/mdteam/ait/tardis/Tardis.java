@@ -12,6 +12,7 @@ import mdteam.ait.compat.DependencyChecker;
 import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.item.SiegeTardisItem;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
@@ -183,6 +184,7 @@ public class Tardis {
 
         //PropertiesHandler.set(this.getHandlers().getProperties(), PropertiesHandler.POWER_DELTA, MAX_POWER_DELTA_TICKS);
         PropertiesHandler.setBool(this.getHandlers().getProperties(), PropertiesHandler.HAS_POWER, false);
+        ServerAITNetworkManager.setSendTardisPoweredUpdate(this, false);
         TardisEvents.LOSE_POWER.invoker().onLosePower(this);
         this.markDirty();
     }
@@ -194,6 +196,7 @@ public class Tardis {
 
         //PropertiesHandler.set(this.getHandlers().getProperties(), PropertiesHandler.POWER_DELTA, 0);
         PropertiesHandler.setBool(this.getHandlers().getProperties(), PropertiesHandler.HAS_POWER, true);
+        ServerAITNetworkManager.setSendTardisPoweredUpdate(this, true);
         TardisEvents.REGAIN_POWER.invoker().onRegainPower(this);
         this.markDirty();
     }
@@ -287,14 +290,6 @@ public class Tardis {
      * @param client the remote being ticked
      */
     public void tick(MinecraftClient client) { // fixme should likely be in ClientTardis instead, same with  other server-only things should be in ServerTardis
-        // referencing client stuff where it COULD be server causes problems
-        if(client.player != null &&
-                ClientTardisUtil.isPlayerInATardis() && ClientTardisUtil.getCurrentTardis().equals(this) &&
-                this.getTravel() != null && this.getTravel().getState() != TardisTravel.State.LANDED) {
-            /*if (ClientShakeUtil.shouldShake(this)) */
-            ClientShakeUtil.shakeFromConsole();
-        }
-
         ClientTardisUtil.tickPowerDelta();
         ClientTardisUtil.tickAlarmDelta();
     }

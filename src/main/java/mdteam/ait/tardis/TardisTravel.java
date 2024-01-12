@@ -8,6 +8,8 @@ import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.blocks.ExteriorBlock;
 import mdteam.ait.core.managers.DeltaTimeManager;
+import mdteam.ait.network.ClientAITNetworkManager;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.control.impl.RandomiserControl;
 import mdteam.ait.tardis.control.impl.pos.PosManager;
 import mdteam.ait.tardis.control.impl.pos.PosType;
@@ -164,6 +166,7 @@ public class TardisTravel extends TardisLink {
     }
     public void setSpeed(int speed) {
         PropertiesHandler.set(this.tardis().getHandlers().getProperties(), PropertiesHandler.SPEED, speed);
+        ServerAITNetworkManager.setSendTardisTravelSpeedUpdate(this.tardis(), speed);
         this.tardis().markDirty();
     }
 
@@ -294,6 +297,7 @@ public class TardisTravel extends TardisLink {
         this.getDestination().getWorld().getChunk(this.getTardis().getTravel().getDestination());
         // Enable alarm and disable anti-mavity properties for Tardis
         PropertiesHandler.set(this.getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
+        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.getTardis(), true);
         PropertiesHandler.set(this.getTardis().getHandlers().getProperties(), PropertiesHandler.ANTIGRAVS_ENABLED, false);
         // Set the destination position at the topmost block of the world at the X and Z coordinates of the destination
         this.setDestination(
@@ -704,10 +708,7 @@ public class TardisTravel extends TardisLink {
 
     public void setState(State state) {
         this.state = state;
-    }
-
-    public void toggleHandbrake() {
-        this.state.next(new TravelContext(this, this.position, this.destination));
+        ServerAITNetworkManager.setSendTardisTravelStateUpdate(this.getTardis(), state);
     }
 
     public void placeExterior() {

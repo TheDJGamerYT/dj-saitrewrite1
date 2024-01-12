@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.wrapper.client;
 
 import mdteam.ait.client.util.ClientShakeUtil;
+import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
@@ -13,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ClientTardis {
@@ -29,6 +31,8 @@ public class ClientTardis {
     private boolean subscribed_to_interior = false;
     private boolean subscribe_to_exterior = false;
     private boolean siege_mode = false;
+    private boolean powered = false;
+    private boolean alarms_enabled = false;
 
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
         this.tardis_ID = tardisID;
@@ -42,12 +46,28 @@ public class ClientTardis {
     public void setSiegeMode(boolean siege_mode) {
         this.siege_mode = siege_mode;
     }
+    public void setPowered(boolean powered) {
+        this.powered = powered;
+    }
+    public boolean isPowered() {
+        return powered;
+    }
+
+    public boolean isAlarmsEnabled() {
+        return alarms_enabled;
+    }
+    public void setAlarmsState(boolean alarms_enabled) {
+        this.alarms_enabled = alarms_enabled;
+    }
 
     public void tick() {
+        ClientTardisUtil.tickPowerDelta();
+        ClientTardisUtil.tickAlarmDelta();
+        if (!ClientTardisUtil.isPlayerInATardis() || this.getTravel().state != TardisTravel.State.FLIGHT || !Objects.equals(ClientTardisUtil.getCurrentClientTardis(), this)) return;
         ClientShakeUtil.shakeFromConsole();
     }
 
-    public boolean getSiegeMode() {
+    public boolean isInSiegeMode() {
         return this.siege_mode;
     }
 
@@ -59,7 +79,7 @@ public class ClientTardis {
         return desktop;
     }
 
-    public ClientTardisLoadedCache getLoad_cache() {
+    public ClientTardisLoadedCache getLoadCache() {
         return load_cache;
     }
 

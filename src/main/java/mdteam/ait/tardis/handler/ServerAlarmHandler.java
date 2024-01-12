@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.core.AITSounds;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.TardisUtil;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,11 +23,13 @@ public class ServerAlarmHandler extends TardisLink {
 
     public void enable() {
         PropertiesHandler.setBool(tardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
+        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.tardis(), true);
         tardis().markDirty();
     }
 
     public void disable() {
         PropertiesHandler.setBool(tardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, false);
+        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.tardis(), false);
         tardis().markDirty();
     }
 

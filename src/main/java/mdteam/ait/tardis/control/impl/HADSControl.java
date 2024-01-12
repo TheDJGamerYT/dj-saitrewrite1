@@ -1,5 +1,6 @@
 package mdteam.ait.tardis.control.impl;
 
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.control.Control;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -27,7 +28,7 @@ public class HADSControl extends Control {
 
         return true;*/
         PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, !PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED));
-
+        ServerAITNetworkManager.setSendTardisAlarmsUpdate(tardis, PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED));
         tardis.markDirty();
         Text alarm_enabled = Text.translatable("tardis.message.control.hads.alarm_enabled");
         Text alarms_disabled = Text.translatable("tardis.message.control.hads.alarms_disabled");

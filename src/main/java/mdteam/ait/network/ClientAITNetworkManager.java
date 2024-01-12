@@ -19,6 +19,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import org.apache.logging.log4j.core.jmx.Server;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,6 +92,18 @@ public class ClientAITNetworkManager {
             TardisTravel.State state = TardisTravel.State.values()[buf.readInt()];
             ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getTravel().setState(state);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_POWERED_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean powered = buf.readBoolean();
+            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setPowered(powered);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_ALARMS_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean alarms = buf.readBoolean();
+            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setAlarmsState(alarms);
         }));
     }
 

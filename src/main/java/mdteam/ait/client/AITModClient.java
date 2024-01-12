@@ -26,10 +26,8 @@ import mdteam.ait.core.item.KeyItem;
 import mdteam.ait.core.item.SonicItem;
 import mdteam.ait.core.item.WaypointItem;
 import mdteam.ait.registry.ConsoleRegistry;
-import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.console.ConsoleSchema;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
-import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.client.manager.NewClientTardisManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -109,24 +107,24 @@ public class AITModClient implements ClientModInitializer {
         ClientBlockEntityEvents.BLOCK_ENTITY_LOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exterior) {
                 ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(exterior.getTardisId()).get();
-                if (clientTardis == null || clientTardis.isSubscribe_to_exterior() || clientTardis.getLoad_cache().isExteriorBlockLoaded(exterior)) return;
-                clientTardis.getLoad_cache().loadExteriorBlock(exterior);
+                if (clientTardis == null || clientTardis.isSubscribe_to_exterior() || clientTardis.getLoadCache().isExteriorBlockLoaded(exterior)) return;
+                clientTardis.getLoadCache().loadExteriorBlock(exterior);
                 clientTardis.subscribeToExterior();
 //                exterior.getTardis().getDoor().clearExteriorAnimationState();
                 // @TODO: Find an alternative way of clearing exterior animation state
             }
             else if (block instanceof DoorBlockEntity door) {
                 ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(door.getTardisId()).get();
-                if (clientTardis == null || clientTardis.isSubscribed_to_interior() || clientTardis.getLoad_cache().isDoorBlockLoaded(door)) return;
-                clientTardis.getLoad_cache().loadDoorBlock(door);
+                if (clientTardis == null || clientTardis.isSubscribed_to_interior() || clientTardis.getLoadCache().isDoorBlockLoaded(door)) return;
+                clientTardis.getLoadCache().loadDoorBlock(door);
                 clientTardis.subscribeToInterior();
 //                door.getTardis().getDoor().clearInteriorAnimationState();
                 // @TODO: Find an alternative way of clearing interior animation state
             }
             else if (block instanceof ConsoleBlockEntity console) {
                 ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(console.getTardisId()).get();
-                if (clientTardis == null || clientTardis.isSubscribed_to_interior() || clientTardis.getLoad_cache().isConsoleBlockLoaded(console)) return;
-                clientTardis.getLoad_cache().loadConsoleBlock(console);
+                if (clientTardis == null || clientTardis.isSubscribed_to_interior() || clientTardis.getLoadCache().isConsoleBlockLoaded(console)) return;
+                clientTardis.getLoadCache().loadConsoleBlock(console);
                 clientTardis.subscribeToInterior();
             }
         });
@@ -134,22 +132,22 @@ public class AITModClient implements ClientModInitializer {
         ClientBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exteriorBlock) {
                 ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(exteriorBlock.getTardisId()).get();
-                if (clientTardis == null || !clientTardis.getLoad_cache().isExteriorBlockLoaded(exteriorBlock) || !clientTardis.isSubscribe_to_exterior()) return;
-                clientTardis.getLoad_cache().unloadExteriorBlock(exteriorBlock);
+                if (clientTardis == null || !clientTardis.getLoadCache().isExteriorBlockLoaded(exteriorBlock) || !clientTardis.isSubscribe_to_exterior()) return;
+                clientTardis.getLoadCache().unloadExteriorBlock(exteriorBlock);
                 clientTardis.unsubscribeToExterior();
             }
             else if (block instanceof DoorBlockEntity doorBlockEntity) {
                 ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(doorBlockEntity.getTardisId()).get();
-                if (clientTardis == null || !clientTardis.getLoad_cache().isDoorBlockLoaded(doorBlockEntity) || !clientTardis.isSubscribed_to_interior()) return;
-                clientTardis.getLoad_cache().unloadDoorBlock(doorBlockEntity);
-                if (clientTardis.getLoad_cache().hasAnyConsolesLoaded()) return;
+                if (clientTardis == null || !clientTardis.getLoadCache().isDoorBlockLoaded(doorBlockEntity) || !clientTardis.isSubscribed_to_interior()) return;
+                clientTardis.getLoadCache().unloadDoorBlock(doorBlockEntity);
+                if (clientTardis.getLoadCache().hasAnyConsolesLoaded()) return;
                 clientTardis.unsubscribeToInterior();
             }
             else if (block instanceof ConsoleBlockEntity consoleBlockEntity) {
                 ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(consoleBlockEntity.getTardisId()).get();
-                if (clientTardis == null || !clientTardis.getLoad_cache().isConsoleBlockLoaded(consoleBlockEntity) || !clientTardis.isSubscribed_to_interior()) return;
-                clientTardis.getLoad_cache().unloadConsoleBlock(consoleBlockEntity);
-                if (clientTardis.getLoad_cache().hasAnyDoorsLoaded()) return;
+                if (clientTardis == null || !clientTardis.getLoadCache().isConsoleBlockLoaded(consoleBlockEntity) || !clientTardis.isSubscribed_to_interior()) return;
+                clientTardis.getLoadCache().unloadConsoleBlock(consoleBlockEntity);
+                if (clientTardis.getLoadCache().hasAnyDoorsLoaded()) return;
                 clientTardis.unsubscribeToInterior();
             }
         });
