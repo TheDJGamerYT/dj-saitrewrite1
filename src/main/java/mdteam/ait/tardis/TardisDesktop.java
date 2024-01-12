@@ -56,7 +56,7 @@ public class TardisDesktop extends TardisLink {
         // this is needed for door and console initialization. when we call #setTardis(ITardis) the desktop field is still null.
         door.setDesktop(this);
         //console.setDesktop(this);
-        door.setTardis(tardis());
+        door.setTardis(getTardis());
         //console.setTardis(tardis);
     }
 
@@ -95,15 +95,15 @@ public class TardisDesktop extends TardisLink {
 
     public void setInteriorDoorPos(AbsoluteBlockPos.Directed pos) {
         // before we do this we need to make sure to delete the old portals, but how?! by registering to this event
-        TardisEvents.DOOR_MOVE.invoker().onMove(tardis(), pos);
+        TardisEvents.DOOR_MOVE.invoker().onMove(getTardis(), pos);
 
         this.doorPos = pos;
     }
 
     public void setConsolePos(AbsoluteBlockPos.Directed pos) {
         this.consolePos = pos;
-        if (tardis() != null)
-            tardis().markDirty();
+        if (getTardis() != null)
+            getTardis().markDirty();
     }
 
     public Corners getCorners() {
@@ -119,7 +119,7 @@ public class TardisDesktop extends TardisLink {
         // this is needed for door and console initialization. when we call #setTardis(ITardis) the desktop field is still null.
         door.setDesktop(this);
         //console.setDesktop(this);
-        door.setTardis(tardis());
+        door.setTardis(getTardis());
         return true;
     }
 
@@ -159,7 +159,7 @@ public class TardisDesktop extends TardisLink {
             entity.discard();  // Kill any normal entities at that position.
         }
 
-        for (LivingEntity entity : TardisUtil.getEntitiesInInterior(tardis(), 100)) {
+        for (LivingEntity entity : TardisUtil.getEntitiesInInterior(getTardis(), 100)) {
             entity.kill();
         }
 

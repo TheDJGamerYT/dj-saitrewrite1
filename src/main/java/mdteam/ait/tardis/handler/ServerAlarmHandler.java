@@ -3,10 +3,7 @@ package mdteam.ait.tardis.handler;
 import mdteam.ait.core.AITSounds;
 import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
-import mdteam.ait.tardis.util.TardisUtil;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 
 import java.util.UUID;
@@ -22,19 +19,19 @@ public class ServerAlarmHandler extends TardisLink {
     }
 
     public void enable() {
-        PropertiesHandler.setBool(tardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
-        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.tardis(), true);
-        tardis().markDirty();
+        PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
+        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.getTardis(), true);
+        getTardis().markDirty();
     }
 
     public void disable() {
-        PropertiesHandler.setBool(tardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, false);
-        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.tardis(), false);
-        tardis().markDirty();
+        PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, false);
+        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.getTardis(), false);
+        getTardis().markDirty();
     }
 
     public boolean isEnabled() {
-        return PropertiesHandler.getBool(tardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED);
+        return PropertiesHandler.getBool(getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED);
     }
 
     public void toggle() {

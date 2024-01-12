@@ -9,7 +9,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.Properties;
 import java.util.UUID;
 
 public class FlightHandler extends TardisLink {
@@ -21,13 +20,13 @@ public class FlightHandler extends TardisLink {
 
         // todo this doesnt seem to work.
         TardisEvents.LANDED.register((tardis -> {
-            if (!tardis.equals(this.tardis())) return;
+            if (!tardis.equals(this.getTardis())) return;
 
             flightTicks = 0;
             targetTicks = 0;
         }));
         TardisEvents.DEMAT.register((tardis -> {
-            if (!tardis.equals(this.tardis())) return false;
+            if (!tardis.equals(this.getTardis())) return false;
 
             flightTicks = 0;
             targetTicks = FlightUtil.getFlightDuration(tardis.getTravel().getPosition(), tardis.getTravel().getDestination());
@@ -37,27 +36,27 @@ public class FlightHandler extends TardisLink {
     }
 
     private boolean isInFlight() {
-        return this.tardis().getTravel().getState().equals(TardisTravel.State.FLIGHT) || this.tardis().getTravel().getState().equals(TardisTravel.State.MAT);
+        return this.getTardis().getTravel().getState().equals(TardisTravel.State.FLIGHT) || this.getTardis().getTravel().getState().equals(TardisTravel.State.MAT);
     }
 
     private boolean isFlightTicking() {
-        return this.tardis().getTravel().getState() == TardisTravel.State.FLIGHT && this.targetTicks != 0;
+        return this.getTardis().getTravel().getState() == TardisTravel.State.FLIGHT && this.targetTicks != 0;
     }
 
     public boolean hasFinishedFlight() {
-        return flightTicks >= targetTicks || targetTicks == 0 || tardis().getTravel().isCrashing();
+        return flightTicks >= targetTicks || targetTicks == 0 || getTardis().getTravel().isCrashing();
     }
     private void onFlightFinished() {
         this.flightTicks = 0;
         this.targetTicks = 0;
-        FlightUtil.playSoundAtConsole(tardis(), SoundEvents.BLOCK_BEACON_POWER_SELECT); // temp sound
+        FlightUtil.playSoundAtConsole(getTardis(), SoundEvents.BLOCK_BEACON_POWER_SELECT); // temp sound
 
         if (shouldAutoLand()) {
-            this.tardis().getTravel().materialise();
+            this.getTardis().getTravel().materialise();
         }
     }
     private boolean shouldAutoLand() {
-        return PropertiesHandler.willAutoPilot(tardis().getHandlers().getProperties()) || !TardisUtil.isInteriorNotEmpty(this.tardis()); // todo im not too sure if this second check should exist, but its so funny ( ghost monument reference )
+        return PropertiesHandler.willAutoPilot(getTardis().getHandlers().getProperties()) || !TardisUtil.isInteriorNotEmpty(this.getTardis()); // todo im not too sure if this second check should exist, but its so funny ( ghost monument reference )
     }
 
     public void increaseFlightTime(int ticks) {
@@ -66,7 +65,7 @@ public class FlightHandler extends TardisLink {
 
     public int getDurationAsPercentage() {
         if (this.targetTicks == 0 || this.flightTicks == 0) {
-            if (this.tardis().getTravel().getState() == TardisTravel.State.DEMAT) return 0;
+            if (this.getTardis().getTravel().getState() == TardisTravel.State.DEMAT) return 0;
             // if (this.tardis().getTravel().getState() == TardisTravel.State.MAT) return 100;
             return 100;
         }
@@ -75,7 +74,7 @@ public class FlightHandler extends TardisLink {
     }
 
     public void recalculate() {
-        this.targetTicks = FlightUtil.getFlightDuration(tardis().position(), tardis().destination());
+        this.targetTicks = FlightUtil.getFlightDuration(getTardis().position(), getTardis().destination());
         this.flightTicks = this.isInFlight() ? MathHelper.clamp(this.flightTicks, 0, this.targetTicks) : 0;
     }
 
@@ -83,11 +82,11 @@ public class FlightHandler extends TardisLink {
     public void tick(MinecraftServer server) {
         super.tick(server);
 
-        if ((this.targetTicks > 0 || this.flightTicks > 0) && this.tardis().getTravel().getState() == TardisTravel.State.LANDED) {
+        if ((this.targetTicks > 0 || this.flightTicks > 0) && this.getTardis().getTravel().getState() == TardisTravel.State.LANDED) {
             this.recalculate();
         }
 
-        if (this.isInFlight() && !this.tardis().getTravel().isCrashing() && !(this.flightTicks >= this.targetTicks) && this.targetTicks == 0) {
+        if (this.isInFlight() && !this.getTardis().getTravel().isCrashing() && !(this.flightTicks >= this.targetTicks) && this.targetTicks == 0) {
             this.recalculate();
         }
 
@@ -96,7 +95,7 @@ public class FlightHandler extends TardisLink {
                 this.onFlightFinished();
             }
 
-            this.flightTicks = this.flightTicks + this.tardis().getTravel().getSpeed();
+            this.flightTicks = this.flightTicks + this.getTardis().getTravel().getSpeed();
         }
     }
 }

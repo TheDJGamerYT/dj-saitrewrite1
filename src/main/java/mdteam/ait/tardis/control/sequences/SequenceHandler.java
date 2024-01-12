@@ -28,7 +28,7 @@ public class SequenceHandler extends TardisLink {
     private void compareToSequences() {
         for (Sequence sequence : SequenceRegistry.REGISTRY) {
             if (sequence.isFinished(this.recent))
-                sequence.execute(this.tardis());
+                sequence.execute(this.getTardis());
         }
     }
 

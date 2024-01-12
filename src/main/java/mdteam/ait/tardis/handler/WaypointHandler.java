@@ -37,7 +37,7 @@ public class WaypointHandler extends TardisLink {
         // System.out.println(var);
         // System.out.println(this.current);
         this.current = var;
-        this.tardis().markDirty();
+        this.getTardis().markDirty();
 
         if (spawnItem && prev.isPresent()) {
             this.spawnItem(prev.get());
@@ -59,13 +59,13 @@ public class WaypointHandler extends TardisLink {
     public void gotoWaypoint() {
         if (!this.hasWaypoint()) return; // todo move this check to the DEMAT event so the fail to takeoff happens
 
-        PropertiesHandler.setAutoPilot(this.tardis().getHandlers().getProperties(), true);
-        FlightUtil.travelTo(tardis(), this.get());
+        PropertiesHandler.setAutoPilot(this.getTardis().getHandlers().getProperties(), true);
+        FlightUtil.travelTo(getTardis(), this.get());
     }
     public void setDestination() {
         if (!this.hasWaypoint()) return;
 
-        this.tardis().getTravel().setDestination(this.get(), true);
+        this.getTardis().getTravel().setDestination(this.get(), true);
     }
 
     public void spawnItem() {
@@ -78,7 +78,7 @@ public class WaypointHandler extends TardisLink {
     public void spawnItem(Waypoint waypoint) {
         if (!this.hasCartridge) return;
 
-        spawnItem(waypoint, this.tardis().getDesktop().getConsolePos());
+        spawnItem(waypoint, this.getTardis().getDesktop().getConsolePos());
         this.hasCartridge = false;
     }
 

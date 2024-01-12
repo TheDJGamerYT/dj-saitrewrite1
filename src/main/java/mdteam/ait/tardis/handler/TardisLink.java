@@ -1,11 +1,9 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.tardis.Exclude;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.SerialDimension;
-import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTickable;
@@ -26,7 +24,7 @@ public abstract class TardisLink implements TardisTickable {
         this.tardisId = tardisId;
     }
 
-    public Tardis tardis() {
+    public Tardis getTardis() {
         if (isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
             return null;
@@ -55,14 +53,14 @@ public abstract class TardisLink implements TardisTickable {
     }
 
     public AbsoluteBlockPos.Directed getDoorPos() {
-        Tardis tardis = tardis();
+        Tardis tardis = getTardis();
         return tardis != null && tardis.getDesktop() != null ?
                 tardis.getDesktop().getInteriorDoorPos() :
                 new AbsoluteBlockPos.Directed(0, 0, 0, new SerialDimension(World.OVERWORLD.getValue().toString()), Direction.NORTH);
     }
 
     public AbsoluteBlockPos.Directed getExteriorPos() {
-        Tardis tardis = tardis();
+        Tardis tardis = getTardis();
         return tardis != null && tardis.getTravel() != null ?
                 tardis.getTravel().getPosition() :
                 new AbsoluteBlockPos.Directed(0, 0, 0, new SerialDimension(World.OVERWORLD.getValue().toString()), Direction.NORTH);
