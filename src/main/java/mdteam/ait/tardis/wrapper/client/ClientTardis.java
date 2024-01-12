@@ -26,6 +26,7 @@ public class ClientTardis {
 
     private final ClientTardisDesktop desktop;
     private final ClientTardisLoadedCache load_cache;
+    private final ClientTardisExterior exterior;
 
     private Corners corners;
     private boolean subscribed_to_interior = false;
@@ -39,8 +40,13 @@ public class ClientTardis {
         this.travel = new ClientTardisTravel(this);
         this.desktop = new ClientTardisDesktop(this);
         this.load_cache = new ClientTardisLoadedCache(this);
+        this.exterior = new ClientTardisExterior(this);
         this.exterior_schema = exteriorSchema;
         this.exterior_variant_schema = exteriorVariantSchema;
+    }
+
+    public ClientTardisExterior getExterior() {
+        return this.exterior;
     }
 
     public void setSiegeMode(boolean siege_mode) {
@@ -69,11 +75,6 @@ public class ClientTardis {
 
     public boolean isInSiegeMode() {
         return this.siege_mode;
-    }
-
-    // @TODO: Move this to ClientTardisExterior when I make it
-    public BlockPos getExteriorBlockPos() {
-        return this.getLoadCache().loadedExteriorBlockEntities.get(0).getPos();
     }
 
     public ClientTardisTravel getTravel() {
@@ -108,11 +109,11 @@ public class ClientTardis {
         this.subscribe_to_exterior = false;
     }
 
-    public boolean isSubscribed_to_interior() {
+    public boolean isSubscribedToInterior() {
         return subscribed_to_interior;
     }
 
-    public boolean isSubscribe_to_exterior() {
+    public boolean isSubscribedToExterior() {
         return subscribe_to_exterior;
     }
 
@@ -205,6 +206,10 @@ public class ClientTardis {
             this.tardis = tardis;
         }
 
+        public ClientTardis getTardis() {
+            return tardis;
+        }
+
         public void setCorners(Corners corners) {
             this.corners = corners;
         }
@@ -233,18 +238,23 @@ public class ClientTardis {
     public class ClientTardisLoadedCache {
         private final ClientTardis tardis;
         private final List<ConsoleBlockEntity> loadedConsoleBlockEntities = new ArrayList<>();
-        private final List<ExteriorBlockEntity> loadedExteriorBlockEntities = new ArrayList<>();
+        private ExteriorBlockEntity loadedExteriorBlockEntity = null;
         private final List<DoorBlockEntity> loadedDoorBlockEntities = new ArrayList<>();
 
         public ClientTardisLoadedCache(ClientTardis tardis) {
             this.tardis = tardis;
         }
 
+        public ClientTardis getTardis() {
+            return tardis;
+        }
+
         public void loadConsoleBlock(ConsoleBlockEntity consoleBlockEntity) {
             loadedConsoleBlockEntities.add(consoleBlockEntity);
         }
         public void loadExteriorBlock(ExteriorBlockEntity exteriorBlockEntity) {
-            loadedExteriorBlockEntities.add(exteriorBlockEntity);
+            this.loadedExteriorBlockEntity = exteriorBlockEntity;
+            this.getTardis().getExterior().setExteriorBlockPos(this.loadedExteriorBlockEntity.getPos());
         }
         public void loadDoorBlock(DoorBlockEntity doorBlockEntity) {
             loadedDoorBlockEntities.add(doorBlockEntity);
@@ -254,9 +264,9 @@ public class ClientTardis {
             if (!loadedConsoleBlockEntities.contains(consoleBlockEntity)) return;
             loadedConsoleBlockEntities.remove(consoleBlockEntity);
         }
-        public void unloadExteriorBlock(ExteriorBlockEntity exteriorBlockEntity) {
-            if (!loadedExteriorBlockEntities.contains(exteriorBlockEntity)) return;
-            loadedExteriorBlockEntities.remove(exteriorBlockEntity);
+        public void unloadExteriorBlock() {
+            this.loadedExteriorBlockEntity = null;
+            this.getTardis().getExterior().setExteriorBlockPos(null);
         }
         public void unloadDoorBlock(DoorBlockEntity doorBlockEntity) {
             if (!loadedDoorBlockEntities.contains(doorBlockEntity)) return;
@@ -268,7 +278,7 @@ public class ClientTardis {
         }
 
         public boolean isExteriorBlockLoaded(ExteriorBlockEntity exteriorBlockEntity) {
-            return loadedExteriorBlockEntities.contains(exteriorBlockEntity);
+            return this.loadedExteriorBlockEntity != null;
         }
 
         public boolean isDoorBlockLoaded(DoorBlockEntity doorBlockEntity) {
@@ -279,9 +289,6 @@ public class ClientTardis {
             return !loadedConsoleBlockEntities.isEmpty();
         }
 
-        public boolean hasAnyExteriorsLoaded() {
-            return !loadedExteriorBlockEntities.isEmpty();
-        }
 
         public boolean hasAnyDoorsLoaded() {
             return !loadedDoorBlockEntities.isEmpty();
@@ -289,8 +296,38 @@ public class ClientTardis {
 
         public void reset() {
             loadedConsoleBlockEntities.clear();
-            loadedExteriorBlockEntities.clear();
+            this.loadedExteriorBlockEntity = null;
             loadedDoorBlockEntities.clear();
+        }
+    }
+
+    public class ClientTardisExterior {
+        private final ClientTardis tardis;
+        private BlockPos exteriorBlockPos = null;
+        private boolean isDoorOpen = false;
+
+        public ClientTardisExterior(ClientTardis tardis) {
+            this.tardis = tardis;
+        }
+
+        public ClientTardis getTardis() {
+            return tardis;
+        }
+
+        public void setExteriorBlockPos(BlockPos exteriorBlockPos) {
+            this.exteriorBlockPos = exteriorBlockPos;
+        }
+
+        public BlockPos getExteriorBlockPos() {
+            return exteriorBlockPos;
+        }
+
+        public boolean isDoorOpen() {
+            return isDoorOpen;
+        }
+
+        public void setDoorOpen(boolean isDoorOpen) {
+            this.isDoorOpen = isDoorOpen;
         }
     }
 }

@@ -14,6 +14,7 @@ import mdteam.ait.core.item.KeyItem;
 import mdteam.ait.tardis.*;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.block.BlockState;
@@ -137,6 +138,11 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
         }
 
         return ServerTardisManager.getInstance().getTardis(this.tardisId);
+    }
+
+    public ClientTardis getClientTardis() {
+        if (!isClient()) return null;
+        return ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
     }
 
     public UUID getTardisId() {

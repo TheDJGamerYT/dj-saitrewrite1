@@ -107,7 +107,7 @@ public class AITModClient implements ClientModInitializer {
         ClientBlockEntityEvents.BLOCK_ENTITY_LOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exterior) {
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(exterior.getTardisId()).get();
-                if (clientTardis == null || clientTardis.isSubscribe_to_exterior() || clientTardis.getLoadCache().isExteriorBlockLoaded(exterior)) return;
+                if (clientTardis == null || clientTardis.isSubscribedToExterior() || clientTardis.getLoadCache().isExteriorBlockLoaded(exterior)) return;
                 clientTardis.getLoadCache().loadExteriorBlock(exterior);
                 clientTardis.subscribeToExterior();
 //                exterior.getTardis().getDoor().clearExteriorAnimationState();
@@ -115,7 +115,7 @@ public class AITModClient implements ClientModInitializer {
             }
             else if (block instanceof DoorBlockEntity door) {
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(door.getTardisId()).get();
-                if (clientTardis == null || clientTardis.isSubscribed_to_interior() || clientTardis.getLoadCache().isDoorBlockLoaded(door)) return;
+                if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isDoorBlockLoaded(door)) return;
                 clientTardis.getLoadCache().loadDoorBlock(door);
                 clientTardis.subscribeToInterior();
 //                door.getTardis().getDoor().clearInteriorAnimationState();
@@ -123,7 +123,7 @@ public class AITModClient implements ClientModInitializer {
             }
             else if (block instanceof ConsoleBlockEntity console) {
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(console.getTardisId()).get();
-                if (clientTardis == null || clientTardis.isSubscribed_to_interior() || clientTardis.getLoadCache().isConsoleBlockLoaded(console)) return;
+                if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isConsoleBlockLoaded(console)) return;
                 clientTardis.getLoadCache().loadConsoleBlock(console);
                 clientTardis.subscribeToInterior();
             }
@@ -132,20 +132,20 @@ public class AITModClient implements ClientModInitializer {
         ClientBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exteriorBlock) {
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(exteriorBlock.getTardisId()).get();
-                if (clientTardis == null || !clientTardis.getLoadCache().isExteriorBlockLoaded(exteriorBlock) || !clientTardis.isSubscribe_to_exterior()) return;
-                clientTardis.getLoadCache().unloadExteriorBlock(exteriorBlock);
+                if (clientTardis == null || !clientTardis.getLoadCache().isExteriorBlockLoaded(exteriorBlock) || !clientTardis.isSubscribedToExterior()) return;
+                clientTardis.getLoadCache().unloadExteriorBlock();
                 clientTardis.unsubscribeToExterior();
             }
             else if (block instanceof DoorBlockEntity doorBlockEntity) {
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(doorBlockEntity.getTardisId()).get();
-                if (clientTardis == null || !clientTardis.getLoadCache().isDoorBlockLoaded(doorBlockEntity) || !clientTardis.isSubscribed_to_interior()) return;
+                if (clientTardis == null || !clientTardis.getLoadCache().isDoorBlockLoaded(doorBlockEntity) || !clientTardis.isSubscribedToInterior()) return;
                 clientTardis.getLoadCache().unloadDoorBlock(doorBlockEntity);
                 if (clientTardis.getLoadCache().hasAnyConsolesLoaded()) return;
                 clientTardis.unsubscribeToInterior();
             }
             else if (block instanceof ConsoleBlockEntity consoleBlockEntity) {
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(consoleBlockEntity.getTardisId()).get();
-                if (clientTardis == null || !clientTardis.getLoadCache().isConsoleBlockLoaded(consoleBlockEntity) || !clientTardis.isSubscribed_to_interior()) return;
+                if (clientTardis == null || !clientTardis.getLoadCache().isConsoleBlockLoaded(consoleBlockEntity) || !clientTardis.isSubscribedToInterior()) return;
                 clientTardis.getLoadCache().unloadConsoleBlock(consoleBlockEntity);
                 if (clientTardis.getLoadCache().hasAnyDoorsLoaded()) return;
                 clientTardis.unsubscribeToInterior();

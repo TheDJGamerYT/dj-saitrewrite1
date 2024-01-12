@@ -45,7 +45,8 @@ public class ClientAITNetworkManager {
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(uuid).get();
             ClientWorld clientWorld = MinecraftClient.getInstance().world;
             if (clientTardis == null || clientWorld == null) return;
-            if (!(clientWorld.getBlockEntity(clientTardis.getExteriorBlockPos()) instanceof ExteriorBlockEntity exteriorBlockEntity)) return;
+            if (!(clientWorld.getBlockEntity(clientTardis.getExterior().getExteriorBlockPos()) instanceof ExteriorBlockEntity exteriorBlockEntity)) return;
+            // @TODO: replace getExteriorBlockPos
             exteriorBlockEntity.getAnimation().setupAnimation(TardisTravel.State.values()[p]);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_INITIAL_TARDIS_SYNC, ((client, handler, buf, responseSender) -> {
