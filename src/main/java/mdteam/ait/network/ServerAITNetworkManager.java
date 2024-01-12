@@ -38,6 +38,9 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_SYNC_NEW_TARDIS = new Identifier(AITMod.MOD_ID, "send_sync_new_tardis");
     public static final Identifier SEND_TARDIS_CORNERS = new Identifier(AITMod.MOD_ID, "send_tardis_corners");
     public static final Identifier SEND_TARDIS_CONSOLE_BLOCK_POS = new Identifier(AITMod.MOD_ID, "send_tardis_console_block_pos");
+    public static final Identifier SEND_TARDIS_SIEGE_MODE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_siege_mode_update");
+    public static final Identifier SEND_TARDIS_TRAVEL_SPEED_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_travel_speed_update");
+    public static final Identifier SEND_TARDIS_TRAVEL_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_travel_state_update");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -198,5 +201,39 @@ public class ServerAITNetworkManager {
         data.writeLong(secondBlockPos.asLong());
         ServerPlayNetworking.send(Objects.requireNonNull(TardisUtil.getServer().getPlayerManager().getPlayer(playerUUID)), SEND_TARDIS_CORNERS, data);
 
+    }
+    public static void setSendTardisSiegeModeUpdate(Tardis tardis, boolean state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(state);
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(tardis.getUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardis.getUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, SEND_TARDIS_SIEGE_MODE_UPDATE, data);
+        }
+    }
+
+    public static void setSendTardisTravelSpeedUpdate(Tardis tardis, int speed) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeInt(speed);
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(tardis.getUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardis.getUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, SEND_TARDIS_TRAVEL_SPEED_UPDATE, data);
+        }
+    }
+    public static void setSendTardisTravelStateUpdate(Tardis tardis, TardisTravel.State state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeInt(state.ordinal());
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(tardis.getUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardis.getUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, SEND_TARDIS_TRAVEL_STATE_UPDATE, data);
+        }
     }
 }

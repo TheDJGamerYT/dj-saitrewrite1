@@ -68,7 +68,8 @@ public class ClientTardisUtil {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return 0;
 
-        Tardis tardis = getCurrentTardis();
+        ClientTardis tardis = getCurrentClientTardis();
+        if (tardis == null) return 0;
         BlockPos console = tardis.getDesktop().getConsolePos();
         BlockPos pos = player.getBlockPos();
 

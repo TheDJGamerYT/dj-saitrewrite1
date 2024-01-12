@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.core.AITSounds;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.TardisUtil;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -59,6 +60,7 @@ public class SiegeModeHandler extends TardisLink {
         PropertiesHandler.setBool(tardis().getHandlers().getProperties(), PropertiesHandler.SIEGE_MODE, b);
         // Loqor is stinky
         tardis().markDirty();
+        ServerAITNetworkManager.setSendTardisSiegeModeUpdate(tardis(), b);
     }
 
     @Override

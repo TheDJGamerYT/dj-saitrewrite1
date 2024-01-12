@@ -1,9 +1,11 @@
 package mdteam.ait.tardis.wrapper.client;
 
+import mdteam.ait.client.util.ClientShakeUtil;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.network.ClientAITNetworkManager;
+import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
@@ -14,26 +16,39 @@ import java.util.List;
 import java.util.UUID;
 
 public class ClientTardis {
-    private final UUID tardisID;
-    private ExteriorVariantSchema exteriorVariantSchema;
-    private ExteriorSchema exteriorSchema;
+    private final UUID tardis_ID;
+    private ExteriorVariantSchema exterior_variant_schema;
+    private ExteriorSchema exterior_schema;
 
     private final ClientTardisTravel travel;
 
     private final ClientTardisDesktop desktop;
-    private final ClientTardisLoadedCache loadedCache;
+    private final ClientTardisLoadedCache load_cache;
 
     private Corners corners;
-    private boolean subscribedToInterior = false;
-    private boolean subscribedToExterior = false;
+    private boolean subscribed_to_interior = false;
+    private boolean subscribe_to_exterior = false;
+    private boolean siege_mode = false;
 
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
-        this.tardisID = tardisID;
+        this.tardis_ID = tardisID;
         this.travel = new ClientTardisTravel(this);
         this.desktop = new ClientTardisDesktop(this);
-        this.loadedCache = new ClientTardisLoadedCache(this);
-        this.exteriorSchema = exteriorSchema;
-        this.exteriorVariantSchema = exteriorVariantSchema;
+        this.load_cache = new ClientTardisLoadedCache(this);
+        this.exterior_schema = exteriorSchema;
+        this.exterior_variant_schema = exteriorVariantSchema;
+    }
+
+    public void setSiegeMode(boolean siege_mode) {
+        this.siege_mode = siege_mode;
+    }
+
+    public void tick() {
+        ClientShakeUtil.shakeFromConsole();
+    }
+
+    public boolean getSiegeMode() {
+        return this.siege_mode;
     }
 
     public ClientTardisTravel getTravel() {
@@ -44,36 +59,36 @@ public class ClientTardis {
         return desktop;
     }
 
-    public ClientTardisLoadedCache getLoadedCache() {
-        return loadedCache;
+    public ClientTardisLoadedCache getLoad_cache() {
+        return load_cache;
     }
 
     public void subscribeToInterior() {
         ClientAITNetworkManager.ask_for_interior_subscriber(getTardisID());
-        this.subscribedToInterior = true;
+        this.subscribed_to_interior = true;
     }
 
     public void subscribeToExterior() {
         ClientAITNetworkManager.ask_for_exterior_subscriber(getTardisID());
-        this.subscribedToExterior = true;
+        this.subscribe_to_exterior = true;
     }
 
     public void unsubscribeToInterior() {
         ClientAITNetworkManager.send_interior_unloaded(getTardisID());
-        this.subscribedToInterior = false;
+        this.subscribed_to_interior = false;
     }
 
     public void unsubscribeToExterior() {
         ClientAITNetworkManager.send_exterior_unloaded(getTardisID());
-        this.subscribedToExterior = false;
+        this.subscribe_to_exterior = false;
     }
 
-    public boolean isSubscribedToInterior() {
-        return subscribedToInterior;
+    public boolean isSubscribed_to_interior() {
+        return subscribed_to_interior;
     }
 
-    public boolean isSubscribedToExterior() {
-        return subscribedToExterior;
+    public boolean isSubscribe_to_exterior() {
+        return subscribe_to_exterior;
     }
 
     /**
@@ -82,7 +97,7 @@ public class ClientTardis {
      * @return the Tardis ID
      */
     public UUID getTardisID() {
-        return tardisID;
+        return tardis_ID;
     }
 
     /**
@@ -91,7 +106,7 @@ public class ClientTardis {
      * @return  the exterior variant schema
      */
     public ExteriorVariantSchema getExteriorVariant() {
-        return exteriorVariantSchema;
+        return exterior_variant_schema;
     }
 
     /**
@@ -100,7 +115,7 @@ public class ClientTardis {
      * @return the exterior schema of the object
      */
     public ExteriorSchema getExteriorType() {
-        return exteriorSchema;
+        return exterior_schema;
     }
 
     /**
@@ -110,7 +125,7 @@ public class ClientTardis {
      */
     public void setExteriorVariant(ExteriorVariantSchema exteriorVariantSchema) {
         if (exteriorVariantSchema == null) return;
-        this.exteriorVariantSchema = exteriorVariantSchema;
+        this.exterior_variant_schema = exteriorVariantSchema;
     }
 
     /**
@@ -120,12 +135,14 @@ public class ClientTardis {
      */
     public void setExteriorType(ExteriorSchema exteriorSchema) {
         if (exteriorSchema == null) return;
-        this.exteriorSchema = exteriorSchema;
+        this.exterior_schema = exteriorSchema;
     }
 
     public class ClientTardisTravel {
         private final ClientTardis tardis;
         private int speed = 0;
+
+        private TardisTravel.State state = TardisTravel.State.LANDED;
 
         public ClientTardisTravel(ClientTardis tardis) {
             this.tardis = tardis;
@@ -141,6 +158,14 @@ public class ClientTardis {
 
         public int getSpeed() {
             return speed;
+        }
+
+        public void setState(TardisTravel.State state) {
+            this.state = state;
+        }
+
+        public TardisTravel.State getState() {
+            return state;
         }
     }
 

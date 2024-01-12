@@ -74,6 +74,24 @@ public class ClientAITNetworkManager {
             ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getDesktop().setConsolePos(consoleBlockPos);
         }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_SIEGE_MODE_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean siegeMode = buf.readBoolean();
+            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setSiegeMode(siegeMode);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_TRAVEL_SPEED_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            int speed = buf.readInt();
+            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getTravel().setSpeed(speed);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_TRAVEL_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            TardisTravel.State state = TardisTravel.State.values()[buf.readInt()];
+            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getTravel().setState(state);
+        }));
     }
 
     public static void send_request_interior_change_from_monitor(UUID uuid, Identifier selected_interior) {

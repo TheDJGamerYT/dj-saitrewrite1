@@ -5,6 +5,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.FogShape;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.Objects;
+
 public class FoggyUtils {
     public static void overrideFog() {
         // i prefer fog to that hellish overlay anyday, but i still dont like it really todo find what we want
@@ -20,7 +22,7 @@ public class FoggyUtils {
             RenderSystem.setShaderFogStart(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), -8, 24));
             RenderSystem.setShaderFogEnd(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), 11, 32));
             RenderSystem.setShaderFogShape(FogShape.SPHERE);
-            RenderSystem.setShaderFogColor(0,0,0, ClientTardisUtil.getCurrentTardis().isSiegeMode() ? 0.85f : 1f);
+            RenderSystem.setShaderFogColor(0,0,0, Objects.requireNonNull(ClientTardisUtil.getCurrentClientTardis()).getSiegeMode() ? 0.85f : 1f);
         }
     }
 }

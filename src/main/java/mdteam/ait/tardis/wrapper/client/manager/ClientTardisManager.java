@@ -52,14 +52,6 @@ public class ClientTardisManager extends TardisManager {
                         this.sync(uuid, buf);
                     });
 
-            ClientTickEvents.END_CLIENT_TICK.register(client -> {
-                for (Tardis tardis : ClientTardisManager.getInstance().getLookup().values()) {
-                    tardis.tick(client);
-                }
-
-                ClientSoundManager.tick(client);
-            });
-
             ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> this.reset());
         }
     }

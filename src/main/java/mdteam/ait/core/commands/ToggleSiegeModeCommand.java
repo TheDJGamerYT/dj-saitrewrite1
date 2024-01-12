@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import mdteam.ait.AITMod;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
@@ -36,6 +37,7 @@ public class ToggleSiegeModeCommand {
         tardis.markDirty();
 
         source.sendMessage(Text.literal("Siege Mode set to: " + PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.SIEGE_MODE)), true);
+        ServerAITNetworkManager.setSendTardisSiegeModeUpdate(tardis, PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.SIEGE_MODE));
 
         return Command.SINGLE_SUCCESS;
     }
