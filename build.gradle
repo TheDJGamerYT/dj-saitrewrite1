@@ -92,9 +92,11 @@ dependencies {
 	/*modCompileOnlyApi*/modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.ip_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
+
 	/*modCompileOnlyApi*/modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${project.ip_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
+
 	/*modCompileOnlyApi*/modImplementation("me.shedaniel.cloth:cloth-config-fabric:11.0.99") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
