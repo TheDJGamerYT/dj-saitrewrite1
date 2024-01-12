@@ -57,6 +57,7 @@ public class ClientAlarmHandler extends SoundHandler {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         Tardis found = TardisUtil.findTardisByInterior(player.getBlockPos());
 
+
         return found != null;
     }
 

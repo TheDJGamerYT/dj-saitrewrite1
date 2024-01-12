@@ -43,8 +43,7 @@ public class ClientTardisUtil {
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return null;
-        Tardis found = TardisUtil.findTardisByInterior(player.getBlockPos());
-        return found;
+        return TardisUtil.findTardisByInterior(player.getBlockPos());
     }
 
     public static double distanceFromConsole() {

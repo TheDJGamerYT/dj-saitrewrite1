@@ -4,6 +4,7 @@ import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
+import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 
 import java.util.UUID;
@@ -13,8 +14,22 @@ public class ClientTardis {
     private ExteriorVariantSchema exteriorVariantSchema;
     private ExteriorSchema exteriorSchema;
 
+    private final ClientTardisTravel travel;
+
+    private final ClientTardisDesktop desktop;
+
+    private Corners corners;
+
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
         this.tardisID = tardisID;
+        this.travel = new ClientTardisTravel(this);
+        this.desktop = new ClientTardisDesktop(this);
+        this.exteriorSchema = exteriorSchema;
+        this.exteriorVariantSchema = exteriorVariantSchema;
+    }
+
+    public ClientTardisTravel getTravel() {
+        return travel;
     }
 
     /**
@@ -62,5 +77,37 @@ public class ClientTardis {
     public void setExteriorType(ExteriorSchema exteriorSchema) {
         if (exteriorSchema == null) return;
         this.exteriorSchema = exteriorSchema;
+    }
+
+    public class ClientTardisTravel {
+        private final ClientTardis tardis;
+        private int speed = 0;
+
+        public ClientTardisTravel(ClientTardis tardis) {
+            this.tardis = tardis;
+        }
+
+        public ClientTardis getTardis() {
+            return tardis;
+        }
+
+        public void setSpeed(int speed) {
+            this.speed = speed;
+        }
+
+        public int getSpeed() {
+            return speed;
+        }
+    }
+
+    public class ClientTardisDesktop {
+
+        private final ClientTardis tardis;
+
+        private Corners corners;
+
+        public ClientTardisDesktop(ClientTardis tardis) {
+            this.tardis = tardis;
+        }
     }
 }
