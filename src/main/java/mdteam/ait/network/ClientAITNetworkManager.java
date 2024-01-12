@@ -10,16 +10,14 @@ import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
-import mdteam.ait.tardis.wrapper.client.manager.NewClientTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import org.apache.logging.log4j.core.jmx.Server;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,17 +38,15 @@ public class ClientAITNetworkManager {
     public static final Identifier SEND_REQUEST_TARDIS_CONSOLE_POS = new Identifier(AITMod.MOD_ID, "send_request_tardis_console_pos");
 
     public static void init() {
-        ClientPlayConnectionEvents.DISCONNECT.register((client, handler) -> ClientTardisManager.getInstance().reset());
         ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> send_request_initial_tardis_sync()));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_EXTERIOR_ANIMATION_UPDATE_SETUP, ((client, handler, buf, responseSender) -> {
             int p = buf.readInt();
             UUID uuid = buf.readUuid();
-            ClientTardisManager.getInstance().getTardis(uuid, (tardis -> {
-                if (tardis == null || MinecraftClient.getInstance().world == null) return;
-                BlockEntity blockEntity = MinecraftClient.getInstance().world.getBlockEntity(tardis.getExterior().getExteriorPos());
-                if (!(blockEntity instanceof ExteriorBlockEntity exteriorBlockEntity)) return;
-                exteriorBlockEntity.getAnimation().setupAnimation(TardisTravel.State.values()[p]);
-            }));
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(uuid).get();
+            ClientWorld clientWorld = MinecraftClient.getInstance().world;
+            if (clientTardis == null || clientWorld == null) return;
+            if (!(clientWorld.getBlockEntity(clientTardis.getExteriorBlockPos()) instanceof ExteriorBlockEntity exteriorBlockEntity)) return;
+            exteriorBlockEntity.getAnimation().setupAnimation(TardisTravel.State.values()[p]);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_INITIAL_TARDIS_SYNC, ((client, handler, buf, responseSender) -> {
             Collection<UUID> tardisUUIDs = buf.readCollection(ArrayList::new, PacketByteBuf::readUuid);
@@ -58,7 +54,7 @@ public class ClientAITNetworkManager {
             Map<UUID, Identifier> uuidToExteriorSchema = buf.readMap(PacketByteBuf::readUuid, PacketByteBuf::readIdentifier);
             for (UUID uuid : tardisUUIDs) {
                 ClientTardis clientTardis = new ClientTardis(uuid, ExteriorVariantRegistry.REGISTRY.get(uuidToExteriorVariantSchema.get(uuid)), ExteriorRegistry.REGISTRY.get(uuidToExteriorSchema.get(uuid)));
-                NewClientTardisManager.getInstance().LOOKUP.put(uuid, () -> clientTardis);
+                ClientTardisManager.getInstance().LOOKUP.put(uuid, () -> clientTardis);
             }
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_CORNERS, ((client, handler, buf, responseSender) -> {
@@ -66,43 +62,43 @@ public class ClientAITNetworkManager {
             BlockPos firstBlockPos = BlockPos.fromLong(buf.readLong());
             BlockPos secondBlockPos = BlockPos.fromLong(buf.readLong());
             Corners corners = new Corners(firstBlockPos, secondBlockPos);
-            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getDesktop().setCorners(corners);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_CONSOLE_BLOCK_POS, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
             BlockPos consoleBlockPos = buf.readBlockPos();
-            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getDesktop().setConsolePos(consoleBlockPos);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_SIEGE_MODE_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
             boolean siegeMode = buf.readBoolean();
-            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.setSiegeMode(siegeMode);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_TRAVEL_SPEED_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
             int speed = buf.readInt();
-            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getTravel().setSpeed(speed);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_TRAVEL_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
             TardisTravel.State state = TardisTravel.State.values()[buf.readInt()];
-            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getTravel().setState(state);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_POWERED_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
             boolean powered = buf.readBoolean();
-            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.setPowered(powered);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_ALARMS_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
             boolean alarms = buf.readBoolean();
-            ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.setAlarmsState(alarms);
         }));
     }
@@ -119,7 +115,7 @@ public class ClientAITNetworkManager {
         buf.writeUuid(uuid);
 
         ClientPlayNetworking.send(SEND_REQUEST_ADD_TO_INTERIOR_SUBSCRIBERS, buf);
-        ClientTardis clientTardis = NewClientTardisManager.getInstance().LOOKUP.get(uuid).get();
+        ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(uuid).get();
         if (clientTardis == null) return;
         send_request_tardis_console_pos(uuid); // Request new console pos every time the TARDIS is loaded as we don't know if the console pos has changed
         if (clientTardis.getDesktop().isCornersSynced()) return;

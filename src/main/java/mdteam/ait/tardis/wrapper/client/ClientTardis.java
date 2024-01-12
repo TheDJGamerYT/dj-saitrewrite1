@@ -71,6 +71,11 @@ public class ClientTardis {
         return this.siege_mode;
     }
 
+    // @TODO: Move this to ClientTardisExterior when I make it
+    public BlockPos getExteriorBlockPos() {
+        return this.getLoadCache().loadedExteriorBlockEntities.get(0).getPos();
+    }
+
     public ClientTardisTravel getTravel() {
         return travel;
     }
