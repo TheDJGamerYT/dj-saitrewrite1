@@ -34,18 +34,6 @@ public class ClientTardisUtil {
         return MinecraftClient.getInstance().world != null && MinecraftClient.getInstance().world.getRegistryKey() == AITDimensions.TARDIS_DIM_WORLD;
     }
 
-    /**
-     * Gets the tardis the player is currently inside
-     * @return
-     */
-    public static Tardis getCurrentTardis() {
-        if (!isPlayerInATardis()) return null;
-
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player == null) return null;
-        return TardisUtil.findTardisByInterior(player.getBlockPos());
-    }
-
     public static ClientTardis getCurrentClientTardis() {
         if (!isPlayerInATardis()) return null;
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
@@ -76,13 +64,6 @@ public class ClientTardisUtil {
         if (console == null) console = pos;
 
         return Math.sqrt(pos.getSquaredDistance(console));
-    }
-
-    public static ExteriorModel getExteriorModel(Tardis tardis) {
-        return ClientExteriorVariantRegistry.withParent(tardis.getExterior().getVariant()).model();
-    }
-    public static DoorModel getDoorModel(Tardis tardis) {
-        return ClientDoorRegistry.withParent(tardis.getExterior().getVariant().door()).model();
     }
 
     public static void tickPowerDelta() {

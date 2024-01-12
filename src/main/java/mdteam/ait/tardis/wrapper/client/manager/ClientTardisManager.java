@@ -37,22 +37,20 @@ public class ClientTardisManager extends TardisManager {
     private final Deque<PacketByteBuf> buffers = new ArrayDeque<>();
 
     public ClientTardisManager() {
-        if (FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.CLIENT) {
-            ClientPlayNetworking.registerGlobalReceiver(ServerTardisManager.SEND,
-                    (client, handler, buf, responseSender) -> this.sync(buf)
-            );
-
-            ClientPlayNetworking.registerGlobalReceiver(ServerTardisManager.UPDATE,
-                    (client, handler, buf, responseSender) -> {
-                        UUID uuid = buf.readUuid();
-
-                        if (!this.lookup.containsKey(uuid))
-                            return;
-
-                        this.sync(uuid, buf);
-                    });
-
-            ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> this.reset());
+//        if (FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.CLIENT) {
+//            ClientPlayNetworking.registerGlobalReceiver(ServerTardisManager.SEND,
+//                    (client, handler, buf, responseSender) -> this.sync(buf)
+//            );
+//
+//            ClientPlayNetworking.registerGlobalReceiver(ServerTardisManager.UPDATE,
+//                    (client, handler, buf, responseSender) -> {
+//                        UUID uuid = buf.readUuid();
+//
+//                        if (!this.lookup.containsKey(uuid))
+//                            return;
+//
+//                        this.sync(uuid, buf);
+//                    });
         }
     }
 
