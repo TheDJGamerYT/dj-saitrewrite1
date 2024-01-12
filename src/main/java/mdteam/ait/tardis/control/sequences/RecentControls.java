@@ -28,8 +28,10 @@ public class RecentControls extends ArrayList<Control> {
             return null;
         }
 
-        if (TardisUtil.isClient())
-            return ClientTardisManager.getInstance().getLookup().get(this.tardisId);
+        if (TardisUtil.isClient()) {
+            AITMod.LOGGER.error("Client side tardis should not be accessed!");
+            return null;
+        }
 
         return ServerTardisManager.getInstance().getTardis(this.tardisId);
     }

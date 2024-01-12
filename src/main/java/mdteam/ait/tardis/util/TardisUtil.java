@@ -260,9 +260,6 @@ public class TardisUtil {
         }
 
         if (matchingTardises.isEmpty()) {
-            if (isClient()) {
-                ClientTardisManager.getInstance().ask(pos);
-            }
             return null;
         } else {
             // Return the first Tardis object in the Map
@@ -281,9 +278,6 @@ public class TardisUtil {
         }
 
         if (matchingTardises.isEmpty()) {
-            if (isClient()) {
-                ClientTardisManager.getInstance().ask(pos);
-            }
             return null;
         } else {
             // Return the first Tardis object in the Map
@@ -302,9 +296,6 @@ public class TardisUtil {
         }
 
         if (matchingTardises.isEmpty()) {
-            if (isClient()) {
-                ClientTardisManager.getInstance().ask(pos);
-            }
             return null;
         } else {
             // Return the first Tardis object in the Map

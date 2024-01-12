@@ -1,5 +1,7 @@
 package mdteam.ait.client.screens;
 
+import mdteam.ait.AITMod;
+import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.Tardis;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,15 +18,15 @@ public abstract class TardisScreen extends Screen {
     }
 
     protected Tardis tardis() {
-        return ClientTardisManager.getInstance().getLookup().get(tardisId);
-    }
-
-    protected Tardis getFromUUID(UUID tardisid) {
-        return ClientTardisManager.getInstance().getLookup().get(tardisid);
+        AITMod.LOGGER.error("Client side tardis should not be accessed!");
+        return null;
     }
 
     protected Tardis updateTardis() {
-        ClientTardisManager.getInstance().ask(this.tardisId);
+        if (TardisUtil.isClient()) {
+            AITMod.LOGGER.error("Client side tardis should not be accessed!");
+            return null;
+        }
         return tardis();
     }
 }

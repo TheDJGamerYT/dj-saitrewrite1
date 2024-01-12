@@ -1,5 +1,6 @@
 package mdteam.ait.core.item;
 
+import mdteam.ait.AITMod;
 import mdteam.ait.core.AITItems;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -194,8 +195,10 @@ public class SiegeTardisItem extends Item {
         }
 
         UUID uuid = data.getUuid("tardis-uuid");
-        if (TardisUtil.isClient())
-            return ClientTardisManager.getInstance().getLookup().get(uuid);
+        if (TardisUtil.isClient()) {
+            AITMod.LOGGER.error("Client side tardis should not be accessed!");
+            return null;
+        }
 
         return ServerTardisManager.getInstance().getTardis(uuid);
     }

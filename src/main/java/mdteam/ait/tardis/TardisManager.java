@@ -55,11 +55,6 @@ public abstract class TardisManager {
     public static void init() {
         // nicked this off theo
 
-        // this will re-register the client tardis manager on every join (that includes local worlds as well)
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            ClientPlayConnectionEvents.INIT.register((handler, client) -> ClientTardisManager.init());
-        }
-
         // this is a race between what happens first:
         // if it's a world with tardises - then we need to initialize server tardis manager before any of the block entities load
         BlockEntityPreLoadEvent.LOAD.register(() -> {
@@ -82,7 +77,7 @@ public abstract class TardisManager {
 
     public static TardisManager getInstance() {
 //        return FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.SERVER ? ServerTardisManager.getInstance() : ClientTardisManager.getInstance();
-        return TardisUtil.isServer() ? ServerTardisManager.getInstance() : ClientTardisManager.getInstance();
+        return ServerTardisManager.getInstance();
     }
 
     public void getTardis(UUID uuid, Consumer<Tardis> consumer) {

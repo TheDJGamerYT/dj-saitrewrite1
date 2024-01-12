@@ -1,6 +1,7 @@
 package mdteam.ait.core.entities;
 
 import com.mojang.logging.LogUtils;
+import mdteam.ait.AITMod;
 import mdteam.ait.core.AITDamageTypes;
 import mdteam.ait.core.AITEntityTypes;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
@@ -129,7 +130,8 @@ public class FallingTardisEntity extends Entity {
         }
 
         if (getWorld().isClient) {
-            return ClientTardisManager.getInstance().getLookup().get(getTardisId());
+            AITMod.LOGGER.error("Client side tardis should not be accessed!");
+            return null;
         }
 
         return ServerTardisManager.getInstance().getTardis(getTardisId());

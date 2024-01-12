@@ -1,5 +1,6 @@
 package mdteam.ait.core.item;
 
+import mdteam.ait.AITMod;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTravel;
@@ -91,7 +92,8 @@ public class KeyItem extends Item {
         UUID uuid = UUID.fromString(nbt.getString("tardis"));
 
         if (TardisUtil.isClient()) {
-            return ClientTardisManager.getInstance().getLookup().get(uuid);
+            AITMod.LOGGER.error("Client side tardis should not be accessed!");
+            return null;
         }
 
         return ServerTardisManager.getInstance().getTardis(uuid);

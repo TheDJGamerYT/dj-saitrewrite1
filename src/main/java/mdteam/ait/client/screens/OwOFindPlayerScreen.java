@@ -33,11 +33,11 @@ public class OwOFindPlayerScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     protected Tardis tardis() {
-        return ClientTardisManager.getInstance().getLookup().get(this.tardisid);
+        AITMod.LOGGER.error("Client side tardis should not be accessed!");
+        return null;
     }
 
     protected Tardis updateTardis() {
-        ClientTardisManager.getInstance().ask(this.tardisid);
         return tardis();
     }
 

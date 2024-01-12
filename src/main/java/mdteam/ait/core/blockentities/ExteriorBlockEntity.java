@@ -135,7 +135,8 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
         }
 
         if (isClient()) {
-            return ClientTardisManager.getInstance().getLookup().get(this.tardisId);
+            AITMod.LOGGER.error("Client side tardis should not be accessed!");
+            return null;
         }
 
         return ServerTardisManager.getInstance().getTardis(this.tardisId);

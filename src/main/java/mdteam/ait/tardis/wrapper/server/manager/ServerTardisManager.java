@@ -48,39 +48,6 @@ public class ServerTardisManager extends TardisManager {
     public final ConcurrentHashMap<UUID, List<UUID>> interior_subscribers = new ConcurrentHashMap<>();
 
     public ServerTardisManager() {
-        ServerPlayNetworking.registerGlobalReceiver(
-                ClientTardisManager.ASK, (server, player, handler, buf, responseSender) -> {
-                    UUID uuid = buf.readUuid();
-                    if (player == null) return;
-                    addSubscriberToTardis(player, uuid);
-                    this.sendTardis(player, uuid);
-
-                }
-        );
-
-        ServerPlayNetworking.registerGlobalReceiver(
-                ClientTardisManager.LET_KNOW_UNLOADED, (server, player, handler, buf, responseSender) -> {
-                    UUID uuid = buf.readUuid();
-                    if (player == null) return;
-                    removeSubscriberToTardis(player, uuid);
-                }
-        );
-
-        ServerPlayNetworking.registerGlobalReceiver(
-                ClientTardisManager.ASK_POS, (server, player, handler, buf, responseSender) -> {
-                    BlockPos pos = buf.readBlockPos();
-                    UUID uuid = null;
-                    for (Tardis tardis : this.getLookup().values()) {
-                        if (!tardis.getTravel().getPosition().equals(pos)) continue;
-
-                        uuid = tardis.getUuid();
-                    }
-                    if (uuid == null)
-                        return;
-                    addSubscriberToTardis(player, uuid);
-                    this.sendTardis(player, uuid);
-                }
-        );
 
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             // force all dematting to go flight and all matting to go land

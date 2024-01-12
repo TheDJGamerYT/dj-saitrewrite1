@@ -1,5 +1,6 @@
 package mdteam.ait.tardis.handler;
 
+import mdteam.ait.AITMod;
 import mdteam.ait.tardis.Exclude;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
@@ -27,7 +28,8 @@ public abstract class TardisLink implements TardisTickable {
 
     public Tardis tardis() {
         if (isClient()) {
-            return ClientTardisManager.getInstance().getLookup().get(tardisId);
+            AITMod.LOGGER.error("Client side tardis should not be accessed!");
+            return null;
         }
         return ServerTardisManager.getInstance().getTardis(tardisId);
     }

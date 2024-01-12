@@ -194,12 +194,6 @@ public class ExteriorBlock extends FallingBlock implements BlockEntityProvider, 
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ExteriorBlockEntity exteriorBlockEntity) {
-            if (world.isClient()) {
-                if (ClientTardisManager.getInstance().loadedTardises.contains(exteriorBlockEntity.getTardis().getUuid())) {
-                    ClientTardisManager.getInstance().loadedTardises.add(exteriorBlockEntity.getTardis().getUuid());
-                }
-                ClientTardisManager.getInstance().ask(pos);
-            }
             exteriorBlockEntity.useOn((ServerWorld) world, player.isSneaking(), player);
         }
 
