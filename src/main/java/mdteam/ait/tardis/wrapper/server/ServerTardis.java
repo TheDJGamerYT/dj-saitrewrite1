@@ -22,8 +22,4 @@ public class ServerTardis extends Tardis {
         super.setDesktop(desktop);
         this.markDirty();
     }
-
-    public void sync() {
-        ServerTardisManager.getInstance().sendToSubscribers(this);
-    }
 }

@@ -39,11 +39,9 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
         ClientTardis.ClientTardisExterior clientTardisExterior = entity.getClientTardis().getExterior();
-        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant());
-        TardisExterior tardisExterior = entity.getTardis().getExterior();
+        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(clientTardisExterior.getExteriorVariantSchema());
 
-        if (tardisExterior == null) return;
-
+        if (exteriorVariant == null) return;
         Class<? extends ExteriorModel> modelClass = exteriorVariant.model().getClass();
 
         if (model != null && !(model.getClass().isInstance(modelClass))) // fixme this is bad it seems to constantly create a new one anyway but i didnt realise.
@@ -66,7 +64,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         Identifier texture = exteriorVariant.texture();
 
-        if (entity.getTardis().isSiegeMode()) {
+        if (entity.getClientTardis().isInSiegeMode()) {
             if (siege == null) siege = new SiegeModeModel(SiegeModeModel.getTexturedModelData().createModel());
             siege.renderWithAnimations(entity, this.siege.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(SiegeModeModel.TEXTURE)), maxLight, overlay, 1, 1, 1, 1);
             matrices.pop();
@@ -76,8 +74,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         if (model != null) {
             model.animateTile(entity);
             model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1, 1, 1);
-            if (entity.getTardis() == null) return; // WHY IS THIS NULL HERE, BUT NOT AT THE BEGINNING OF THIS FUCKING FUNCTION THREAD
-            if (entity.getTardis().getHandlers().getOvergrownHandler().isOvergrown()) {
+            if (entity.getClientTardis().getExterior().isOvergrown()) {
                 model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(entity.getTardis().getHandlers().getOvergrownHandler().getOvergrownTexture())), light, overlay, 1, 1, 1, 1);
             }
             if (exteriorVariant.emission() != null && entity.getTardis().hasPower()) {

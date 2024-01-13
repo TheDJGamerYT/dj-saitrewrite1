@@ -64,10 +64,4 @@ public interface ILinkable {
     default boolean linkable() {
         return true;
     }
-
-    default void sync() {
-        if (isClient()) return;
-
-        ServerTardisManager.getInstance().sendToSubscribers(this.getTardis());
-    }
 }

@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.AITMod;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -40,6 +41,7 @@ public class OvergrownHandler extends TardisLink {
     }
     public void setOvergrown(boolean var) {
         PropertiesHandler.setBool(this.getTardis().getHandlers().getProperties(), IS_OVERGROWN, var);
+        ServerAITNetworkManager.sendTardisOvergrownUpdate(this.getTardis(), var);
         getTardis().markDirty();
     }
     public void removeVegetation() {

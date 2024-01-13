@@ -9,6 +9,7 @@ import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.util.Corners;
+import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -107,6 +108,20 @@ public class ClientAITNetworkManager {
             UUID tardisUUID = buf.readUuid();
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getExterior().setDoorState(DoorHandler.DoorStateEnum.values()[buf.readInt()]);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_EXTERIOR_SCHEMA_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            ExteriorVariantSchema exteriorVariantSchema = ExteriorVariantRegistry.REGISTRY.get(buf.readIdentifier());
+            ExteriorSchema exteriorSchema = ExteriorRegistry.REGISTRY.get(buf.readIdentifier());
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getExterior().setExteriorSchema(exteriorSchema);
+            clientTardis.getExterior().setExteriorVariantSchema(exteriorVariantSchema);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_OVERGROWN_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean overgrown = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getExterior().setOvergrown(overgrown);
         }));
     }
 

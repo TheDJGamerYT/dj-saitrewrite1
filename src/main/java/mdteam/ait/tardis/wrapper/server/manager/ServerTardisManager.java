@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.GsonBuilder;
 import mdteam.ait.AITMod;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
@@ -37,13 +38,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ServerTardisManager extends TardisManager {
-
-    public static final Identifier SEND = new Identifier("ait", "send_tardis");
-    public static final Identifier UPDATE = new Identifier("ait", "update_tardis");
     private static final ServerTardisManager instance = new ServerTardisManager();
     // Changed from MultiMap to HashMap to fix some concurrent issues, maybe
-    private final ConcurrentHashMap<UUID, List<UUID>> subscribers = new ConcurrentHashMap<>(); // fixme most of the issues with tardises on client when the world gets reloaded is because the subscribers dont get readded so the client stops getting informed, either save this somehow or make sure the client reasks on load.
-
     public final ConcurrentHashMap<UUID, List<UUID>> exterior_subscribers = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<UUID, List<UUID>> interior_subscribers = new ConcurrentHashMap<>();
 
@@ -81,22 +77,6 @@ public class ServerTardisManager extends TardisManager {
                 tardis.startTick(server);
             }
         });
-    }
-
-    /**
-     * Adds a subscriber to the Tardis
-     * @param serverPlayerEntity PLAYER
-     * @param tardisUUID TARDIS UUID
-     */
-    public void addSubscriberToTardis(ServerPlayerEntity serverPlayerEntity, UUID tardisUUID) {
-        if (this.subscribers.containsKey(tardisUUID)) {
-            this.subscribers.get(tardisUUID).add(serverPlayerEntity.getUuid());
-        } else {
-            List<UUID> subscriber_list = new CopyOnWriteArrayList<>();
-            subscriber_list.add(serverPlayerEntity.getUuid());
-            this.subscribers.put(tardisUUID, subscriber_list);
-        }
-
     }
 
     /**
@@ -183,54 +163,23 @@ public class ServerTardisManager extends TardisManager {
 
     public void removePlayerFromAllTardis(ServerPlayerEntity serverPlayerEntity) {
         for (Map.Entry<UUID, List<UUID>> entry : this.exterior_subscribers.entrySet()) {
-            removeSubscriberToTardis(serverPlayerEntity, entry.getKey());
+            removeExteriorSubscriberToTardis(serverPlayerEntity, entry.getKey());
         }
         for (Map.Entry<UUID, List<UUID>> entry : this.interior_subscribers.entrySet()) {
-            removeSubscriberToTardis(serverPlayerEntity, entry.getKey());
-        }
-        for (Map.Entry<UUID, List<UUID>> entry : this.subscribers.entrySet()) {
-            removeSubscriberToTardis(serverPlayerEntity, entry.getKey());
+            removeInteriorSubscriberToTardis(serverPlayerEntity, entry.getKey());
         }
     }
 
-    /**
-     * Removes a subscriber from the TARDIS
-     * @param serverPlayerEntity the player to remove from the subscribers list
-     * @param tardisUUID the UUID of the TARDIS
-     */
-    private void removeSubscriberToTardis(ServerPlayerEntity serverPlayerEntity, UUID tardisUUID) {
-        if (!this.subscribers.containsKey(tardisUUID)) return; // If the Tardis does not have any subscribers ignore this
-
-        List<UUID> old_uuids = this.subscribers.get(tardisUUID);
-        int i_to_remove = -1;
-
-        for (int i = 0; i < old_uuids.size(); i++) {
-            if (old_uuids.get(i).equals(serverPlayerEntity.getUuid())) {
-                i_to_remove = i;
-                break;
-            }
-        }
-
-        if (i_to_remove == -1) return; // If the player is not in the list ignore this
-
-        old_uuids.remove(i_to_remove);
-        if (old_uuids.isEmpty()) {
-            this.subscribers.remove(tardisUUID);
-        } else {
-            this.subscribers.put(tardisUUID, old_uuids); // update the subscriber list in case any other subscriber was added or removed during this operation
-        }
-    }
 
     public ServerTardis create(AbsoluteBlockPos.Directed pos, ExteriorSchema exteriorType, ExteriorVariantSchema variantType, TardisDesktopSchema schema, boolean locked) {
         UUID uuid = UUID.randomUUID();
 
         ServerTardis tardis = new ServerTardis(uuid, pos, schema, exteriorType, variantType, locked);
-        // tardis.setFuelCount(1000); // Default fuel count is 100 - cant be set here causes issues. set in PropertiesHandler instead
-        //this.saveTardis(tardis);
         this.lookup.put(uuid, tardis);
 
         tardis.getTravel().placeExterior();
         tardis.getTravel().runAnimations();
+        ServerAITNetworkManager.sendSyncNewTardis(tardis);
         return tardis;
     }
 
@@ -346,53 +295,8 @@ public class ServerTardisManager extends TardisManager {
             executorService.shutdown();
         }
     }
-
-    public void saveTardis() {
-        for (Tardis tardis : this.lookup.values()) {
-            this.saveTardis(tardis);
-        }
-    }
-
-
-    public void sendToSubscribers(Tardis tardis) {
-        if (tardis == null) return;
-        if (!this.subscribers.containsKey(tardis.getUuid())) return;
-//        if (!this.subscribers.containsKey(tardis.getUuid())) this.subscribeEveryone(tardis);
-        MinecraftServer mc = TardisUtil.getServer();
-
-        Map<UUID, List<UUID>> subscribersCopy = new HashMap<>(this.subscribers);
-        List<UUID> tardisSubscribers = new CopyOnWriteArrayList<>(subscribersCopy.getOrDefault(tardis.getUuid(), Collections.emptyList()));
-
-        for (UUID uuid : tardisSubscribers) {
-            ServerPlayerEntity player = mc.getPlayerManager().getPlayer(uuid);
-            this.sendTardis(player, tardis);
-        }
-    }
-
-
-    private void sendTardis(ServerPlayerEntity player, UUID uuid) {
-        if (player == null) return;
-        this.sendTardis(player, this.getTardis(uuid));
-    }
-
-    private void sendTardis(ServerPlayerEntity player, Tardis tardis) {
-        if (player == null) return;
-        this.sendTardis(player, tardis.getUuid(), this.gson.toJson(tardis, ServerTardis.class));
-    }
-
-    private void sendTardis(ServerPlayerEntity player, UUID uuid, String json) {
-        if (player == null) return;
-        PacketByteBuf data = PacketByteBufs.create();
-        data.writeUuid(uuid);
-        data.writeString(json);
-
-        ServerPlayNetworking.send(player, SEND, data);
-    }
-
     @Override
     public void reset() {
-        this.subscribers.clear();
-
         this.saveTardises();
         super.reset();
     }

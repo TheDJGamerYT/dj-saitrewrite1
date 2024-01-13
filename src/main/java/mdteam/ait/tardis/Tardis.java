@@ -282,10 +282,6 @@ public class Tardis {
      * @param server the current minecraft server
      */
     public void startTick(MinecraftServer server) {
-        if (this instanceof ServerTardis && isDirty()) {
-            ((ServerTardis) this).sync();
-            dirty = false;
-        }
     }
 
     public boolean isInDanger() {

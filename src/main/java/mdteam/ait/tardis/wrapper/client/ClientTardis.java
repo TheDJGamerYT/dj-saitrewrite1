@@ -1,5 +1,6 @@
 package mdteam.ait.tardis.wrapper.client;
 
+import mdteam.ait.AITMod;
 import mdteam.ait.client.util.ClientShakeUtil;
 import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
@@ -11,6 +12,7 @@ import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -199,6 +201,7 @@ public class ClientTardis {
         private ExteriorBlockEntity loadedExteriorBlockEntity = null;
         private final List<DoorBlockEntity> loadedDoorBlockEntities = new ArrayList<>();
 
+
         public ClientTardisLoadedCache(ClientTardis tardis) {
             this.tardis = tardis;
         }
@@ -266,6 +269,10 @@ public class ClientTardis {
         private ExteriorVariantSchema exterior_variant_schema;
         private ExteriorSchema exterior_schema;
 
+        public static String TEXTURE_PATH = "textures/blockentities/exteriors/";
+
+        private boolean overgrown = false;
+
         public ClientTardisExterior(ClientTardis tardis, ExteriorVariantSchema exterior_variant_schema, ExteriorSchema exterior_schema) {
             this.tardis = tardis;
             this.exterior_variant_schema = exterior_variant_schema;
@@ -320,6 +327,19 @@ public class ClientTardis {
 
         public DoorHandler.DoorStateEnum getDoorState() {
             return doorState;
+        }
+        public void setOvergrown(boolean overgrown) {
+            this.overgrown = overgrown;
+        }
+
+        public boolean isOvergrown() {
+            return this.overgrown;
+        }
+
+        public Identifier getOvergrownTexture() {
+            ExteriorSchema exterior = getExterior().getExteriorSchema();
+
+            return new Identifier(AITMod.MOD_ID, TEXTURE_PATH + exterior.toString().toLowerCase() + "/" + exterior.toString().toLowerCase() + "_" + "overgrown" + ".png");
         }
     }
 }

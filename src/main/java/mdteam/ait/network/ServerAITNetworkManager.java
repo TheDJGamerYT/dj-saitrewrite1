@@ -11,11 +11,13 @@ import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.TardisExterior;
 import mdteam.ait.tardis.TardisTravel;
+import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.util.TardisUtil;
+import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -42,6 +44,7 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_ALARMS_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_alarms_update");
     public static final Identifier SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_exterior_door_state_update");
     public static final Identifier SEND_EXTERIOR_SCHEMA_UPDATE = new Identifier(AITMod.MOD_ID, "send_exterior_schema_update");
+    public static final Identifier SEND_TARDIS_OVERGROWN_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_overgrown_update");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -232,6 +235,23 @@ public class ServerAITNetworkManager {
         data.writeUuid(tardis.getUuid());
         data.writeInt(state.ordinal());
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE);
+    }
+
+    public static void sendExteriorSchemaUpdate(Tardis tardis, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeIdentifier(exteriorVariantSchema.id());
+        data.writeIdentifier(exteriorSchema.id());
+        __sendPacketToExteriorSubscribers(data, SEND_EXTERIOR_SCHEMA_UPDATE);
+        __sendPacketToInteriorSubscribers(data, SEND_EXTERIOR_SCHEMA_UPDATE);
+    }
+
+    public static void sendTardisOvergrownUpdate(Tardis tardis, boolean overgrown) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(overgrown);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_OVERGROWN_UPDATE);
+        __sendPacketToExteriorSubscribers(data, SEND_TARDIS_OVERGROWN_UPDATE);
     }
 
     private static void __sendPacketToInteriorSubscribers(PacketByteBuf data, Identifier packetID) {

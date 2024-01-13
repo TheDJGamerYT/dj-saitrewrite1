@@ -3,6 +3,7 @@ package mdteam.ait.tardis;
 import mdteam.ait.AITMod;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.item.TardisItemBuilder;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.TardisLink;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
@@ -40,7 +41,6 @@ public class TardisExterior extends TardisLink {
 
     public void setType(ExteriorSchema exterior) {
         this.exterior = exterior;
-
         if (exterior != getVariant().parent()) {
             AITMod.LOGGER.error("Force changing exterior variant to a random one to ensure it matches!");
             setVariant(TardisItemBuilder.findRandomVariant(exterior));
@@ -48,14 +48,15 @@ public class TardisExterior extends TardisLink {
         if (getTardis() != null) {
             getTardis().getDoor().closeDoors();
         }
+        ServerAITNetworkManager.sendExteriorSchemaUpdate(this.getTardis(), this.getVariant(), this.getType());
     }
 
     public void setVariant(ExteriorVariantSchema variant) {
         if (getTardis() != null) {
             getTardis().getDoor().closeDoors();
         }
-
         this.variant = variant;
+        ServerAITNetworkManager.sendExteriorSchemaUpdate(this.getTardis(), this.getVariant(), this.getType());
     }
 
     public Optional<ExteriorBlockEntity> findExteriorBlock() {
