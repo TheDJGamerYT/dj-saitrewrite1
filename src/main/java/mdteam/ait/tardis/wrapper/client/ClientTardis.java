@@ -8,6 +8,7 @@ import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.network.ClientAITNetworkManager;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
+import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import net.minecraft.util.math.BlockPos;
@@ -19,9 +20,6 @@ import java.util.UUID;
 
 public class ClientTardis {
     private final UUID tardis_ID;
-    private ExteriorVariantSchema exterior_variant_schema;
-    private ExteriorSchema exterior_schema;
-
     private final ClientTardisTravel travel;
 
     private final ClientTardisDesktop desktop;
@@ -40,9 +38,7 @@ public class ClientTardis {
         this.travel = new ClientTardisTravel(this);
         this.desktop = new ClientTardisDesktop(this);
         this.load_cache = new ClientTardisLoadedCache(this);
-        this.exterior = new ClientTardisExterior(this);
-        this.exterior_schema = exteriorSchema;
-        this.exterior_variant_schema = exteriorVariantSchema;
+        this.exterior = new ClientTardisExterior(this, exteriorVariantSchema, exteriorSchema);
     }
 
     public ClientTardisExterior getExterior() {
@@ -124,44 +120,6 @@ public class ClientTardis {
      */
     public UUID getTardisID() {
         return tardis_ID;
-    }
-
-    /**
-     * Retrieves the exterior variant schema.
-     *
-     * @return  the exterior variant schema
-     */
-    public ExteriorVariantSchema getExteriorVariant() {
-        return exterior_variant_schema;
-    }
-
-    /**
-     * Retrieves the exterior type of the object.
-     *
-     * @return the exterior schema of the object
-     */
-    public ExteriorSchema getExteriorType() {
-        return exterior_schema;
-    }
-
-    /**
-     * Sets the exterior variant of the object.
-     *
-     * @param  exteriorVariantSchema  the exterior variant to set
-     */
-    public void setExteriorVariant(ExteriorVariantSchema exteriorVariantSchema) {
-        if (exteriorVariantSchema == null) return;
-        this.exterior_variant_schema = exteriorVariantSchema;
-    }
-
-    /**
-     * Sets the exterior type for the object.
-     *
-     * @param  exteriorSchema    the exterior schema to set
-     */
-    public void setExteriorType(ExteriorSchema exteriorSchema) {
-        if (exteriorSchema == null) return;
-        this.exterior_schema = exteriorSchema;
     }
 
     public class ClientTardisTravel {
@@ -304,10 +262,14 @@ public class ClientTardis {
     public class ClientTardisExterior {
         private final ClientTardis tardis;
         private BlockPos exteriorBlockPos = null;
-        private boolean isDoorOpen = false;
+        private DoorHandler.DoorStateEnum doorState = DoorHandler.DoorStateEnum.CLOSED;
+        private ExteriorVariantSchema exterior_variant_schema;
+        private ExteriorSchema exterior_schema;
 
-        public ClientTardisExterior(ClientTardis tardis) {
+        public ClientTardisExterior(ClientTardis tardis, ExteriorVariantSchema exterior_variant_schema, ExteriorSchema exterior_schema) {
             this.tardis = tardis;
+            this.exterior_variant_schema = exterior_variant_schema;
+            this.exterior_schema = exterior_schema;
         }
 
         public ClientTardis getTardis() {
@@ -318,16 +280,46 @@ public class ClientTardis {
             this.exteriorBlockPos = exteriorBlockPos;
         }
 
+        public ExteriorVariantSchema getExteriorVariantSchema() {
+            return exterior_variant_schema;
+        }
+
+        public ExteriorSchema getExteriorSchema() {
+            return exterior_schema;
+        }
+
+        public void setExteriorVariantSchema(ExteriorVariantSchema exteriorVariantSchema) {
+            this.exterior_variant_schema = exteriorVariantSchema;
+        }
+
+        public void setExteriorSchema(ExteriorSchema exteriorSchema) {
+            this.exterior_schema = exteriorSchema;
+        }
+
         public BlockPos getExteriorBlockPos() {
             return exteriorBlockPos;
         }
 
         public boolean isDoorOpen() {
-            return isDoorOpen;
+            return doorState != DoorHandler.DoorStateEnum.CLOSED;
+        }
+        public boolean isLeftDoorOpen() {
+            return doorState == DoorHandler.DoorStateEnum.FIRST || doorState == DoorHandler.DoorStateEnum.BOTH;
         }
 
-        public void setDoorOpen(boolean isDoorOpen) {
-            this.isDoorOpen = isDoorOpen;
+        public boolean isRightDoorOpen() {
+            return doorState == DoorHandler.DoorStateEnum.SECOND || doorState == DoorHandler.DoorStateEnum.BOTH;
+        }
+        public boolean isBothDoorsOpen() {
+            return doorState == DoorHandler.DoorStateEnum.BOTH;
+        }
+
+        public void setDoorState(DoorHandler.DoorStateEnum state) {
+            this.doorState = state;
+        }
+
+        public DoorHandler.DoorStateEnum getDoorState() {
+            return doorState;
         }
     }
 }

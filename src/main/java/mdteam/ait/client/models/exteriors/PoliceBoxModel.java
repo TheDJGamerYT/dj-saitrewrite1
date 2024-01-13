@@ -125,14 +125,13 @@ public class PoliceBoxModel extends ExteriorModel {
         matrices.scale(0.63F, 0.63F, 0.63F);
         matrices.translate(0, -1.5f, 0);
 
-        DoorHandler door = exterior.getTardis().getDoor();
 
-        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen())  ? -5F : 0.0F;
-        this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.isBothOpen()) ? 5F : 0.0F;
+        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (exterior.getClientTardis().getExterior().isLeftDoorOpen())  ? -5F : 0.0F;
+        this.TARDIS.getChild("Doors").getChild("right_door").yaw = (exterior.getClientTardis().getExterior().isRightDoorOpen()) ? 5F : 0.0F;
 
         // hide the doors if we have portals to stop the dupe
         if (DependencyChecker.hasPortals())
-            this.TARDIS.getChild("Doors").visible = exterior.getTardis().getDoor().getDoorState() == DoorHandler.DoorStateEnum.CLOSED;
+            this.TARDIS.getChild("Doors").visible = exterior.getClientTardis().getExterior().getDoorState() == DoorHandler.DoorStateEnum.CLOSED;
 
 
         super.renderWithAnimations(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
@@ -146,10 +145,8 @@ public class PoliceBoxModel extends ExteriorModel {
         matrices.scale(0.63F, 0.63F, 0.63F);
         matrices.translate(0, -1.5f, 0);
 
-        DoorHandler door = realEntity.getTardis().getDoor();
-
-        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen())  ? -5F : 0.0F;
-        this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.isBothOpen()) ? 5F : 0.0F;
+        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (realEntity.getClientTardis().getExterior().isLeftDoorOpen())  ? -5F : 0.0F;
+        this.TARDIS.getChild("Doors").getChild("right_door").yaw = (realEntity.getClientTardis().getExterior().isRightDoorOpen()) ? 5F : 0.0F;
 
         // hide the doors if we have portals to stop the dupe
         //if (DependencyChecker.hasPortals())

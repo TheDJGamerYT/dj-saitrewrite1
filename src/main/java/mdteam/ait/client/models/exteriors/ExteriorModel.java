@@ -42,7 +42,7 @@ public abstract class ExteriorModel extends SinglePartEntityModel {
     }
 
     private void checkAnimationTimer(ExteriorBlockEntity exterior) {
-        DoorHandler.DoorStateEnum state = exterior.getTardis().getDoor().getDoorState();
+        DoorHandler.DoorStateEnum state = exterior.getClientTardis().getExterior().getDoorState();
         Animation anim = getAnimationForDoorState(state);
 
 
@@ -53,7 +53,6 @@ public abstract class ExteriorModel extends SinglePartEntityModel {
     }
 
     public void renderWithAnimations(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (exterior.getTardis() == null) return;
 
         root.render(matrices, vertices, light, overlay, red, green, blue, exterior.getAlpha());
     }
@@ -63,7 +62,6 @@ public abstract class ExteriorModel extends SinglePartEntityModel {
     }
 
     public void renderRealWorld(TardisRealEntity realEntity, ModelPart root, MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
-        if (realEntity.getTardis() == null) return;
 
         root.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }

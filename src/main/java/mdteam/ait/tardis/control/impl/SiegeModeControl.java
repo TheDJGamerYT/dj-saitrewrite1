@@ -8,7 +8,6 @@ import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
 public class SiegeModeControl extends Control {
@@ -20,7 +19,7 @@ public class SiegeModeControl extends Control {
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
         tardis.setSiegeMode(!tardis.isSiegeMode());
         PropertiesHandler.set(tardis.getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, false);
-        ServerAITNetworkManager.setSendTardisAlarmsUpdate(tardis, false);
+        ServerAITNetworkManager.sendTardisAlarmsUpdate(tardis, false);
         Text enabled = Text.translatable("tardis.message.control.siege.enabled");
         Text disabled = Text.translatable("tardis.message.control.siege.disabled");
         player.sendMessage((tardis.isSiegeMode() ? enabled : disabled), true);

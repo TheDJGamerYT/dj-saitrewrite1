@@ -7,6 +7,7 @@ import mdteam.ait.registry.ExteriorRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
+import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
@@ -101,6 +102,11 @@ public class ClientAITNetworkManager {
             boolean alarms = buf.readBoolean();
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.setAlarmsState(alarms);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getExterior().setDoorState(DoorHandler.DoorStateEnum.values()[buf.readInt()]);
         }));
     }
 

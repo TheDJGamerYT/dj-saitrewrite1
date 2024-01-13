@@ -1,18 +1,10 @@
 package mdteam.ait.tardis.animation;
 
-import mdteam.ait.AITMod;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
-import mdteam.ait.core.item.KeyItem;
 import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
-import mdteam.ait.tardis.util.TardisUtil;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.joml.Math;
 import mdteam.ait.tardis.TardisTravel;
@@ -85,7 +77,7 @@ public abstract class ExteriorAnimation {
 
     public void tellClientsToSetup(TardisTravel.State state) {
         if (exterior.getWorld() == null || exterior.getWorld().isClient() || exterior.getTardis() == null) return;
-        ServerAITNetworkManager.setSendExteriorAnimationUpdateSetup(exterior.getTardis().getUuid(), state);
+        ServerAITNetworkManager.sendExteriorAnimationUpdateSetup(exterior.getTardis().getUuid(), state);
     }
 
 }

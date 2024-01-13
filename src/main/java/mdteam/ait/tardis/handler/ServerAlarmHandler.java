@@ -20,13 +20,13 @@ public class ServerAlarmHandler extends TardisLink {
 
     public void enable() {
         PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
-        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.getTardis(), true);
+        ServerAITNetworkManager.sendTardisAlarmsUpdate(this.getTardis(), true);
         getTardis().markDirty();
     }
 
     public void disable() {
         PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, false);
-        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.getTardis(), false);
+        ServerAITNetworkManager.sendTardisAlarmsUpdate(this.getTardis(), false);
         getTardis().markDirty();
     }
 

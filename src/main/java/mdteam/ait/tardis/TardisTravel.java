@@ -160,7 +160,7 @@ public class TardisTravel extends TardisLink {
     }
     public void setSpeed(int speed) {
         PropertiesHandler.set(this.getTardis().getHandlers().getProperties(), PropertiesHandler.SPEED, speed);
-        ServerAITNetworkManager.setSendTardisTravelSpeedUpdate(this.getTardis(), speed);
+        ServerAITNetworkManager.sendTardisTravelSpeedUpdate(this.getTardis(), speed);
         this.getTardis().markDirty();
     }
 
@@ -291,7 +291,7 @@ public class TardisTravel extends TardisLink {
         this.getDestination().getWorld().getChunk(this.getTardis().getTravel().getDestination());
         // Enable alarm and disable anti-mavity properties for Tardis
         PropertiesHandler.set(this.getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
-        ServerAITNetworkManager.setSendTardisAlarmsUpdate(this.getTardis(), true);
+        ServerAITNetworkManager.sendTardisAlarmsUpdate(this.getTardis(), true);
         PropertiesHandler.set(this.getTardis().getHandlers().getProperties(), PropertiesHandler.ANTIGRAVS_ENABLED, false);
         // Set the destination position at the topmost block of the world at the X and Z coordinates of the destination
         this.setDestination(
@@ -702,7 +702,7 @@ public class TardisTravel extends TardisLink {
 
     public void setState(State state) {
         this.state = state;
-        ServerAITNetworkManager.setSendTardisTravelStateUpdate(this.getTardis(), state);
+        ServerAITNetworkManager.sendTardisTravelStateUpdate(this.getTardis(), state);
     }
 
     public void placeExterior() {

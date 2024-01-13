@@ -9,6 +9,7 @@ import mdteam.ait.client.renderers.AITRenderLayers;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.blocks.ExteriorBlock;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -36,11 +37,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if (entity.getTardis() == null) {
-            return;
-        }
 
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        ClientTardis.ClientTardisExterior clientTardisExterior = entity.getClientTardis().getExterior();
         ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant());
         TardisExterior tardisExterior = entity.getTardis().getExterior();
 

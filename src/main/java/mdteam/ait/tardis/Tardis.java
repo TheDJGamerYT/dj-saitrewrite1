@@ -1,17 +1,7 @@
 package mdteam.ait.tardis;
 
-import mc.craig.software.regen.Regeneration;
-import mc.craig.software.regen.common.regen.RegenerationData;
-import mc.craig.software.regen.common.regen.fabric.RegenerationDataImpl;
-import mc.craig.software.regen.util.PlayerUtil;
-import mc.craig.software.regen.util.RegenUtil;
 import mdteam.ait.api.tardis.TardisEvents;
-import mdteam.ait.client.util.ClientShakeUtil;
 import mdteam.ait.client.util.ClientTardisUtil;
-import mdteam.ait.compat.DependencyChecker;
-import mdteam.ait.core.AITSounds;
-import mdteam.ait.core.blockentities.ExteriorBlockEntity;
-import mdteam.ait.core.item.SiegeTardisItem;
 import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
@@ -22,31 +12,15 @@ import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.util.TardisChunkUtil;
-import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import mdteam.ait.tardis.wrapper.server.*;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
-
-import static mc.craig.software.regen.common.regen.state.RegenStates.REGENERATING;
 
 public class Tardis {
     // this is starting to get a little bloated..
@@ -184,7 +158,7 @@ public class Tardis {
 
         //PropertiesHandler.set(this.getHandlers().getProperties(), PropertiesHandler.POWER_DELTA, MAX_POWER_DELTA_TICKS);
         PropertiesHandler.setBool(this.getHandlers().getProperties(), PropertiesHandler.HAS_POWER, false);
-        ServerAITNetworkManager.setSendTardisPoweredUpdate(this, false);
+        ServerAITNetworkManager.sendTardisPoweredUpdate(this, false);
         TardisEvents.LOSE_POWER.invoker().onLosePower(this);
         this.markDirty();
     }
@@ -196,7 +170,7 @@ public class Tardis {
 
         //PropertiesHandler.set(this.getHandlers().getProperties(), PropertiesHandler.POWER_DELTA, 0);
         PropertiesHandler.setBool(this.getHandlers().getProperties(), PropertiesHandler.HAS_POWER, true);
-        ServerAITNetworkManager.setSendTardisPoweredUpdate(this, true);
+        ServerAITNetworkManager.sendTardisPoweredUpdate(this, true);
         TardisEvents.REGAIN_POWER.invoker().onRegainPower(this);
         this.markDirty();
     }

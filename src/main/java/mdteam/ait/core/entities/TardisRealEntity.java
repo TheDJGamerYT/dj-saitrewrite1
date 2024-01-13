@@ -12,6 +12,7 @@ import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.TardisUtil;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.block.BlockState;
@@ -183,6 +184,11 @@ public class TardisRealEntity extends Entity {
             return null;
         }
         return ServerTardisManager.getInstance().getTardis(getTardisID());
+    }
+
+    public ClientTardis getClientTardis() {
+        if (!TardisUtil.isClient()) return null;
+        return ClientTardisManager.getInstance().LOOKUP.get(this.getTardisID()).get();
     }
 
     public UUID getTardisID() {

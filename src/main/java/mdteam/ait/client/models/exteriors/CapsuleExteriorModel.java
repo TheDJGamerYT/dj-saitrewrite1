@@ -5,6 +5,7 @@ import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.entities.FallingTardisEntity;
 import mdteam.ait.core.entities.TardisRealEntity;
 import mdteam.ait.tardis.handler.DoorHandler;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -73,11 +74,11 @@ public class CapsuleExteriorModel extends ExteriorModel {
 
         /*this.body.getChild("doors").getChild("left_door").yaw = exterior.getLeftDoor();
         this.body.getChild("doors").getChild("right_door").yaw = -exterior.getRightDoor();*/
-        if (exterior.getTardis() == null) return;
-        DoorHandler handler = exterior.getTardis().getDoor();
+        ClientTardis clientTardis = exterior.getClientTardis();
+        if (clientTardis == null) return;
 
-        this.body.getChild("doors").getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen())  ? -5F : 0.0F;
-        this.body.getChild("doors").getChild("right_door").yaw = (handler.isRightOpen() || handler.isBothOpen()) ? 5F : 0.0F;
+        this.body.getChild("doors").getChild("left_door").yaw = (clientTardis.getExterior().isLeftDoorOpen())  ? -5F : 0.0F;
+        this.body.getChild("doors").getChild("right_door").yaw = (clientTardis.getExterior().isRightDoorOpen()) ? 5F : 0.0F;
 
         // if (DependencyChecker.hasPortals())
         //     this.getPart().getChild("doors").visible = exterior.tardis().getDoor().getDoorState() == DoorHandler.DoorStateEnum.CLOSED;
@@ -91,11 +92,11 @@ public class CapsuleExteriorModel extends ExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        if (realEntity.getTardis() == null) return;
-        DoorHandler handler = realEntity.getTardis().getDoor();
+        ClientTardis clientTardis = realEntity.getClientTardis();
+        if (clientTardis == null) return;
 
-        this.body.getChild("doors").getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen())  ? -5F : 0.0F;
-        this.body.getChild("doors").getChild("right_door").yaw = (handler.isRightOpen() || handler.isBothOpen()) ? 5F : 0.0F;
+        this.body.getChild("doors").getChild("left_door").yaw = (clientTardis.getExterior().isLeftDoorOpen())  ? -5F : 0.0F;
+        this.body.getChild("doors").getChild("right_door").yaw = (clientTardis.getExterior().isRightDoorOpen()) ? 5F : 0.0F;
 
         // if (DependencyChecker.hasPortals())
         //     this.getPart().getChild("doors").visible = exterior.tardis().getDoor().getDoorState() == DoorHandler.DoorStateEnum.CLOSED;

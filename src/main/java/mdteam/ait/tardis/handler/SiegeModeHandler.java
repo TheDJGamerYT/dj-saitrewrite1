@@ -60,7 +60,7 @@ public class SiegeModeHandler extends TardisLink {
         PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.SIEGE_MODE, b);
         // Loqor is stinky
         getTardis().markDirty();
-        ServerAITNetworkManager.setSendTardisSiegeModeUpdate(getTardis(), b);
+        ServerAITNetworkManager.sendTardisSiegeModeUpdate(getTardis(), b);
     }
 
     @Override

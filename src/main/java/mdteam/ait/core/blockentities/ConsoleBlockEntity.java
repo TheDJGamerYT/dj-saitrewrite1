@@ -2,7 +2,6 @@ package mdteam.ait.core.blockentities;
 
 import mdteam.ait.AITMod;
 import mdteam.ait.core.AITBlockEntityTypes;
-import mdteam.ait.core.AITBlocks;
 import mdteam.ait.core.AITDimensions;
 import mdteam.ait.core.AITEntityTypes;
 import mdteam.ait.core.blocks.types.HorizontalDirectionalBlock;
@@ -15,7 +14,6 @@ import mdteam.ait.tardis.control.ControlTypes;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.variant.console.ConsoleVariantSchema;
-import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -25,10 +23,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -377,7 +372,7 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
     public void markNeedsControl() {
         this.needsControls = true;
         if (TardisUtil.isClient()) return;
-        ServerAITNetworkManager.setSendTardisConsoleBlockPosToSubscribers(this.getPos(), this.getTardis());
+        ServerAITNetworkManager.sendTardisConsoleBlockPosToSubscribers(this.getPos(), this.getTardis());
     }
     public void markNeedsSyncing() {
         this.needsSync = true;

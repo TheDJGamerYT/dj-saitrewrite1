@@ -5,6 +5,7 @@ import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.entities.BaseControlEntity;
 import mdteam.ait.core.item.KeyItem;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.advancement.TardisCriterions;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -165,6 +166,7 @@ public class DoorHandler extends TardisLink {
         }
 
         this.doorState = var;
+        ServerAITNetworkManager.sendTardisExteriorDoorStateUpdate(getTardis(), this.doorState);
         getTardis().markDirty();
     }
 
@@ -308,7 +310,6 @@ public class DoorHandler extends TardisLink {
         }
 
         tardis.markDirty();
-
         return true;
     }
 

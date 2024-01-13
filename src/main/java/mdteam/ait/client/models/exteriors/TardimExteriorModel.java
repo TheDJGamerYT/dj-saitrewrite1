@@ -56,13 +56,8 @@ public class TardimExteriorModel extends ExteriorModel {
         // matrices.scale(0.6F,0.6f,0.6f);
         matrices.translate(0, -1.5f, 0);
 
-        /*this.tardis.getChild("left_door").yaw = exterior.getRightDoor() ? 0 : -1.575f;
-        this.tardis.getChild("right_door").yaw = exterior.getLeftDoor() ? 0 : 1.575f;*/
-
-        DoorHandler handler = exterior.getTardis().getDoor();
-
-        this.tardis.getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen())  ? -1.575f : 0.0F;
-        this.tardis.getChild("right_door").yaw = (handler.isRightOpen() || handler.isBothOpen()) ? 1.575f : 0.0F;
+        this.tardis.getChild("left_door").yaw = (exterior.getClientTardis().getExterior().isLeftDoorOpen())  ? -1.575f : 0.0F;
+        this.tardis.getChild("right_door").yaw = (exterior.getClientTardis().getExterior().isRightDoorOpen()) ? 1.575f : 0.0F;
 
         super.renderWithAnimations(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
@@ -75,13 +70,8 @@ public class TardimExteriorModel extends ExteriorModel {
         // matrices.scale(0.6F,0.6f,0.6f);
         matrices.translate(0, -1.5f, 0);
 
-        /*this.tardis.getChild("left_door").yaw = exterior.getRightDoor() ? 0 : -1.575f;
-        this.tardis.getChild("right_door").yaw = exterior.getLeftDoor() ? 0 : 1.575f;*/
-
-        DoorHandler handler = realEntity.getTardis().getDoor();
-
-        this.tardis.getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen())  ? -1.575f : 0.0F;
-        this.tardis.getChild("right_door").yaw = (handler.isRightOpen() || handler.isBothOpen()) ? 1.575f : 0.0F;
+        this.tardis.getChild("left_door").yaw = (realEntity.getClientTardis().getExterior().isLeftDoorOpen())  ? -1.575f : 0.0F;
+        this.tardis.getChild("right_door").yaw = (realEntity.getClientTardis().getExterior().isRightDoorOpen()) ? 1.575f : 0.0F;
 
         super.renderRealWorld(realEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
