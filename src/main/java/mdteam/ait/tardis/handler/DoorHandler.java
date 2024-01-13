@@ -170,22 +170,6 @@ public class DoorHandler extends TardisLink {
         getTardis().markDirty();
     }
 
-    /**
-     * Called when the exterior gets unloaded as that'll stop the animation meaning we need to make sure to restart it when it gets reloaded.
-     */
-    public void clearExteriorAnimationState() {
-        tempExteriorState = null;
-        getTardis().markDirty();
-    }
-
-    /**
-     * Called when the interior door gets unloaded as that'll stop the animation meaning we need to make sure to restart it when it gets reloaded.
-     */
-    public void clearInteriorAnimationState() {
-        tempInteriorState = null;
-        getTardis().markDirty();
-    }
-
     public DoorStateEnum getDoorState() {
         return doorState;
     }

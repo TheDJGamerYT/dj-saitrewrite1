@@ -45,6 +45,7 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_exterior_door_state_update");
     public static final Identifier SEND_EXTERIOR_SCHEMA_UPDATE = new Identifier(AITMod.MOD_ID, "send_exterior_schema_update");
     public static final Identifier SEND_TARDIS_OVERGROWN_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_overgrown_update");
+    public static final Identifier SEND_TARDIS_CLOAKED_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_cloaked_update");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -131,24 +132,46 @@ public class ServerAITNetworkManager {
         }));
         ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_TARDIS_CORNERS, ((server, player, handler, buf, responseSender) -> {
             Tardis tardis = ServerTardisManager.getInstance().getTardis(buf.readUuid());
-            if (tardis == null) return;
-            Corners corners = tardis.getDesktop().getCorners();
-            sendTardisCorners(tardis.getUuid(), player.getUuid(), corners);
+            if (tardis == null || player == null) return;
+            sendTardisCorners(tardis, player, tardis.getDesktop().getCorners());
         }));
         ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_TARDIS_CONSOLE_POS, ((server, player, handler, buf, responseSender) -> {
             Tardis tardis = ServerTardisManager.getInstance().getTardis(buf.readUuid());
-            BlockPos consolePos = tardis.getDesktop().getConsolePos();
-            sendTardisConsoleBlockPosToPlayer(player, consolePos, tardis);
+            if (tardis == null || player == null) return;
+            sendTardisConsoleBlockPosToPlayer(tardis, player, tardis.getDesktop().getConsolePos());
         }));
     }
 
-    public static void sendTardisConsoleBlockPosToPlayer(ServerPlayerEntity player, BlockPos consolePos, Tardis tardis) {
+    private static void __sendPacketToInteriorSubscribers(PacketByteBuf data, Identifier packetID) {
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(data.readUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(data.readUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, packetID, data);
+        }
+    }
+
+    private static void __sendPacketToExteriorSubscribers(PacketByteBuf data, Identifier packetID) {
+        if (!ServerTardisManager.getInstance().exterior_subscribers.containsKey(data.readUuid())) return;
+        for (UUID uuid : ServerTardisManager.getInstance().exterior_subscribers.get(data.readUuid())) {
+            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
+            if (player == null) continue;
+            ServerPlayNetworking.send(player, packetID, data);
+        }
+    }
+
+    private static void __sendPacketToAllPlayers(PacketByteBuf data, Identifier packetID) {
+        for (ServerPlayerEntity player : TardisUtil.getServer().getPlayerManager().getPlayerList()) {
+            ServerPlayNetworking.send(player, packetID, data);
+        }
+    }
+    public static void sendTardisConsoleBlockPosToPlayer(Tardis tardis, ServerPlayerEntity player, BlockPos consolePos) {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         data.writeBlockPos(consolePos);
         ServerPlayNetworking.send(player, SEND_TARDIS_CONSOLE_BLOCK_POS, data);
     }
-    public static void sendTardisConsoleBlockPosToSubscribers(BlockPos consolePos, Tardis tardis) {
+    public static void sendTardisConsoleBlockPosToSubscribers(Tardis tardis, BlockPos consolePos) {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         data.writeBlockPos(consolePos);
@@ -171,10 +194,10 @@ public class ServerAITNetworkManager {
         ServerPlayNetworking.send(player, SEND_INITIAL_TARDIS_SYNC, data);
     }
 
-    public static void sendExteriorAnimationUpdateSetup(UUID tardisUUID, TardisTravel.State state) {
+    public static void sendExteriorAnimationUpdateSetup(Tardis tardis, TardisTravel.State state) {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeInt(state.ordinal());
-        data.writeUuid(tardisUUID);
+        data.writeUuid(tardis.getUuid());
         __sendPacketToExteriorSubscribers(data, SEND_EXTERIOR_ANIMATION_UPDATE_SETUP);
     }
 
@@ -186,14 +209,14 @@ public class ServerAITNetworkManager {
         __sendPacketToAllPlayers(data, SEND_SYNC_NEW_TARDIS);
     }
 
-    public static void sendTardisCorners(UUID tardisUUID, UUID playerUUID, Corners corners) {
+    public static void sendTardisCorners(Tardis tardis, ServerPlayerEntity player, Corners corners) {
         PacketByteBuf data = PacketByteBufs.create();
-        data.writeUuid(tardisUUID);
+        data.writeUuid(tardis.getUuid());
         BlockPos firstBlockPos = corners.getFirst();
         BlockPos secondBlockPos = corners.getSecond();
         data.writeLong(firstBlockPos.asLong());
         data.writeLong(secondBlockPos.asLong());
-        ServerPlayNetworking.send(Objects.requireNonNull(TardisUtil.getServer().getPlayerManager().getPlayer(playerUUID)), SEND_TARDIS_CORNERS, data);
+        ServerPlayNetworking.send(player, SEND_TARDIS_CORNERS, data);
 
     }
     public static void sendTardisSiegeModeUpdate(Tardis tardis, boolean state) {
@@ -254,27 +277,10 @@ public class ServerAITNetworkManager {
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_OVERGROWN_UPDATE);
     }
 
-    private static void __sendPacketToInteriorSubscribers(PacketByteBuf data, Identifier packetID) {
-        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(data.readUuid())) return;
-        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(data.readUuid())) {
-            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
-            if (player == null) continue;
-            ServerPlayNetworking.send(player, packetID, data);
-        }
-    }
-
-    private static void __sendPacketToExteriorSubscribers(PacketByteBuf data, Identifier packetID) {
-        if (!ServerTardisManager.getInstance().exterior_subscribers.containsKey(data.readUuid())) return;
-        for (UUID uuid : ServerTardisManager.getInstance().exterior_subscribers.get(data.readUuid())) {
-            ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
-            if (player == null) continue;
-            ServerPlayNetworking.send(player, packetID, data);
-        }
-    }
-
-    private static void __sendPacketToAllPlayers(PacketByteBuf data, Identifier packetID) {
-        for (ServerPlayerEntity player : TardisUtil.getServer().getPlayerManager().getPlayerList()) {
-            ServerPlayNetworking.send(player, packetID, data);
-        }
+    public static void sendTardisCloakedUpdate(Tardis tardis, boolean cloaked) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(cloaked);
+        __sendPacketToExteriorSubscribers(data, SEND_TARDIS_CLOAKED_UPDATE);
     }
 }

@@ -162,6 +162,8 @@ public class ClientTardis {
         private Corners corners = null;
         private BlockPos consolePos = null;
 
+        private DoorHandler.DoorStateEnum tempInteriorDoorState = null;
+
         public ClientTardisDesktop(ClientTardis tardis) {
             this.tardis = tardis;
         }
@@ -192,6 +194,14 @@ public class ClientTardis {
 
         public boolean isConsolePosSynced() {
             return consolePos != null;
+        }
+
+        public DoorHandler.DoorStateEnum getAnimationInteriorState() {
+            return this.tempInteriorDoorState;
+        }
+
+        public void syncInteriorAnimationState() {
+            this.tempInteriorDoorState = this.getTardis().getExterior().doorState;
         }
     }
 
@@ -228,10 +238,12 @@ public class ClientTardis {
         public void unloadExteriorBlock() {
             this.loadedExteriorBlockEntity = null;
             this.getTardis().getExterior().setExteriorBlockPos(null);
+            getTardis().getExterior().tempExteriorDoorState = null;
         }
         public void unloadDoorBlock(DoorBlockEntity doorBlockEntity) {
             if (!loadedDoorBlockEntities.contains(doorBlockEntity)) return;
             loadedDoorBlockEntities.remove(doorBlockEntity);
+            if (!hasAnyDoorsLoaded()) getTardis().getDesktop().tempInteriorDoorState = null;
         }
 
         public boolean isConsoleBlockLoaded(ConsoleBlockEntity consoleBlockEntity) {
@@ -268,10 +280,13 @@ public class ClientTardis {
         private DoorHandler.DoorStateEnum doorState = DoorHandler.DoorStateEnum.CLOSED;
         private ExteriorVariantSchema exterior_variant_schema;
         private ExteriorSchema exterior_schema;
+        private boolean cloaked = false;
 
         public static String TEXTURE_PATH = "textures/blockentities/exteriors/";
 
         private boolean overgrown = false;
+
+        private DoorHandler.DoorStateEnum tempExteriorDoorState = null;
 
         public ClientTardisExterior(ClientTardis tardis, ExteriorVariantSchema exterior_variant_schema, ExteriorSchema exterior_schema) {
             this.tardis = tardis;
@@ -281,6 +296,14 @@ public class ClientTardis {
 
         public ClientTardis getTardis() {
             return tardis;
+        }
+
+        public void setCloakedState(boolean cloaked) {
+            this.cloaked = cloaked;
+        }
+
+        public boolean isCloaked() {
+            return cloaked;
         }
 
         public void setExteriorBlockPos(BlockPos exteriorBlockPos) {
@@ -323,6 +346,8 @@ public class ClientTardis {
 
         public void setDoorState(DoorHandler.DoorStateEnum state) {
             this.doorState = state;
+            this.tempExteriorDoorState = state;
+            this.getTardis().getDesktop().tempInteriorDoorState = state;
         }
 
         public DoorHandler.DoorStateEnum getDoorState() {
@@ -338,8 +363,15 @@ public class ClientTardis {
 
         public Identifier getOvergrownTexture() {
             ExteriorSchema exterior = getExterior().getExteriorSchema();
-
             return new Identifier(AITMod.MOD_ID, TEXTURE_PATH + exterior.toString().toLowerCase() + "/" + exterior.toString().toLowerCase() + "_" + "overgrown" + ".png");
+        }
+
+        public DoorHandler.DoorStateEnum getAnimationExteriorState() {
+            return this.tempExteriorDoorState;
+        }
+
+        public void syncExteriorAnimationState() {
+            this.tempExteriorDoorState = this.doorState;
         }
     }
 }

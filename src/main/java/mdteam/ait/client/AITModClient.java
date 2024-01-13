@@ -153,8 +153,8 @@ public class AITModClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            for (Supplier<ClientTardis> tardis : ClientTardisManager.getInstance().LOOKUP.values()) {
-                tardis.get().tick();
+            for (Supplier<ClientTardis> clientTardis : ClientTardisManager.getInstance().LOOKUP.values()) {
+                clientTardis.get().tick();
             }
 
             ClientSoundManager.tick(client);

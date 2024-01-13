@@ -371,8 +371,8 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
 
     public void markNeedsControl() {
         this.needsControls = true;
-        if (TardisUtil.isClient()) return;
-        ServerAITNetworkManager.sendTardisConsoleBlockPosToSubscribers(this.getPos(), this.getTardis());
+        if (TardisUtil.isClient() || this.getTardis() == null) return;
+        ServerAITNetworkManager.sendTardisConsoleBlockPosToSubscribers(this.getTardis(), this.getPos());
     }
     public void markNeedsSyncing() {
         this.needsSync = true;

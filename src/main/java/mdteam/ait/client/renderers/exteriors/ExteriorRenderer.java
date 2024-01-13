@@ -75,10 +75,10 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             model.animateTile(entity);
             model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1, 1, 1);
             if (entity.getClientTardis().getExterior().isOvergrown()) {
-                model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(entity.getTardis().getHandlers().getOvergrownHandler().getOvergrownTexture())), light, overlay, 1, 1, 1, 1);
+                model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(entity.getClientTardis().getExterior().getOvergrownTexture())), light, overlay, 1, 1, 1, 1);
             }
-            if (exteriorVariant.emission() != null && entity.getTardis().hasPower()) {
-                boolean alarms = PropertiesHandler.getBool(entity.getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED);
+            if (exteriorVariant.emission() != null && entity.getClientTardis().isPowered()) {
+                boolean alarms = entity.getClientTardis().isAlarmsEnabled();
 
                 model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisRenderEmissionCull(exteriorVariant.emission(), false)), maxLight, overlay, 1, alarms ? 0.3f : 1 , alarms ? 0.3f : 1, 1);
             }

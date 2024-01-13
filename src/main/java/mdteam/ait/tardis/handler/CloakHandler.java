@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.core.item.KeyItem;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -23,11 +24,13 @@ public class CloakHandler extends TardisLink {
 
     public void enable() {
         PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.IS_CLOAKED, true);
+        ServerAITNetworkManager.sendTardisCloakedUpdate(getTardis(), true);
         getTardis().markDirty();
     }
 
     public void disable() {
         PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.IS_CLOAKED, false);
+        ServerAITNetworkManager.sendTardisCloakedUpdate(getTardis(), false);
         getTardis().markDirty();
     }
 
