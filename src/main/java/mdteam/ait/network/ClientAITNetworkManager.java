@@ -197,6 +197,7 @@ public class ClientAITNetworkManager {
             AbsoluteBlockPos.Directed absoluteBlockPos = new AbsoluteBlockPos.Directed((AbsoluteBlockPos) pos, direction);
             clientTardis.getExterior().setExteriorBlockPos(pos);
             clientTardis.getTravel().setPosition(absoluteBlockPos);
+            clientTardis.getExterior().setPositionDimensionValue(dimension_name);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_DESTINATION_POSITION_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
@@ -206,6 +207,7 @@ public class ClientAITNetworkManager {
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             AbsoluteBlockPos.Directed absoluteBlockPos = new AbsoluteBlockPos.Directed((AbsoluteBlockPos) pos, direction);
             clientTardis.getTravel().setDestination(absoluteBlockPos);
+            clientTardis.getExterior().setDestinationDimensionValue(dimension_name);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_DESKTOP_HUM, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
@@ -218,6 +220,43 @@ public class ClientAITNetworkManager {
             Identifier schema_id = buf.readIdentifier();
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getDesktop().setDesktopSchema(DesktopRegistry.get(schema_id));
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_AUTOLAND_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean autoland_state = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setAutoLandActive(autoland_state);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_HAIL_MARY_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean hail_mary_state = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setHailMaryActive(hail_mary_state);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_ANTIGRAVS_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean antigravs = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setAntiGravsActive(antigravs);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_CARTRIDGE_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean carriage_state = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setHasCartridge(carriage_state);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_REFUELER_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean refueller_state = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setIsRefueling(refueller_state);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_SYNC_NEW_TARDIS, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            ExteriorVariantSchema exteriorVariantSchema = ExteriorVariantRegistry.REGISTRY.get(buf.readIdentifier());
+            ExteriorSchema exteriorSchema = ExteriorRegistry.REGISTRY.get(buf.readIdentifier());
+            ClientTardis clientTardis = new ClientTardis(tardisUUID, exteriorVariantSchema, exteriorSchema);
+            ClientTardisManager.getInstance().LOOKUP.put(tardisUUID, () -> clientTardis);
         }));
     }
 
