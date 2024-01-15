@@ -158,11 +158,6 @@ public class ServerAITNetworkManager {
         ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_INITIAL_TARDIS_SYNC, ((server, player, handler, buf, responseSender) -> {
             sendInitialTardisSync(player);
         }));
-        ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_TARDIS_CORNERS, ((server, player, handler, buf, responseSender) -> {
-            Tardis tardis = ServerTardisManager.getInstance().getTardis(buf.readUuid());
-            if (tardis == null || player == null) return;
-            sendTardisCorners(tardis, player, tardis.getDesktop().getCorners());
-        }));
         ServerPlayNetworking.registerGlobalReceiver(ClientAITNetworkManager.SEND_REQUEST_TARDIS_CONSOLE_POS, ((server, player, handler, buf, responseSender) -> {
             Tardis tardis = ServerTardisManager.getInstance().getTardis(buf.readUuid());
             if (tardis == null || player == null) return;
@@ -237,14 +232,14 @@ public class ServerAITNetworkManager {
         __sendPacketToAllPlayers(data, SEND_SYNC_NEW_TARDIS);
     }
 
-    public static void sendTardisCorners(Tardis tardis, ServerPlayerEntity player, Corners corners) {
+    public static void sendTardisCorners(Tardis tardis, Corners corners) {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         BlockPos firstBlockPos = corners.getFirst();
         BlockPos secondBlockPos = corners.getSecond();
         data.writeLong(firstBlockPos.asLong());
         data.writeLong(secondBlockPos.asLong());
-        ServerPlayNetworking.send(player, SEND_TARDIS_CORNERS, data);
+        __sendPacketToAllPlayers(data, SEND_TARDIS_CORNERS);
 
     }
     public static void sendTardisSiegeModeUpdate(Tardis tardis, boolean state) {

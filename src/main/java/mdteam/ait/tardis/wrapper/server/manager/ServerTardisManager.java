@@ -176,10 +176,10 @@ public class ServerTardisManager extends TardisManager {
 
         ServerTardis tardis = new ServerTardis(uuid, pos, schema, exteriorType, variantType, locked);
         this.lookup.put(uuid, tardis);
-
+        ServerAITNetworkManager.sendSyncNewTardis(tardis);
+        ServerAITNetworkManager.sendTardisCorners(tardis, tardis.getDesktop().getCorners());
         tardis.getTravel().placeExterior();
         tardis.getTravel().runAnimations();
-        ServerAITNetworkManager.sendSyncNewTardis(tardis);
         return tardis;
     }
 
