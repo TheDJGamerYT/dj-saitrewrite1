@@ -7,6 +7,7 @@ import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.util.ForcedChunkUtil;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.handler.TardisLink;
 import mdteam.ait.tardis.util.desktop.structures.DesktopGenerator;
 import mdteam.ait.tardis.util.TardisUtil;
@@ -42,6 +43,7 @@ public class TardisDesktop extends TardisLink {
     public TardisDesktop(Tardis tardis, TardisDesktopSchema schema) {
         super(tardis.getUuid());
         this.schema = schema;
+        ServerAITNetworkManager.sendTardisDesktopSchema(tardis, schema);
         this.corners = TardisUtil.findInteriorSpot();
 
         BlockPos doorPos = new DesktopGenerator(schema).place(
@@ -63,6 +65,7 @@ public class TardisDesktop extends TardisLink {
     public TardisDesktop(Tardis tardis, TardisDesktopSchema schema, Corners corners, AbsoluteBlockPos.Directed door, AbsoluteBlockPos.Directed console) {
         super(tardis.getUuid());
         this.schema = schema;
+        ServerAITNetworkManager.sendTardisDesktopSchema(tardis, schema);
         this.corners = corners;
         this.doorPos = door;
         this.consolePos = console;
@@ -126,6 +129,7 @@ public class TardisDesktop extends TardisLink {
     public void changeInterior(TardisDesktopSchema schema) {
         long currentTime = System.currentTimeMillis();
         this.schema = schema;
+        ServerAITNetworkManager.sendTardisDesktopSchema(getTardis(), schema);
         DesktopGenerator generator = new DesktopGenerator(this.schema);
         BlockPos doorPos = generator.place((ServerWorld) TardisUtil.getTardisDimension(), this.corners);
         if(doorPos != null) this.setInteriorDoorPos(new AbsoluteBlockPos.Directed(doorPos, TardisUtil.getTardisDimension(), Direction.SOUTH));
@@ -135,6 +139,7 @@ public class TardisDesktop extends TardisLink {
 
     public void clearOldInterior(TardisDesktopSchema schema) {
         this.schema = schema;
+        ServerAITNetworkManager.sendTardisDesktopSchema(getTardis(), schema);
         DesktopGenerator.clearArea((ServerWorld) TardisUtil.getTardisDimension(), this.corners);
         this.clearExistingEntities();
     }
