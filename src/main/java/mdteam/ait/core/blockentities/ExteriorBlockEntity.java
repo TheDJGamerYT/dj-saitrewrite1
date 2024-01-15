@@ -56,6 +56,12 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
 
     public ExteriorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.EXTERIOR_BLOCK_ENTITY_TYPE, pos, state);
+        Tardis found = findTardisByPosition(pos);
+        if (found == null) {
+            AITMod.LOGGER.error("Tardis ID is null for block entity at " + pos.toString());
+            return;
+        }
+        this.setTardisId(found.getUuid());
     }
 
     public void useOn(ServerWorld world, boolean sneaking, PlayerEntity player) {
