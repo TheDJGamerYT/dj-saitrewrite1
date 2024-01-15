@@ -11,6 +11,7 @@ import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.network.ClientAITNetworkManager;
 import mdteam.ait.registry.ExteriorRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
+import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.BoothExterior;
 import mdteam.ait.tardis.exterior.ClassicExterior;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
@@ -49,9 +50,8 @@ public class MonitorScreen extends TardisScreen {
     int backgroundHeight = 121;//101;
     int backgroundWidth = 220;//200;
 
-    public MonitorScreen(UUID tardis) {
-        super(Text.translatable("screen." + AITMod.MOD_ID + ".monitor"), tardis);
-        updateTardis();
+    public MonitorScreen(UUID tardisID) {
+        super(Text.translatable("screen." + AITMod.MOD_ID + ".monitor"), tardisID);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class MonitorScreen extends TardisScreen {
     public ExteriorSchema getCurrentModel() {
         // if (currentModel == ExteriorRegistry.CORAL_GROWTH) nextExterior();
 
-        return currentModel == null ? tardis().getExterior().getType() : currentModel;
+        return currentModel == null ? tardis().getExterior().getExteriorSchema() : currentModel;
     }
 
     public void setCurrentModel(ExteriorSchema currentModel) {
@@ -89,10 +89,10 @@ public class MonitorScreen extends TardisScreen {
         if (Objects.equals(currentVariant, ClientExteriorVariantRegistry.CORAL_GROWTH)) whichDirectionExterior(true);
 
         if (currentVariant == null)
-            if(tardis().getExterior().getType() != getCurrentModel()) {
+            if(tardis().getExterior().getExteriorSchema() != getCurrentModel()) {
                 setCurrentVariant(ExteriorVariantRegistry.withParentToList(getCurrentModel()).get(0));
             } else {
-                setCurrentVariant(tardis().getExterior().getVariant());
+                setCurrentVariant(tardis().getExterior().getExteriorVariantSchema());
             }
 
         return currentVariant;
@@ -144,8 +144,8 @@ public class MonitorScreen extends TardisScreen {
 
     public void sendExteriorPacket() {
         if (tardis() != null) {
-            if (this.getCurrentModel() != tardis().getExterior().getType() || this.getCurrentVariant().parent() != tardis().getExterior().getVariant()) {
-                ClientAITNetworkManager.send_request_exterior_change_from_monitor(this.tardisId, this.getCurrentModel(), this.getCurrentVariant(), this.getCurrentVariant().parent() != tardis().getExterior().getVariant());
+            if (this.getCurrentModel() != tardis().getExterior().getExteriorSchema() || this.getCurrentVariant().parent() != tardis().getExterior().getExteriorVariantSchema()) {
+                ClientAITNetworkManager.send_request_exterior_change_from_monitor(this.tardisId, this.getCurrentModel(), this.getCurrentVariant(), this.getCurrentVariant().parent() != tardis().getExterior().getExteriorVariantSchema());
             }
         }
     }
@@ -283,6 +283,9 @@ public class MonitorScreen extends TardisScreen {
         String dDirectionText = "> " + dabpd.getDirection().toString().toUpperCase();
         String fuelText = "> " + Math.round((tardis().getFuel() / TARDIS_MAX_FUEL) * 100);
 
+        //@TODO make this use the client flighthandler stuff that syncs the flight time as a percentage.
+        String flightTimeText = "> " + (tardis().getTravel().getState() == TardisTravel.State.LANDED ? "0" : "100");
+
         // position
         context.drawText(this.textRenderer, Text.literal("Position"), (width / 2 - 64), (height / 2 - 46), 5636095, true);
         context.drawText(this.textRenderer, Text.literal(positionText), (width / 2 - 64), (height / 2 - 36), 0xFFFFFF, true);
@@ -297,6 +300,10 @@ public class MonitorScreen extends TardisScreen {
 
         context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.fuel"), (width / 2 - 102), (height / 2 + 28), 0xFFFFFF, true);
         context.drawText(this.textRenderer, Text.literal(fuelText + "%"), (width / 2 - 108), (height / 2 + 38), 0xFFFFFF, true);
+
+        // flight time
+        context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.traveltime"), (width / 2 + 30), (height / 2 - 9), 0xFFFFFF, true);
+        context.drawText(this.textRenderer, Text.literal(flightTimeText + "%"), (width / 2 + 40), (height / 2 + 1), 0xFFFFFF, true);
     }
 
     @Override
