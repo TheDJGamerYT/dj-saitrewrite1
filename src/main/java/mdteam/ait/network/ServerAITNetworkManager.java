@@ -63,6 +63,14 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_DESKTOP_SCHEMA = new Identifier(AITMod.MOD_ID, "send_tardis_desktop_schema");
     public static final Identifier SEND_TARDIS_DESKTOP_HUM = new Identifier(AITMod.MOD_ID, "send_tardis_desktop_hum");
 
+    public static final Identifier SEND_TARDIS_AUTOLAND_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_autoland_state_update");
+    public static final Identifier SEND_TARDIS_REFUELER_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_refueler_state_update");
+    public static final Identifier SEND_TARDIS_HAIL_MARY_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_hail_mary_state_update");
+    public static final Identifier SEND_TARDIS_ANTIGRAVS_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_antigravs_update");
+
+    public static final Identifier SEND_TARDIS_LAST_POSITION_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_last_position_update");
+    public static final Identifier SEND_TARDIS_CARTRIDGE_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_cartridge_state_update");
+
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
             ServerTardisManager.getInstance().removePlayerFromAllTardis(handler.getPlayer());
@@ -305,6 +313,7 @@ public class ServerAITNetworkManager {
         data.writeUuid(tardis.getUuid());
         data.writeBoolean(cloaked);
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_CLOAKED_UPDATE);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_CLOAKED_UPDATE);
     }
 
     public static void sendTardisFallingUpdate(Tardis tardis, boolean falling) {
@@ -394,5 +403,54 @@ public class ServerAITNetworkManager {
         data.writeUuid(tardis.getUuid());
         data.writeIdentifier(sound.id());
         __sendPacketToInteriorSubscribers(data, SEND_TARDIS_DESKTOP_HUM);
+    }
+
+    public static void sendTardisDesktopSchema(Tardis tardis, TardisDesktopSchema schema) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeIdentifier(schema.id());
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_DESKTOP_SCHEMA);
+    }
+
+    public static void sendTardisAutolandStateUpdate(Tardis tardis, boolean state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(state);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_AUTOLAND_STATE_UPDATE);
+    }
+
+    public static void sendTardisHailMaryStateUpdate(Tardis tardis, boolean state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(state);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_HAIL_MARY_STATE_UPDATE);
+    }
+
+    public static void sendTardisAntigravsUpdate(Tardis tardis, boolean state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(state);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_ANTIGRAVS_UPDATE);
+    }
+
+    public static void sendTardisRefuelerStateUpdate(Tardis tardis, boolean state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(state);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_REFUELER_STATE_UPDATE);
+    }
+
+    public static void sendTardisLastPosition(Tardis tardis, AbsoluteBlockPos.Directed directed) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBlockPos(directed);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_LAST_POSITION_UPDATE);
+    }
+
+    public static void sendTardisCartridgeStateUpdate(Tardis tardis, boolean state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(state);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_CARTRIDGE_STATE_UPDATE);
     }
 }
