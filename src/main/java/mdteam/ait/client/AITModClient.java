@@ -106,6 +106,10 @@ public class AITModClient implements ClientModInitializer {
 
         ClientBlockEntityEvents.BLOCK_ENTITY_LOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exterior) {
+                if (exterior.getTardisId() == null) {
+                    AITMod.LOGGER.error("ExteriorBlockEntity with null tardisId at " + exterior.getPos());
+                    return;
+                }
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(exterior.getTardisId()).get();
                 if (clientTardis == null || clientTardis.isSubscribedToExterior() || clientTardis.getLoadCache().isExteriorBlockLoaded(exterior)) return;
                 clientTardis.getLoadCache().loadExteriorBlock(exterior);
