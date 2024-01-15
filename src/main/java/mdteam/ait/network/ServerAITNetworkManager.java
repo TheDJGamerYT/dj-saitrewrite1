@@ -2,6 +2,8 @@ package mdteam.ait.network;
 
 import io.wispforest.owo.ops.WorldOps;
 import mdteam.ait.AITMod;
+import mdteam.ait.compat.DependencyChecker;
+import mdteam.ait.compat.immersive.PortalsHandler;
 import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.item.TardisItemBuilder;
 import mdteam.ait.registry.DesktopRegistry;
@@ -82,6 +84,9 @@ public class ServerAITNetworkManager {
             if (variantChanged) {
                 tardis.getExterior().setVariant(ExteriorVariantRegistry.REGISTRY.get(variantIdentifier));
             }
+            if(DependencyChecker.hasPortals()) {
+                PortalsHandler.removePortals(tardis);
+            }
             WorldOps.updateIfOnServer(TardisUtil.getServer().getWorld(tardis.getTravel().getPosition().getWorld().getRegistryKey()), tardis.getDoor().getExteriorPos());
             WorldOps.updateIfOnServer(TardisUtil.getServer().getWorld(TardisUtil.getTardisDimension().getRegistryKey()), tardis.getDoor().getDoorPos());
             if (tardis.isGrowth()) {
@@ -113,7 +118,7 @@ public class ServerAITNetworkManager {
             ServerPlayerEntity serverPlayer = TardisUtil.getServer().getPlayerManager().getPlayer(playerUUID);
             if (tardis.getDesktop().getCorners() == null || serverPlayer == null) return;
             tardis.getTravel().setDestination(new AbsoluteBlockPos.Directed(
-                    serverPlayer.getBlockX(),
+                            serverPlayer.getBlockX(),
                             serverPlayer.getBlockY(),
                             serverPlayer.getBlockZ(),
                             serverPlayer.getWorld(),
