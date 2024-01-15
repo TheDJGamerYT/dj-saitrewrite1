@@ -165,6 +165,17 @@ public class ClientAITNetworkManager {
             }
             clientTardis.setUnlockedDesktops(unlocked_desktops);
         }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_FUEL_LEVEL, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            double fuel_level = buf.readDouble();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setFuel(fuel_level);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_FLIGHT_TIME, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            int flight_time = buf.readInt();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+        }))
     }
 
     public static void send_request_interior_change_from_monitor(UUID uuid, Identifier selected_interior) {

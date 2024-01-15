@@ -362,6 +362,7 @@ public class ServerAITNetworkManager {
 
     public static void sendTardisUnlockedInteriors(Tardis tardis, List<TardisDesktopSchema> interiors) {
         PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
         List<Identifier> interiorUUIDs = interiors.stream().map(TardisDesktopSchema::id).toList();
         data.writeCollection(interiorUUIDs, PacketByteBuf::writeIdentifier);
         __sendPacketToInteriorSubscribers(data, SEND_UNLOCKED_INTERIORS);
