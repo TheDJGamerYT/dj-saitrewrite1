@@ -1,7 +1,6 @@
 package mdteam.ait.core.item;
 
 import io.wispforest.owo.ops.WorldOps;
-import mdteam.ait.AITMod;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.network.ServerAITNetworkManager;
@@ -12,7 +11,6 @@ import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.TardisUtil;
-import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -24,7 +22,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -156,6 +153,7 @@ public class SonicItem extends Item {
                 if (world.getBlockState(pos).isReplaceable()) temp = pos;
 
                 PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.HANDBRAKE, false);
+                ServerAITNetworkManager.sendTardisHandbrakeUpdate(tardis, false);
                 PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.AUTO_LAND, true);
                 if(tardis.getHandlers().getHADS().isInDanger()) {
                     tardis.setIsInDanger(false);

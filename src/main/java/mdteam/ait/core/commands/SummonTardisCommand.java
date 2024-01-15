@@ -4,11 +4,11 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import mdteam.ait.AITMod;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
-import net.minecraft.block.Block;
 import net.minecraft.command.argument.*;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -44,6 +44,7 @@ public class SummonTardisCommand {
         //FIXME: move to a kind of "goto" method, i would make it but theo said hands off the tardis package
         if (tardis.getTravel().getState() == LANDED) {
             PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.HANDBRAKE, false);
+            ServerAITNetworkManager.sendTardisHandbrakeUpdate(tardis, false);
             tardis.getTravel().dematerialise(true);
         }
         if (tardis.getTravel().getState() == FLIGHT) {
@@ -69,6 +70,7 @@ public class SummonTardisCommand {
         //FIXME: move to a kind of "goto" method, i would make it but theo said hands off the tardis package
         if (tardis.getTravel().getState() == LANDED) {
             PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.HANDBRAKE, false);
+            ServerAITNetworkManager.sendTardisHandbrakeUpdate(tardis, false);
             tardis.getTravel().dematerialise(true);
         }
         if (tardis.getTravel().getState() == FLIGHT) {

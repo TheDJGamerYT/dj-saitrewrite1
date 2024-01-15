@@ -38,6 +38,7 @@ public class ClientTardis {
     private boolean falling = false;
     private boolean is_crashing = false;
     private boolean handbreak_active = false;
+    private boolean ground_searching = false;
 
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
         this.tardis_ID = tardisID;
@@ -53,6 +54,14 @@ public class ClientTardis {
 
     public boolean isHandbreakActive() {
         return handbreak_active;
+    }
+
+    public void setGroundSearchingMode(boolean ground_searching) {
+        this.ground_searching = ground_searching;
+    }
+
+    public boolean isGroundSearchingMode() {
+        return ground_searching;
     }
 
     public ClientTardisExterior getExterior() {
