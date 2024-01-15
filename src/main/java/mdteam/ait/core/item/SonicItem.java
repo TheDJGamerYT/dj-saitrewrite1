@@ -85,7 +85,7 @@ public class SonicItem extends Item {
                 Block block = world.getBlockState(pos).getBlock();
 
                 if (entity instanceof ExteriorBlockEntity exteriorBlock) {
-                    TardisTravel.State state = exteriorBlock.getTardis().getTravel().getState();
+                    TardisTravel.State state = (world.isClient() ? exteriorBlock.getClientTardis().getTravel().getState() : tardis.getTravel().getState());
 
                     if (!(state == TardisTravel.State.LANDED || state == TardisTravel.State.FLIGHT)) {
                         return;
@@ -118,7 +118,7 @@ public class SonicItem extends Item {
 
                 BlockEntity entity = world.getBlockEntity(pos);
                 if (entity instanceof ExteriorBlockEntity exteriorBlock) {
-                    TardisTravel.State state = exteriorBlock.getTardis().getTravel().getState();
+                    TardisTravel.State state = (TardisUtil.isClient() ? exteriorBlock.getClientTardis().getTravel().getState() : tardis.getTravel().getState());
                     if (!(state == TardisTravel.State.LANDED || state == TardisTravel.State.FLIGHT))
                         return;
                     /*tardis.markDirty();
@@ -298,11 +298,6 @@ public class SonicItem extends Item {
         String text = tag.contains("tardis") ? tag.getString("tardis").substring(0, 8)
                 : Text.translatable("message.ait.sonic.none").getString();
         String position = Text.translatable("message.ait.sonic.none").getString();
-        if(tag.contains("tardis")) {
-            Tardis tardis = ClientTardisManager.getInstance().getLookup().get(UUID.fromString(tag.getString("tardis")));
-            position = tardis.getTravel().getExteriorPos() == null ? "In Flight..." : tardis.getTravel().getExteriorPos().toShortString();
-        }
-
         if (tag.contains("tardis")) { // Adding the sonics mode
             tooltip.add(Text.translatable("message.ait.sonic.mode").formatted(Formatting.BLUE));
 

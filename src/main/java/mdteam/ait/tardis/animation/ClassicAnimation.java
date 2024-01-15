@@ -5,6 +5,7 @@ import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.sounds.MatSound;
 import mdteam.ait.tardis.TardisTravel;
+import mdteam.ait.tardis.util.TardisUtil;
 
 @Deprecated
 public class ClassicAnimation extends ExteriorAnimation {
@@ -14,13 +15,13 @@ public class ClassicAnimation extends ExteriorAnimation {
 
     @Override
     public void tick() {
-        if (exterior.getTardis() == null)
+        if ((TardisUtil.isClient() ? exterior.getClientTardis() : exterior.getTardis()) == null)
             return;
 
-        TardisTravel.State state = exterior.getTardis().getTravel().getState();
+        TardisTravel.State state = TardisUtil.isClient() ? exterior.getClientTardis().getTravel().getState() : exterior.getTardis().getTravel().getState();
 
         if (this.timeLeft < 0)
-            this.setupAnimation(exterior.getTardis().getTravel().getState()); // fixme is a jank fix for the timeLeft going negative on client
+            this.setupAnimation(state); // fixme is a jank fix for the timeLeft going negative on client
 
         if (state == TardisTravel.State.DEMAT) {
             this.alpha = (float) this.timeLeft / (this.startTime);
@@ -40,14 +41,14 @@ public class ClassicAnimation extends ExteriorAnimation {
 
     @Override
     public void setupAnimation(TardisTravel.State state) {
-        if (exterior.getTardis() == null) {
+        if ((TardisUtil.isClient() ? exterior.getClientTardis() : exterior.getTardis()) == null) {
             AITMod.LOGGER.error("Tardis for exterior " + exterior + " was null! Panic!!!!");
             alpha = 0f; // just make me vanish.
             return;
         }
-        MatSound sound = exterior.getTardis().getExterior().getVariant().getSound(state);
+        MatSound sound = TardisUtil.isClient() ? exterior.getClientTardis().getExterior().getExteriorVariantSchema().getSound(state) : exterior.getTardis().getExterior().getVariant().getSound(state);
 
-        if (exterior.getTardis().getTravel().isCrashing()) {
+        if ((TardisUtil.isClient() ? exterior.getClientTardis().isCrashing() : exterior.getTardis().getTravel().isCrashing())) {
             sound = AITSounds.GHOST_MAT_ANIM;
         }
 

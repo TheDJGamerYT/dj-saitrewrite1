@@ -8,6 +8,7 @@ import mdteam.ait.client.renderers.AITRenderLayers;
 import mdteam.ait.core.blocks.ExteriorBlock;
 import mdteam.ait.core.entities.TardisRealEntity;
 import mdteam.ait.tardis.TardisExterior;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -31,17 +32,17 @@ public class TardisRealRenderer extends EntityRenderer<TardisRealEntity> {
 
     @Override
     public Identifier getTexture(TardisRealEntity entity) {
-        if (entity.getTardis() == null) return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; // random texture just so i dont crash
+        if (entity.getClientTardis() == null) return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; // random texture just so i dont crash
 
-        return Objects.requireNonNull(ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant())).texture();
+        return Objects.requireNonNull(ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema())).texture();
     }
 
     @Override
     public void render(TardisRealEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
-        if (entity.getTardis() == null) return;
-        TardisExterior tardisExterior = entity.getTardis().getExterior();
-        ClientExteriorVariantSchema exteriorVariantSchema = ClientExteriorVariantRegistry.withParent(tardisExterior.getVariant());
+        if (entity.getClientTardis() == null) return;
+        ClientTardis.ClientTardisExterior tardisExterior = entity.getClientTardis().getExterior();
+        ClientExteriorVariantSchema exteriorVariantSchema = ClientExteriorVariantRegistry.withParent(tardisExterior.getExteriorVariantSchema());
         if (exteriorVariantSchema == null) return;
         Class<? extends ExteriorModel> modelClass = exteriorVariantSchema.model().getClass();
 
@@ -75,17 +76,17 @@ public class TardisRealRenderer extends EntityRenderer<TardisRealEntity> {
     }
 
     private ExteriorModel getModel(TardisRealEntity entity) {
-        if (entity.getTardis() == null) return model;
+        if (entity.getClientTardis() == null) return model;
         if (model == null) {
-            model = Objects.requireNonNull(ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant())).model();
+            model = Objects.requireNonNull(ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema())).model();
         }
 
         return model;
     }
 
     public Identifier getEmission(TardisRealEntity entity) {
-        if (entity.getTardis() == null) return getTexture(entity);
+        if (entity.getClientTardis() == null) return getTexture(entity);
 
-        return Objects.requireNonNull(ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant())).emission();
+        return Objects.requireNonNull(ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema())).emission();
     }
 }

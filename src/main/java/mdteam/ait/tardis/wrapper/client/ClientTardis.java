@@ -7,6 +7,7 @@ import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.network.ClientAITNetworkManager;
+import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
@@ -34,6 +35,9 @@ public class ClientTardis {
     private boolean siege_mode = false;
     private boolean powered = false;
     private boolean alarms_enabled = false;
+    private boolean falling = false;
+    private boolean is_crashing = false;
+    private boolean handbreak_active = false;
 
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
         this.tardis_ID = tardisID;
@@ -43,8 +47,27 @@ public class ClientTardis {
         this.exterior = new ClientTardisExterior(this, exteriorVariantSchema, exteriorSchema);
     }
 
+    public void setHandBreakState(boolean handbreak_active) {
+        this.handbreak_active = handbreak_active;
+    }
+
+    public boolean isHandbreakActive() {
+        return handbreak_active;
+    }
+
     public ClientTardisExterior getExterior() {
         return this.exterior;
+    }
+
+    public void setFalling(boolean falling) {
+        this.falling = falling;
+    }
+
+    public boolean isFalling() {
+        return falling;
+    }
+    public boolean isGrowth() {
+        return this.exterior.getExteriorVariantSchema().equals(ExteriorVariantRegistry.CORAL_GROWTH);
     }
 
     public void setSiegeMode(boolean siege_mode) {
@@ -62,6 +85,14 @@ public class ClientTardis {
     }
     public void setAlarmsState(boolean alarms_enabled) {
         this.alarms_enabled = alarms_enabled;
+    }
+
+    public void setCrashingState(boolean is_crashing) {
+        this.is_crashing = is_crashing;
+    }
+
+    public boolean isCrashing() {
+        return is_crashing;
     }
 
     public void tick() {
@@ -218,6 +249,10 @@ public class ClientTardis {
 
         public ClientTardis getTardis() {
             return tardis;
+        }
+
+        public ExteriorBlockEntity __getExteriorBlockEntity() {
+            return loadedExteriorBlockEntity;
         }
 
         public void loadConsoleBlock(ConsoleBlockEntity consoleBlockEntity) {

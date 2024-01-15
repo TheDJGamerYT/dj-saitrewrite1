@@ -11,6 +11,7 @@ import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.core.item.KeyItem;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.handler.DoorHandler;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.block.BlockState;
@@ -23,6 +24,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -44,14 +46,14 @@ public class DoorBlockEntity extends BlockEntity {
     private UUID tardisId;
     public AnimationState DOOR_STATE = new AnimationState();
     public int animationTimer = 0;
-
     public DoorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.DOOR_BLOCK_ENTITY_TYPE, pos, state);
 
         // even though TardisDesktop links the door, we need to link it here as well to avoid desync
+        if (TardisUtil.isClient()) return;
         Tardis found = TardisUtil.findTardisByPosition(pos);
-        if (found != null)
-            this.setTardis(found);
+        if (found != null) this.setTardis(found);
+        markDirty();
         if (this.getTardis() != null) {
             this.setDesktop(this.getDesktop());
             /*if(this.getDesktop() != null) {
@@ -105,6 +107,8 @@ public class DoorBlockEntity extends BlockEntity {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
+
+
     @Override
     public void writeNbt(NbtCompound nbt) {
         if (this.getTardis() == null) {
@@ -114,6 +118,8 @@ public class DoorBlockEntity extends BlockEntity {
         if (this.getTardis() != null) // panick
             nbt.putString("tardis", this.getTardis().getUuid().toString());
     }
+
+
 
     @Override
     public void readNbt(NbtCompound nbt) {
@@ -136,6 +142,11 @@ public class DoorBlockEntity extends BlockEntity {
         }
     }
 
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
+    }
+
     public void checkAnimations() {
         // DO NOT RUN THIS ON SERVER!!
         if(getTardis() == null) return;
@@ -155,10 +166,18 @@ public class DoorBlockEntity extends BlockEntity {
 
         if (isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
 
         return ServerTardisManager.getInstance().getTardis(this.tardisId);
+    }
+
+    public ClientTardis getClientTardis() {
+        if (this.tardisId == null) {
+            AITMod.LOGGER.warn("Door at " + this.getPos() + " is finding TARDIS!");
+            return null;
+        }
+        return ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
     }
 
     private void findTardis() {

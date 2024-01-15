@@ -3,6 +3,7 @@ package mdteam.ait.core.blocks;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blocks.types.HorizontalDirectionalBlock;
 import mdteam.ait.core.AITBlockEntityTypes;
+import mdteam.ait.tardis.util.TardisUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -37,9 +38,8 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (world.getBlockEntity(pos) instanceof DoorBlockEntity door) {
-            if (door.getTardis() != null && door.getTardis().isSiegeMode()) return VoxelShapes.empty();
-        }
+        if (world.getBlockEntity(pos) instanceof DoorBlockEntity doorBlockEntity && (TardisUtil.isClient() ? doorBlockEntity.getClientTardis() : doorBlockEntity.getTardis()) == null &&
+                (TardisUtil.isClient() ? doorBlockEntity.getClientTardis().isInSiegeMode() : doorBlockEntity.getTardis().isSiegeMode())) return VoxelShapes.empty();
 
         return switch (state.get(FACING)) {
             case NORTH -> NORTH_SHAPE;

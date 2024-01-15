@@ -36,7 +36,7 @@ public class EasterHeadDoorModel extends DoorModel {
 
 		matrices.translate(0,-1.5f,0);
 
-		if (door.getTardis().getDoor().isOpen())
+		if (door.getClientTardis().getExterior().isDoorOpen())
 			this.bottom.translate(new Vector3f(0,-30,0));
 
 		super.renderWithAnimations(door, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);

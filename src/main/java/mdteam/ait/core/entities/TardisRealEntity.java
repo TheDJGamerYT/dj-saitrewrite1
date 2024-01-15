@@ -92,11 +92,10 @@ public class TardisRealEntity extends Entity {
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (player == null)
             return ActionResult.FAIL;
-
+        if (TardisUtil.isClient()) return ActionResult.PASS;
         boolean sneaking = player.isSneaking();
 
-        if (this.getTardis().isGrowth())
-            return ActionResult.FAIL;
+        if (getTardis().isGrowth()) return ActionResult.FAIL;
 
         if (player.getMainHandStack().getItem() instanceof KeyItem && !getTardis().isSiegeMode() && !getTardis().getHandlers().getInteriorChanger().isGenerating()) {
             ItemStack key = player.getMainHandStack();
@@ -139,8 +138,7 @@ public class TardisRealEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if(this.getTardis() == null) return;
-        if(this.getWorld().isClient()) return;
+
     }
 
     public float getRotation(float tickDelta) {
@@ -181,7 +179,7 @@ public class TardisRealEntity extends Entity {
 
         if (TardisUtil.isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
         return ServerTardisManager.getInstance().getTardis(getTardisID());
     }
@@ -190,7 +188,6 @@ public class TardisRealEntity extends Entity {
         if (!TardisUtil.isClient()) return null;
         return ClientTardisManager.getInstance().LOOKUP.get(this.getTardisID()).get();
     }
-
     public UUID getTardisID() {
         return this.dataTracker.get(TARDIS_ID).orElse(null);
     }

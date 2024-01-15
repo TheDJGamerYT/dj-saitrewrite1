@@ -197,7 +197,7 @@ public class SiegeTardisItem extends Item {
         UUID uuid = data.getUuid("tardis-uuid");
         if (TardisUtil.isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
 
         return ServerTardisManager.getInstance().getTardis(uuid);

@@ -46,8 +46,11 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_ALARMS_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_alarms_update");
     public static final Identifier SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_exterior_door_state_update");
     public static final Identifier SEND_EXTERIOR_SCHEMA_UPDATE = new Identifier(AITMod.MOD_ID, "send_exterior_schema_update");
+    public static final Identifier SEND_TARDIS_FALLING_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_falling_update");
     public static final Identifier SEND_TARDIS_OVERGROWN_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_overgrown_update");
     public static final Identifier SEND_TARDIS_CLOAKED_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_cloaked_update");
+    public static final Identifier SEND_TARDIS_CRASHING_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_crashing_update");
+    public static final Identifier SEND_TARDIS_HANDBREAK_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_handbreak_update");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -263,6 +266,7 @@ public class ServerAITNetworkManager {
         data.writeUuid(tardis.getUuid());
         data.writeInt(state.ordinal());
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE);
     }
 
     public static void sendExteriorSchemaUpdate(Tardis tardis, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
@@ -287,5 +291,20 @@ public class ServerAITNetworkManager {
         data.writeUuid(tardis.getUuid());
         data.writeBoolean(cloaked);
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_CLOAKED_UPDATE);
+    }
+
+    public static void sendTardisFallingUpdate(Tardis tardis, boolean falling) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(falling);
+        __sendPacketToExteriorSubscribers(data, SEND_TARDIS_FALLING_UPDATE);
+    }
+
+    public static void setSendTardisCrashingUpdate(Tardis tardis, boolean is_crashing) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(is_crashing);
+        __sendPacketToExteriorSubscribers(data, SEND_TARDIS_CRASHING_UPDATE);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_CRASHING_UPDATE);
     }
 }

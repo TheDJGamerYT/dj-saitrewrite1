@@ -80,7 +80,6 @@ public class CoralGrowthDoorModel extends DoorModel {
 
 	@Override
 	public void renderWithAnimations(DoorBlockEntity door, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-		if (door.getTardis() == null) return;
 		matrices.push();
 		matrices.translate(0, -1.5f, 0);
 

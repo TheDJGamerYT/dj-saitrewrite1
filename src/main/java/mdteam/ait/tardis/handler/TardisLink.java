@@ -27,7 +27,7 @@ public abstract class TardisLink implements TardisTickable {
     public Tardis getTardis() {
         if (isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
         return ServerTardisManager.getInstance().getTardis(tardisId);
     }

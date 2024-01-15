@@ -14,6 +14,8 @@ import mdteam.ait.tardis.control.ControlTypes;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.variant.console.ConsoleVariantSchema;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
+import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -136,10 +138,17 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
 
         if (isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
 
         return ServerTardisManager.getInstance().getTardis(this.tardisId);
+    }
+
+    public ClientTardis getClientTardis() {
+        if (this.tardisId == null) {
+            AITMod.LOGGER.warn("Console at " + this.getPos() + " is finding TARDIS!");
+        }
+        return ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
     }
 
     private void findTardis() {

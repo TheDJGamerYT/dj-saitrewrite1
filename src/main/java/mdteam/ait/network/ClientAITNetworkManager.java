@@ -129,6 +129,18 @@ public class ClientAITNetworkManager {
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getExterior().setCloakedState(cloaked);
         }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_FALLING_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean falling = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setFalling(falling);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_CRASHING_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean crashing = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.setCrashingState(crashing);
+        }));
     }
 
     public static void send_request_interior_change_from_monitor(UUID uuid, Identifier selected_interior) {
