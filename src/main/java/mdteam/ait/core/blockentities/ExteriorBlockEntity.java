@@ -17,6 +17,7 @@ import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -145,6 +146,8 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
     public void setTardisId(UUID tardisid) {
         this.tardisId = tardisid;
         markDirty();
+        if(this.getWorld() == null) return;
+        this.getWorld().updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_LISTENERS);
     }
 
     public UUID getTardisId() {
@@ -154,6 +157,8 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
     public void setTardis(Tardis tardis) {
         this.tardisId = tardis.getUuid();
         markDirty();
+        if(this.getWorld() == null) return;
+        this.getWorld().updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_LISTENERS);
     }
 
     private void findTardisFromPosition() { // should only be used if tardisId is null so we can hopefully refind the tardis
