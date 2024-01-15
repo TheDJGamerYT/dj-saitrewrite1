@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.core.item.WaypointItem;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.FlightUtil;
@@ -60,6 +61,7 @@ public class WaypointHandler extends TardisLink {
         if (!this.hasWaypoint()) return; // todo move this check to the DEMAT event so the fail to takeoff happens
 
         PropertiesHandler.setAutoPilot(this.getTardis().getHandlers().getProperties(), true);
+        ServerAITNetworkManager.sendTardisAutolandStateUpdate(this.getTardis(), true);
         FlightUtil.travelTo(getTardis(), this.get());
     }
     public void setDestination() {

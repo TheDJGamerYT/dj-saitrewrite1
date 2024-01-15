@@ -10,6 +10,7 @@ import mdteam.ait.api.tardis.TardisEvents;
 import mdteam.ait.compat.DependencyChecker;
 import mdteam.ait.compat.immersive.PortalsHandler;
 import mdteam.ait.core.item.TardisItemBuilder;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.registry.ExteriorRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
@@ -44,8 +45,10 @@ public class RegenHandler implements Acting {
     }
     private static void forceTakeOff(Tardis tardis) {
         PropertiesHandler.setAutoPilot(tardis.getHandlers().getProperties(), true);
+        ServerAITNetworkManager.sendTardisAutolandStateUpdate(tardis, true);
         tardis.getTravel().dematerialise(true);
         PropertiesHandler.setAutoPilot(tardis.getHandlers().getProperties(), false);
+        ServerAITNetworkManager.sendTardisAutolandStateUpdate(tardis, false);
     }
 
     private static void extendFlight(Tardis tardis, IRegen regen) {

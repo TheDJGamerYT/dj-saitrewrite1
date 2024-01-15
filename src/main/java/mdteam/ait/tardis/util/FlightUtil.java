@@ -2,6 +2,7 @@ package mdteam.ait.tardis.util;
 
 import mdteam.ait.core.managers.DeltaTimeManager;
 import mdteam.ait.core.sounds.MatSound;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -28,6 +29,7 @@ public class FlightUtil {
      */
     public static void travelTo(Tardis tardis, AbsoluteBlockPos.Directed pos) {
         PropertiesHandler.setAutoPilot(tardis.getHandlers().getProperties(), true);
+        ServerAITNetworkManager.sendTardisAutolandStateUpdate(tardis, true);
         tardis.getTravel().setDestination(pos, true);
 
         if (tardis.getTravel().getState() == TardisTravel.State.LANDED) {
