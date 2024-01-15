@@ -25,6 +25,7 @@ public class WaypointHandler extends TardisLink {
     }
     public void markHasCartridge() {
         this.hasCartridge = true;
+        ServerAITNetworkManager.sendTardisCartridgeStateUpdate(getTardis(), this.hasCartridge);
     }
 
     // todo summon a new waypoint item at the console if spawnItem is true
@@ -82,6 +83,7 @@ public class WaypointHandler extends TardisLink {
 
         spawnItem(waypoint, this.getTardis().getDesktop().getConsolePos());
         this.hasCartridge = false;
+        ServerAITNetworkManager.sendTardisCartridgeStateUpdate(getTardis(), this.hasCartridge);
     }
 
     public static ItemStack createWaypointItem(Waypoint waypoint) {

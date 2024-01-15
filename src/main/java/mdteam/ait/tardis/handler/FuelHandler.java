@@ -67,6 +67,7 @@ public class FuelHandler extends TardisLink {
 
     public void setRefueling(boolean isRefueling) {
         PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), REFUELING, isRefueling);
+        ServerAITNetworkManager.sendTardisRefuelerStateUpdate(getTardis(), isRefueling);
         getTardis().markDirty();
     }
 
