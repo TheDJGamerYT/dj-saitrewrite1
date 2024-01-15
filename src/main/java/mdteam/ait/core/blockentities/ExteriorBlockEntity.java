@@ -60,13 +60,13 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
     public void useOn(ServerWorld world, boolean sneaking, PlayerEntity player) {
         if (world.isClient() || player == null || this.getTardis().isGrowth()) return;
 
-        if (player.getMainHandStack().getItem() instanceof KeyItem && !getTardis().isSiegeMode() && !getTardis().getHandlers().getInteriorChanger().isGenerating()) {
+        if (player.getMainHandStack().getItem() instanceof KeyItem && !this.getTardis().isSiegeMode() && !this.getTardis().getHandlers().getInteriorChanger().isGenerating()) {
             ItemStack key = player.getMainHandStack();
             NbtCompound tag = key.getOrCreateNbt();
             if (!tag.contains("tardis")) {
                 return;
             }
-            if (Objects.equals(this.getTardis().getUuid().toString(), tag.getString("tardis"))) {
+            if (Objects.equals(this.getTardisId().toString(), tag.getString("tardis"))) {
                 DoorHandler.toggleLock(this.getTardis(), (ServerPlayerEntity) player);
             } else {
                 world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F, 0.2F);
@@ -75,46 +75,43 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
             return;
         }
 
-        if (sneaking && getTardis().isSiegeMode() && !getTardis().isSiegeBeingHeld()) {
-            SiegeTardisItem.pickupTardis(getTardis(), (ServerPlayerEntity) player);
+        if (sneaking && this.getTardis().isSiegeMode() && !this.getTardis().isSiegeBeingHeld()) {
+            SiegeTardisItem.pickupTardis(this.getTardis(), (ServerPlayerEntity) player);
             return;
         }
 
         DoorHandler.useDoor(this.getTardis(), (ServerWorld) this.getWorld(), this.getPos(), (ServerPlayerEntity) player);
-        // fixme maybe this is required idk the doorhandler already marks the tardis dirty || tardis().markDirty();
         if (sneaking)
             return;
     }
 
     @Nullable
     @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        // @TODO: This might be a lag cause too!
-        return BlockEntityUpdateS2CPacket.create(this);
-    }
+    public Packet<ClientPlayPacketListener> toUpdatePacket() { return BlockEntityUpdateS2CPacket.create(this); }
 
     @Override
     public void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
         if (!isClient() && this.getTardis() == null) {
             AITMod.LOGGER.error("this.tardis() is null! Is " + this + " invalid? BlockPos: " + "(" + this.getPos().toShortString() + ")");
         }
         else if (isClient() && this.getClientTardis() == null) {
             AITMod.LOGGER.error("this.getClientTardis() is null! Is " + this + " invalid? BlockPos: " + "(" + this.getPos().toShortString() + ")");
         }
-        super.writeNbt(nbt);
-        if (tardisId != null)
+        if (this.tardisId != null)
             nbt.putString("tardis", this.tardisId.toString());
         nbt.putFloat("alpha", this.getAlpha());
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
         if (nbt.contains("tardis")) {
             this.tardisId = UUID.fromString(nbt.getString("tardis"));
+            this.setTardisId(this.tardisId);
         }
-        if (this.getAnimation() != null)
+        if (nbt.contains("alpha") && this.getAnimation() != null)
             this.getAnimation().setAlpha(nbt.getFloat("alpha"));
+        super.readNbt(nbt);
     }
 
     public void onEntityCollision(Entity entity) {
@@ -145,13 +142,18 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
         return ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
     }
 
+    public void setTardisId(UUID tardisid) {
+        this.tardisId = tardisid;
+        markDirty();
+    }
+
     public UUID getTardisId() {
         return this.tardisId;
     }
 
     public void setTardis(Tardis tardis) {
         this.tardisId = tardis.getUuid();
-        this.markDirty();
+        markDirty();
     }
 
     private void findTardisFromPosition() { // should only be used if tardisId is null so we can hopefully refind the tardis

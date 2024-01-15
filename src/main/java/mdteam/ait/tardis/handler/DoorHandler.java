@@ -294,7 +294,6 @@ public class DoorHandler extends TardisLink {
             door.setDoorState(door.getDoorState() == DoorStateEnum.FIRST ? DoorStateEnum.CLOSED : DoorStateEnum.FIRST);
         }
 
-        tardis.markDirty();
         return true;
     }
 
@@ -329,8 +328,6 @@ public class DoorHandler extends TardisLink {
 
         door.getExteriorPos().getWorld().playSound(null, door.getExteriorPos(), SoundEvents.BLOCK_CHAIN_BREAK, SoundCategory.BLOCKS, 0.6F, 1F);
         door.getDoorPos().getWorld().playSound(null, door.getDoorPos(), SoundEvents.BLOCK_CHAIN_BREAK, SoundCategory.BLOCKS, 0.6F, 1F);
-
-        tardis.markDirty();
 
         return true;
     }
