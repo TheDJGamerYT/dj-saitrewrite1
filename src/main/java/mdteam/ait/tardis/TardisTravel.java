@@ -305,7 +305,7 @@ public class TardisTravel extends TardisLink {
                 true
         );
         this.crashing = true;
-        ServerAITNetworkManager.setSendTardisCrashingUpdate(this.getTardis(), true);
+        ServerAITNetworkManager.sendTardisCrashingUpdate(this.getTardis(), true);
         // Set speed to 0
         this.setSpeed(0);
         // Mark Tardis as dirty
@@ -417,6 +417,7 @@ public class TardisTravel extends TardisLink {
             // fufill all the prerequisites
             // DoorHandler.lockTardis(true, tardis(), null, false);
             PropertiesHandler.setBool(this.getTardis().getHandlers().getProperties(), PropertiesHandler.HANDBRAKE, false);
+            ServerAITNetworkManager.sendTardisHandbrakeUpdate(this.getTardis(), false);
             this.getTardis().getDoor().closeDoors();
             this.getTardis().setRefueling(false);
             if (this.getSpeed() == 0) this.increaseSpeed();
@@ -630,7 +631,7 @@ public class TardisTravel extends TardisLink {
         //    return;
 
         this.crashing = false;
-        ServerAITNetworkManager.setSendTardisCrashingUpdate(this.getTardis(), false);
+        ServerAITNetworkManager.sendTardisCrashingUpdate(this.getTardis(), false);
 
         if (PropertiesHandler.willAutoPilot(this.getTardis().getHandlers().getProperties())) {
             if (this.getSpeed() > 0) {

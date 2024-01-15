@@ -50,7 +50,15 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_OVERGROWN_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_overgrown_update");
     public static final Identifier SEND_TARDIS_CLOAKED_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_cloaked_update");
     public static final Identifier SEND_TARDIS_CRASHING_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_crashing_update");
-    public static final Identifier SEND_TARDIS_HANDBREAK_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_handbreak_update");
+    public static final Identifier SEND_TARDIS_HANDBRAKE_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_handbreak_update");
+    public static final Identifier SEND_TARDIS_DOOR_LOCKED_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_door_locked_update");
+    public static final Identifier SEND_TARDIS_GROUND_SEARCHING_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_ground_searching_update");
+    public static final Identifier SEND_TARDIS_POS_INCREMENT_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_pos_increment_update");
+    public static final Identifier SEND_UNLOCKED_INTERIORS = new Identifier(AITMod.MOD_ID, "send_unlocked_interiors");
+    public static final Identifier SEND_FUEL_LEVEL = new Identifier(AITMod.MOD_ID, "send_fuel_level");
+    public static final Identifier SEND_FLIGHT_TIME = new Identifier(AITMod.MOD_ID, "send_flight_time");
+    public static final Identifier SEND_EXTERIOR_POSITION_UPDATE = new Identifier(AITMod.MOD_ID, "send_exterior_position_update");
+    public static final Identifier SEND_DESTINATION_POSITION_UPDATE = new Identifier(AITMod.MOD_ID, "send_destination_position_update");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -300,11 +308,44 @@ public class ServerAITNetworkManager {
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_FALLING_UPDATE);
     }
 
-    public static void setSendTardisCrashingUpdate(Tardis tardis, boolean is_crashing) {
+    public static void sendTardisCrashingUpdate(Tardis tardis, boolean is_crashing) {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         data.writeBoolean(is_crashing);
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_CRASHING_UPDATE);
         __sendPacketToInteriorSubscribers(data, SEND_TARDIS_CRASHING_UPDATE);
+    }
+
+    public static void sendTardisHandbrakeUpdate(Tardis tardis, boolean handbreak) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(handbreak);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_HANDBRAKE_UPDATE);
+    }
+
+    public static void sendTardisDoorLockedUpdate(Tardis tardis, boolean locked) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(locked);
+        __sendPacketToExteriorSubscribers(data, SEND_TARDIS_DOOR_LOCKED_UPDATE);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_DOOR_LOCKED_UPDATE);
+    }
+
+    public static void sendTardisGroundSearchingUpdate(Tardis tardis, boolean state) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBoolean(state);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_GROUND_SEARCHING_UPDATE);
+    }
+
+    public static void sendTardisPosIncrementUpdate(Tardis tardis, int increment) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeInt(increment);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_POS_INCREMENT_UPDATE);
+    }
+
+    public static void sendTardisUnlockedInteriors(Tardis tardis, List<TardisDesktopSchema> interiors) {
+
     }
 }
