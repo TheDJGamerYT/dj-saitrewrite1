@@ -93,7 +93,7 @@ public class DoorBlockEntity extends BlockEntity {
             return;
         }
         DoorHandler.useDoor(this.getTardis(), (ServerWorld) world, this.getPos(), (ServerPlayerEntity) player);
-        // fixme maybe this is required idk the doorhandler already marks the tardis dirty || tardis().markDirty();
+
         if (sneaking)
             return;
     }

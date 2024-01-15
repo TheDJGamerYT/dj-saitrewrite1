@@ -50,7 +50,7 @@ public class TardisItemBuilder extends Item {
 
     public static ExteriorVariantSchema findRandomVariant(ExteriorSchema exterior) {
         Random rnd = new Random();
-        if (ExteriorVariantRegistry.withParent(exterior).size() == 0) {
+        if (ExteriorVariantRegistry.withParent(exterior).isEmpty()) {
             AITMod.LOGGER.error("Variants for " + exterior + " are empty! Panicking!!!!");
             return ExteriorVariantRegistry.BOX_DEFAULT;
         }
@@ -60,7 +60,7 @@ public class TardisItemBuilder extends Item {
     public static ExteriorSchema findRandomExterior() {
         Random rnd = new Random();
         int randomized = rnd.nextInt(Math.abs(ExteriorRegistry.REGISTRY.size()));
-        return (ExteriorSchema) ExteriorRegistry.REGISTRY.stream().toArray()[randomized] == ExteriorRegistry.CORAL_GROWTH ? ExteriorRegistry.TARDIM : (ExteriorSchema) ExteriorRegistry.REGISTRY.stream().toArray()[randomized];
+        return ExteriorRegistry.REGISTRY.stream().toArray()[randomized] == ExteriorRegistry.CORAL_GROWTH ? ExteriorRegistry.TARDIM : (ExteriorSchema) ExteriorRegistry.REGISTRY.stream().toArray()[randomized];
     }
 
     public static TardisDesktopSchema findRandomDesktop() {
