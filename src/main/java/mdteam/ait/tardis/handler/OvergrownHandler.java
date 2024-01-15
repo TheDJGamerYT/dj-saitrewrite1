@@ -8,7 +8,6 @@ import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import net.minecraft.registry.tag.BiomeTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.biome.BiomeKeys;
 
 import java.util.Random;
 import java.util.UUID;
@@ -69,7 +68,7 @@ public class OvergrownHandler extends TardisLink {
 
         if (getTardis().isGrowth()) return;
 
-        if (this.isOvergrown() && (this.getTardis().getTravel().getState() == TardisTravel.State.FLIGHT || this.tardis().getTravel().getState() == TardisTravel.State.MAT)) {
+        if (this.isOvergrown() && (this.getTardis().getTravel().getState() == TardisTravel.State.FLIGHT || this.getTardis().getTravel().getState() == TardisTravel.State.MAT)) {
             this.setOvergrown(false);
             this.setTicks(0);
             return;
@@ -81,7 +80,9 @@ public class OvergrownHandler extends TardisLink {
 
         // We know the tardis is landed so we can start ticking away
         if (hasReachedMaxTicks()) {
+            //this.setOvergrown(true);
             this.setTicks(0);
+            //this.getTardis().getDoor().closeDoors();
             return;
         }
 

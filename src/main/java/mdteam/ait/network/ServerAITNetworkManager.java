@@ -94,6 +94,9 @@ public class ServerAITNetworkManager {
             boolean variantChanged = buf.readBoolean();
             Tardis tardis = ServerTardisManager.getInstance().getTardis(uuid);
             TardisExterior tardisExterior = tardis.getExterior();
+            if(DependencyChecker.hasPortals()) {
+                PortalsHandler.removePortals(tardis);
+            }
             tardisExterior.setType(ExteriorRegistry.REGISTRY.get(exteriorIdentifier));
             if (variantChanged) {
                 tardis.getExterior().setVariant(ExteriorVariantRegistry.REGISTRY.get(variantIdentifier));

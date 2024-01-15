@@ -11,6 +11,7 @@ import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
+import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import net.minecraft.util.Identifier;
@@ -37,8 +38,9 @@ public class ClientTardis {
     private boolean alarms_enabled = false;
     private boolean falling = false;
     private boolean is_crashing = false;
-    private boolean handbreak_active = false;
+    private boolean handbrake_active = false;
     private boolean ground_searching = false;
+    private double fuel = 0;
 
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
         this.tardis_ID = tardisID;
@@ -48,12 +50,12 @@ public class ClientTardis {
         this.exterior = new ClientTardisExterior(this, exteriorVariantSchema, exteriorSchema);
     }
 
-    public void setHandBreakState(boolean handbreak_active) {
-        this.handbreak_active = handbreak_active;
+    public void setHandbrakeState(boolean handbrake_active) {
+        this.handbrake_active = handbrake_active;
     }
 
-    public boolean isHandbreakActive() {
-        return handbreak_active;
+    public boolean isHandbrakeActive() {
+        return handbrake_active;
     }
 
     public void setGroundSearchingMode(boolean ground_searching) {
@@ -102,6 +104,14 @@ public class ClientTardis {
 
     public boolean isCrashing() {
         return is_crashing;
+    }
+
+    public void setFuel(double fuel) {
+        this.fuel = fuel;
+    }
+
+    public double getFuel() {
+        return fuel;
     }
 
     public void tick() {
@@ -167,8 +177,9 @@ public class ClientTardis {
     public class ClientTardisTravel {
         private final ClientTardis tardis;
         private int speed = 0;
-
         private TardisTravel.State state = TardisTravel.State.LANDED;
+        private AbsoluteBlockPos.Directed position;
+        private AbsoluteBlockPos.Directed destination;
 
         public ClientTardisTravel(ClientTardis tardis) {
             this.tardis = tardis;
@@ -192,6 +203,22 @@ public class ClientTardis {
 
         public TardisTravel.State getState() {
             return state;
+        }
+
+        public void setPosition(AbsoluteBlockPos.Directed position) {
+            this.position = position;
+        }
+
+        public AbsoluteBlockPos.Directed getPosition() {
+            return position;
+        }
+
+        public void setDestination(AbsoluteBlockPos.Directed destination) {
+            this.destination = destination;
+        }
+
+        public AbsoluteBlockPos.Directed getDestination() {
+            return destination;
         }
     }
 
