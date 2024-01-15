@@ -391,7 +391,7 @@ public class ServerAITNetworkManager {
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
     }
 
-    public static void setSendTardisDestinationPositionUpdate(Tardis tardis, AbsoluteBlockPos.Directed directed) {
+    public static void sendTardisDestinationPositionUpdate(Tardis tardis, AbsoluteBlockPos.Directed directed) {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         data.writeBlockPos(directed);

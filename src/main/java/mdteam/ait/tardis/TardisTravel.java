@@ -17,7 +17,6 @@ import mdteam.ait.core.sounds.MatSound;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
-import mdteam.ait.tardis.wrapper.server.ServerTardis;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.BlockState;
@@ -59,14 +58,17 @@ public class TardisTravel extends TardisLink {
     public TardisTravel(Tardis tardis, AbsoluteBlockPos.Directed pos) {
         super(tardis.getUuid());
         this.position = pos;
+        ServerAITNetworkManager.sendTardisExteriorPositionUpdate(tardis, pos);
         if(this.lastPosition == null) this.lastPosition = pos;
     }
 
     public TardisTravel(Tardis tardis, AbsoluteBlockPos.Directed pos, AbsoluteBlockPos.Directed dest, State state) {
         super(tardis.getUuid());
         this.position = pos;
+        ServerAITNetworkManager.sendTardisExteriorPositionUpdate(tardis, pos);
         if(this.lastPosition == null) this.lastPosition = pos;
         this.destination = dest;
+        ServerAITNetworkManager.sendTardisDestinationPositionUpdate(tardis, dest);
         this.state = state;
     }
 
@@ -76,6 +78,7 @@ public class TardisTravel extends TardisLink {
 
     public void setPosition(AbsoluteBlockPos.Directed pos) {
         this.position = pos;
+        ServerAITNetworkManager.sendTardisExteriorPositionUpdate(this.getTardis(), pos);
     }
 
     public void setLastPosition(AbsoluteBlockPos.Directed position) {
@@ -680,6 +683,7 @@ public class TardisTravel extends TardisLink {
 
     public void setDestination(AbsoluteBlockPos.Directed pos, boolean withChecks) {
         this.destination = pos;
+        ServerAITNetworkManager.sendTardisDestinationPositionUpdate(this.getTardis(), pos);
 
         // todo this sometimes resets it back to 0
         this.getTardis().getHandlers().getFlight().recalculate();

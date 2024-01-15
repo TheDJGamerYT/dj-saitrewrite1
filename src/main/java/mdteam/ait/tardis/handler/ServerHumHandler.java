@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.AITMod;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.registry.HumsRegistry;
 import mdteam.ait.tardis.sound.HumSound;
 import mdteam.ait.tardis.util.TardisUtil;
@@ -34,6 +35,7 @@ public class ServerHumHandler extends TardisLink {
 
         this.updateClientHum();
         getTardis().markDirty(); // should b ok here its not gonna spam like the door did
+        ServerAITNetworkManager.sendTardisDesktopHum(getTardis(), hum);
     }
 
     private void updateClientHum() {
