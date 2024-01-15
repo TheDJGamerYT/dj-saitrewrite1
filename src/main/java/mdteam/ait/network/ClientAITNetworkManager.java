@@ -6,11 +6,14 @@ import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.registry.ExteriorRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
+import mdteam.ait.registry.HumsRegistry;
 import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
+import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.Corners;
+import mdteam.ait.tardis.util.SerialDimension;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
@@ -20,9 +23,17 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+import org.joml.Vector3f;
 
+import java.io.Serial;
 import java.util.*;
 
 public class ClientAITNetworkManager {
@@ -176,6 +187,37 @@ public class ClientAITNetworkManager {
             int flight_time = buf.readInt();
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getTravel().setFlightTime(flight_time);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_EXTERIOR_POSITION_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            BlockPos pos = buf.readBlockPos();
+            Direction direction = Direction.byId(buf.readInt());
+            String dimension_name = buf.readString();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            AbsoluteBlockPos.Directed absoluteBlockPos = new AbsoluteBlockPos.Directed((AbsoluteBlockPos) pos, direction);
+            clientTardis.getExterior().setExteriorBlockPos(pos);
+            clientTardis.getTravel().setPosition(absoluteBlockPos);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_DESTINATION_POSITION_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            BlockPos pos = buf.readBlockPos();
+            Direction direction = Direction.byId(buf.readInt());
+            String dimension_name = buf.readString();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            AbsoluteBlockPos.Directed absoluteBlockPos = new AbsoluteBlockPos.Directed((AbsoluteBlockPos) pos, direction);
+            clientTardis.getTravel().setDestination(absoluteBlockPos);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_DESKTOP_HUM, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            Identifier hum_id = buf.readIdentifier();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getDesktop().setHumSound(HumsRegistry.REGISTRY.get(hum_id));
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_DESKTOP_SCHEMA, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            Identifier schema_id = buf.readIdentifier();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getDesktop().setDesktopSchema(DesktopRegistry.get(schema_id));
         }));
     }
 

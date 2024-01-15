@@ -386,7 +386,8 @@ public class ServerAITNetworkManager {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         data.writeBlockPos(directed);
-        data.writeVector3f(directed.getDirection().getUnitVector());
+        data.writeInt(directed.getDirection().getId());
+        data.writeString(directed.getDimension().getValue());
         __sendPacketToInteriorSubscribers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
         __sendPacketToExteriorSubscribers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
     }
@@ -395,7 +396,8 @@ public class ServerAITNetworkManager {
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         data.writeBlockPos(directed);
-        data.writeVector3f(directed.getDirection().getUnitVector());
+        data.writeInt(directed.getDirection().getId());
+        data.writeString(directed.getDimension().getValue());
         __sendPacketToInteriorSubscribers(data, SEND_TARDIS_DESTINATION_POSITION_UPDATE);
     }
 
