@@ -175,7 +175,8 @@ public class ClientAITNetworkManager {
             UUID tardisUUID = buf.readUuid();
             int flight_time = buf.readInt();
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
-        }))
+            clientTardis.getTravel().setFlightTime(flight_time);
+        }));
     }
 
     public static void send_request_interior_change_from_monitor(UUID uuid, Identifier selected_interior) {
