@@ -1,5 +1,6 @@
 package mdteam.ait.tardis.control.impl;
 
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.control.Control;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -17,6 +18,7 @@ public class AutoPilotControl extends Control {
     @Override
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
         PropertiesHandler.setAutoPilot(tardis.getHandlers().getProperties(), !PropertiesHandler.willAutoPilot(tardis.getHandlers().getProperties()));
+        ServerAITNetworkManager.sendTardisAutolandStateUpdate(tardis, PropertiesHandler.willAutoPilot(tardis.getHandlers().getProperties()));
         tardis.markDirty();
 
         messagePlayer(player, PropertiesHandler.willAutoPilot(tardis.getHandlers().getProperties()));

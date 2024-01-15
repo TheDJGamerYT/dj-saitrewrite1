@@ -155,6 +155,7 @@ public class SonicItem extends Item {
                 PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.HANDBRAKE, false);
                 ServerAITNetworkManager.sendTardisHandbrakeUpdate(tardis, false);
                 PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.AUTO_LAND, true);
+                ServerAITNetworkManager.sendTardisAutolandStateUpdate(tardis, true);
                 if(tardis.getHandlers().getHADS().isInDanger()) {
                     tardis.setIsInDanger(false);
                 }

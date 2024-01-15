@@ -430,6 +430,7 @@ public class TardisTravel extends TardisLink {
         }
 
         PropertiesHandler.setAutoPilot(this.getTardis().getHandlers().getProperties(), withRemat);
+        ServerAITNetworkManager.sendTardisAutolandStateUpdate(this.getTardis(), withRemat);
 
         ServerWorld world = (ServerWorld) this.getPosition().getWorld();
         world.getChunk(this.getPosition());
