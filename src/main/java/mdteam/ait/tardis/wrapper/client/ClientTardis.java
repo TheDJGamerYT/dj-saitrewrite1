@@ -396,7 +396,17 @@ public class ClientTardis {
 
         private boolean overgrown = false;
 
+        private boolean locked = false;
+
         private DoorHandler.DoorStateEnum tempExteriorDoorState = null;
+
+        public void setDoorLocked(boolean locked) {
+            this.locked = locked;
+        }
+
+        public boolean getDoorLocked() {
+            return locked;
+        }
 
         public ClientTardisExterior(ClientTardis tardis, ExteriorVariantSchema exterior_variant_schema, ExteriorSchema exterior_schema) {
             this.tardis = tardis;
