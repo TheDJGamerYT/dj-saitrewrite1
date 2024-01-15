@@ -250,6 +250,7 @@ public class ClientTardis {
         private AbsoluteBlockPos.Directed destination;
         private AbsoluteBlockPos.Directed last_position;
         private int increment;
+        private int flight_time;
 
         public ClientTardisTravel(ClientTardis tardis) {
             this.tardis = tardis;
@@ -305,6 +306,14 @@ public class ClientTardis {
 
         public int getIncrement() {
             return increment;
+        }
+
+        public void setFlightTime(int flight_time) {
+            this.flight_time = flight_time;
+        }
+
+        public int getFlightTime() {
+            return flight_time;
         }
     }
 

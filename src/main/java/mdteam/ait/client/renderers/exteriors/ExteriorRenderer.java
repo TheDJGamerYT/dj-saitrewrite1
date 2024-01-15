@@ -19,6 +19,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import mdteam.ait.tardis.TardisExterior;
 import org.joml.Quaternionf;
@@ -28,8 +30,24 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     private SiegeModeModel siege;
     private final EntityRenderDispatcher dispatcher;
 
-    public static final Identifier DOOM_TEXTURE = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom.png");
+    public static final Identifier DOOM_FRONT_BACK = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_front_back.png");
+    public static final Identifier DOOM_LEFT_SIDE = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_left_side.png");
+    public static final Identifier DOOM_RIGHT_SIDE = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_right_side.png");
+    public static final Identifier DOOM_LEFT_DIAGONAL = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_left_diagonal.png");
+    public static final Identifier DOOM_RIGHT_DIAGONAL = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_right_diagonal.png");
+    public static final Identifier DOOM_BLANK_DIAGONAL = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_blank_diagonal.png");
     public static final Identifier DOOM_TEXTURE_EMISSION = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_emission.png");
+    public static final Identifier DOOM_LEFT_SIDE_EMISSION = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_left_side_emission.png");
+    public static final Identifier DOOM_RIGHT_SIDE_EMISSION = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_right_side_emission.png");
+    public static final Identifier DOOM_DIAGONAL_EMISSION = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_diagonal_emission.png");
+    public static final Identifier DOOM_LEFT_DIAGONAL_OPEN = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_left_diagonal_open.png");
+    public static final Identifier DOOM_RIGHT_DIAGONAL_OPEN = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_right_diagonal_open.png");
+    public static final Identifier DOOM_LEFT_SIDE_OPEN = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_left_side_open.png");
+    public static final Identifier DOOM_RIGHT_SIDE_OPEN = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_right_side_open.png");
+    public static final Identifier DOOM_FRONT_BACK_OPEN = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_front_back_open.png");
+    public static final Identifier DOOM_LEFT_DIAGONAL_OPEN_EMISSION = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_left_diagonal_open_emission.png");
+    public static final Identifier DOOM_RIGHT_DIAGONAL_OPEN_EMISSION = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_right_diagonal_open_emission.png");
+    public static final Identifier DOOM_FRONT_BACK_OPEN_EMISSION = new Identifier(AITMod.MOD_ID, "textures/blockentities/exteriors/doom/doom_front_back_open_emission.png");
 
     public ExteriorRenderer(BlockEntityRendererFactory.Context ctx) {
         this.dispatcher = ctx.getEntityRenderDispatcher();
@@ -37,11 +55,16 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+        if (entity.getClientTardis() == null) {
+            return;
+        }
 
-        ClientTardis.ClientTardisExterior clientTardisExterior = entity.getClientTardis().getExterior();
-        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(clientTardisExterior.getExteriorVariantSchema());
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema());
+        ClientTardis.ClientTardisExterior tardisExterior = entity.getClientTardis().getExterior();
 
-        if (exteriorVariant == null) return;
+        if (tardisExterior == null) return;
+
         Class<? extends ExteriorModel> modelClass = exteriorVariant.model().getClass();
 
         if (model != null && !(model.getClass().isInstance(modelClass))) // fixme this is bad it seems to constantly create a new one anyway but i didnt realise.
@@ -55,14 +78,31 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         int maxLight = 0xF000F0;
         matrices.push();
         matrices.translate(0.5, 0, 0.5);
-        if (!exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM)) {
-            matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(f));
-        } else {
-            if(MinecraftClient.getInstance().player == null) return;
-            matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(MinecraftClient.getInstance().player.getHeadYaw() + 180f));
-        }
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+
+        // Doom Custom Stuff, might move to a different class or a subclass
+
+        if(MinecraftClient.getInstance().player == null) return;
+
         Identifier texture = exteriorVariant.texture();
+        Identifier emission = exteriorVariant.emission();
+
+        float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() +
+                (entity.getClientTardis().getTravel().getPosition().getDirection() == Direction.NORTH ||
+                        entity.getClientTardis().getTravel().getPosition().getDirection() == Direction.SOUTH ? f + 180f : f));
+
+        if(exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM)) {
+            texture = getTextureForRotation(wrappedDegrees, entity.getClientTardis());
+            emission = getEmissionForRotation(getTextureForRotation(wrappedDegrees, entity.getClientTardis()), entity.getClientTardis());
+        }
+
+        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(!exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM) ? f :
+                MinecraftClient.getInstance().player.getHeadYaw() + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)));
+
+        //System.out.println(wrappedDegrees);
+
+        // -------------------------------------------------------------------------------------------------------------------
+
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
         if (entity.getClientTardis().isInSiegeMode()) {
             if (siege == null) siege = new SiegeModeModel(SiegeModeModel.getTexturedModelData().createModel());
@@ -74,13 +114,14 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         if (model != null) {
             model.animateTile(entity);
             model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1, 1, 1);
+            if (entity.getClientTardis() == null) return; // WHY IS THIS NULL HERE, BUT NOT AT THE BEGINNING OF THIS FUCKING FUNCTION THREAD
             if (entity.getClientTardis().getExterior().isOvergrown()) {
                 model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(entity.getClientTardis().getExterior().getOvergrownTexture())), light, overlay, 1, 1, 1, 1);
             }
-            if (exteriorVariant.emission() != null && entity.getClientTardis().isPowered()) {
+            if (emission != null && entity.getClientTardis().isPowered()) {
                 boolean alarms = entity.getClientTardis().isAlarmsEnabled();
 
-                model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisRenderEmissionCull(exteriorVariant.emission(), false)), maxLight, overlay, 1, alarms ? 0.3f : 1 , alarms ? 0.3f : 1, 1);
+                model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisRenderEmissionCull(emission, false)), maxLight, overlay, 1, alarms ? 0.3f : 1 , alarms ? 0.3f : 1, 1);
             }
         }
         matrices.pop();
@@ -89,5 +130,39 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     @Override
     public boolean rendersOutsideBoundingBox(T blockEntity) {
         return true;
+    }
+
+    public Identifier getTextureForRotation(float rotation, ClientTardis tardis) {
+        boolean bl = tardis.getExterior().isDoorOpen();
+        if (rotation > 70 && rotation < 110) {
+            return bl ? DOOM_RIGHT_SIDE_OPEN : DOOM_RIGHT_SIDE;
+        } else if (rotation < -90 && rotation > -110) {
+            return bl ? DOOM_LEFT_SIDE_OPEN : DOOM_LEFT_SIDE;
+        }else if (rotation > 25 && rotation < 70) {
+            return bl ? DOOM_RIGHT_DIAGONAL_OPEN : DOOM_RIGHT_DIAGONAL;
+        } else if (rotation < -25 && rotation > -90 ) {
+            return bl ? DOOM_LEFT_DIAGONAL_OPEN : DOOM_LEFT_DIAGONAL;
+        } else if (rotation > 110 && rotation < 155 || rotation < -110 && rotation > -155) {
+            return DOOM_BLANK_DIAGONAL;
+        } else {
+            return bl ? DOOM_FRONT_BACK_OPEN : DOOM_FRONT_BACK;
+        }
+    }
+
+    public Identifier getEmissionForRotation(Identifier identifier, ClientTardis tardis) {
+        boolean bl = tardis.getExterior().isDoorOpen();
+        if(identifier == DOOM_RIGHT_DIAGONAL || identifier == DOOM_RIGHT_DIAGONAL_OPEN) {
+            return bl ? DOOM_RIGHT_DIAGONAL_OPEN_EMISSION : DOOM_DIAGONAL_EMISSION;
+        } else if (identifier == DOOM_LEFT_DIAGONAL || identifier == DOOM_LEFT_DIAGONAL_OPEN) {
+            return bl ? DOOM_LEFT_DIAGONAL_OPEN_EMISSION : DOOM_DIAGONAL_EMISSION;
+        } else if (identifier == DOOM_BLANK_DIAGONAL) {
+            return DOOM_DIAGONAL_EMISSION;
+        } else if (identifier == DOOM_LEFT_SIDE || identifier == DOOM_LEFT_SIDE_OPEN) {
+            return DOOM_LEFT_SIDE_EMISSION;
+        } else if (identifier == DOOM_RIGHT_SIDE || identifier == DOOM_RIGHT_SIDE_OPEN) {
+            return DOOM_RIGHT_SIDE_EMISSION;
+        } else {
+            return bl ? DOOM_FRONT_BACK_OPEN_EMISSION : DOOM_TEXTURE_EMISSION;
+        }
     }
 }
