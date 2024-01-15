@@ -282,8 +282,8 @@ public class MonitorScreen extends TardisScreen {
         String dDirectionText = "> " + dabpd.getDirection().toString().toUpperCase();
         String fuelText = "> " + Math.round((tardis().getFuel() / TARDIS_MAX_FUEL) * 100);
 
-        //@TODO make this use the client flighthandler stuff that syncs the flight time as a percentage.
-        String flightTimeText = "> " + (tardis().getTravel().getState() == TardisTravel.State.LANDED ? "0" : tardis().getTravel().getFlightTime());
+        String flightTimeText = "> " + (tardis().getTravel().getState() == TardisTravel.State.LANDED ? "0" :
+                tardis().getTravel().getFlightTime());
 
         // position
         context.drawText(this.textRenderer, Text.literal("Position"), (width / 2 - 64), (height / 2 - 46), 5636095, true);
