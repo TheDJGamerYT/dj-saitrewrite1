@@ -9,6 +9,7 @@ import mdteam.ait.core.blocks.ExteriorBlock;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.block.*;
@@ -135,6 +136,14 @@ public class FallingTardisEntity extends Entity {
         }
 
         return ServerTardisManager.getInstance().getTardis(getTardisId());
+    }
+
+    public ClientTardis getClientTardis() {
+        if (getTardisId() == null) {
+            LOGGER.error("TARDIS ID WAS NULL AT " + getPos());
+            return null;
+        }
+        return ClientTardisManager.getInstance().LOOKUP.get(getTardisId()).get();
     }
 
     public boolean isAttackable() {

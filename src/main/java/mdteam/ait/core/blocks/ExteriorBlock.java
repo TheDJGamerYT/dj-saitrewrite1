@@ -14,6 +14,7 @@ import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.TardisUtil;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -91,20 +92,11 @@ public class ExteriorBlock extends FallingBlock implements BlockEntityProvider, 
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof ExteriorBlockEntity) || ((ExteriorBlockEntity) blockEntity).getTardis() == null)
-            return getNormalShape(state, world, pos);
-
-        if (((ExteriorBlockEntity) blockEntity).getTardis().isSiegeMode())
-            return SIEGE_SHAPE;
-
-        if (((ExteriorBlockEntity) blockEntity).getTardis().getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM)) {
-            return VoxelShapes.fullCube();
-        }
-
-        TardisTravel.State travelState = ((ExteriorBlockEntity) blockEntity).getTardis().getTravel().getState();
-        if (travelState == TardisTravel.State.LANDED || ((ExteriorBlockEntity) blockEntity).getAlpha() > 0.75)
-            return getNormalShape(state, world, pos);
+        if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exteriorBlockEntity) || (TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis() : exteriorBlockEntity.getTardis()) == null) return getNormalShape(state, world, pos);
+        if (TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis().isInSiegeMode() : exteriorBlockEntity.getTardis().isSiegeMode()) return SIEGE_SHAPE;
+        if (TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis().getExterior().getExteriorVariantSchema().equals(ExteriorVariantRegistry.DOOM) : exteriorBlockEntity.getTardis().getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM)) return VoxelShapes.fullCube();
+        TardisTravel.State travelState = TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis().getTravel().getState() : exteriorBlockEntity.getTardis().getTravel().getState();
+        if (travelState == TardisTravel.State.LANDED || exteriorBlockEntity.getAlpha() > 0.75) return getNormalShape(state, world, pos);
 
         return VoxelShapes.empty();
     }
@@ -116,43 +108,34 @@ public class ExteriorBlock extends FallingBlock implements BlockEntityProvider, 
 
     @Override
     public VoxelShape getRaycastShape(BlockState state, BlockView world, BlockPos pos) {
-        /*BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof ExteriorBlockEntity) || ((ExteriorBlockEntity) blockEntity).tardis() == null)
-            return getNormalShape(state, world, pos);
-
-        TardisTravel.State travelState = ((ExteriorBlockEntity) blockEntity).tardis().getTravel().getState();
-        if (travelState == TardisTravel.State.LANDED || ((ExteriorBlockEntity) blockEntity).getAlpha() > 0.75)
-            return getNormalShape(state, world, pos);*/
 
         return VoxelShapes.empty();
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        // todo move these to a reusable method
+        if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exteriorBlockEntity) || (TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis() : exteriorBlockEntity.getTardis()) == null) return getNormalShape(state, world, pos);
 
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof ExteriorBlockEntity) || ((ExteriorBlockEntity) blockEntity).getTardis() == null)
-            return getNormalShape(state, world, pos);
-
-        if (((ExteriorBlockEntity) blockEntity).getTardis().isSiegeMode())
-            return SIEGE_SHAPE;
-
-        // todo this better because disabling collisions looks bad, should instead only disable if near to the portal or if walking into the block from the door direction
-        if (DependencyChecker.hasPortals())
-            if (((ExteriorBlockEntity) blockEntity).getTardis().getDoor().isOpen() && ((ExteriorBlockEntity) blockEntity).getTardis().getExterior().getType().hasPortals()) // for some reason this check totally murders fps ??
+        if (TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis().isInSiegeMode() : exteriorBlockEntity.getTardis().isSiegeMode()) return SIEGE_SHAPE;
+        // @TODO this better because disabling collisions looks bad, should instead only disable if near to the portal or if walking into the block from the door direction
+        if (DependencyChecker.hasPortals()) {
+            if (TardisUtil.isClient() ? (exteriorBlockEntity.getClientTardis().getExterior().isDoorOpen() && exteriorBlockEntity.getClientTardis().getExterior().getExteriorSchema().hasPortals()) : (exteriorBlockEntity.getTardis().getDoor().isOpen() && exteriorBlockEntity.getTardis().getExterior().getType().hasPortals()))
                 return getLedgeShape(state, world, pos);
+        }
 
-        TardisTravel.State travelState = ((ExteriorBlockEntity) blockEntity).getTardis().getTravel().getState();
-        if (travelState == TardisTravel.State.LANDED || ((ExteriorBlockEntity) blockEntity).getAlpha() > 0.75)
+
+        TardisTravel.State travelState = TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis().getTravel().getState() : exteriorBlockEntity.getTardis().getTravel().getState();
+        if (travelState == TardisTravel.State.LANDED || exteriorBlockEntity.getAlpha() > 0.75)
             return getNormalShape(state, world, pos);
 
         return VoxelShapes.empty();
     }
 
     public VoxelShape getNormalShape(BlockState state, BlockView world, BlockPos pos) {
-        if ( world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.getTardis() != null && exterior.getTardis().getExterior().getVariant().bounding(state.get(FACING)) != null)
-            return exterior.getTardis().getExterior().getVariant().bounding(state.get(FACING));
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exteriorBlockEntity && exteriorBlockEntity.getTardis() != null) {
+            if (TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis().getExterior().getExteriorVariantSchema().bounding(state.get(FACING)) != null : exteriorBlockEntity.getTardis().getExterior().getVariant().bounding(state.get(FACING)) != null)
+                return exteriorBlockEntity.getTardis().getExterior().getVariant().bounding(state.get(FACING));
+        }
 
         return switch (state.get(FACING)) {
             case NORTH -> CUBE_NORTH_SHAPE;
@@ -166,28 +149,20 @@ public class ExteriorBlock extends FallingBlock implements BlockEntityProvider, 
 
     public VoxelShape getLedgeShape(BlockState state, BlockView world, BlockPos pos) {
         // fixme these wont have ledges probably
-        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.getTardis() != null && exterior.getTardis().getExterior().getVariant().bounding(state.get(FACING)) != null)
-            return exterior.getTardis().getExterior().getVariant().bounding(state.get(FACING));
-
-        return switch (state.get(FACING)) {
-            case NORTH -> LEDGE_NORTH_SHAPE;
-            case EAST -> LEDGE_EAST_SHAPE;
-            case SOUTH -> LEDGE_SOUTH_SHAPE;
-            case WEST -> LEDGE_WEST_SHAPE;
-            default ->
-                    throw new RuntimeException("Invalid facing direction in " + this + ", //How did this happen? I messed up Plan A.");
-        };
+        VoxelShape temp = getNormalShape(state, world, pos);
+        if (temp == CUBE_NORTH_SHAPE) return LEDGE_NORTH_SHAPE;
+        if (temp == CUBE_SOUTH_SHAPE) return LEDGE_SOUTH_SHAPE;
+        if (temp == CUBE_EAST_SHAPE) return LEDGE_EAST_SHAPE;
+        if (temp == CUBE_WEST_SHAPE) return LEDGE_WEST_SHAPE;
+        throw new RuntimeException("Invalid facing direction in " + this + ", //How did this happen? I messed up Plan A.");
     }
 
     @Override
     public VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof ExteriorBlockEntity) || ((ExteriorBlockEntity) blockEntity).getTardis() == null)
-            return getNormalShape(state, world, pos);
-
-        TardisTravel.State travelState = ((ExteriorBlockEntity) blockEntity).getTardis().getTravel().getState();
-        if (travelState == TardisTravel.State.LANDED || ((ExteriorBlockEntity) blockEntity).getAlpha() > 0.75)
-            return getNormalShape(state, world, pos);
+        if (!(blockEntity instanceof ExteriorBlockEntity exteriorBlockEntity) || (TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis() : exteriorBlockEntity.getTardis()) == null) return getNormalShape(state, world, pos);
+        TardisTravel.State travelState = TardisUtil.isClient() ? exteriorBlockEntity.getClientTardis().getTravel().getState() : exteriorBlockEntity.getTardis().getTravel().getState();
+        if (travelState == TardisTravel.State.LANDED || ((ExteriorBlockEntity) blockEntity).getAlpha() > 0.75) return getNormalShape(state, world, pos);
 
         return VoxelShapes.empty();
     }
@@ -256,6 +231,7 @@ public class ExteriorBlock extends FallingBlock implements BlockEntityProvider, 
     }
 
     public void tryFall(BlockState state, ServerWorld world, BlockPos pos) {
+        if (world.isClient()) return;
         if (canFallThrough(world.getBlockState(pos.down())) && pos.getY() >= world.getBottomY()
                 && findTardis(world, pos) != null
                 && !PropertiesHandler.getBool(findTardis(world, pos).getHandlers().getProperties(), PropertiesHandler.ANTIGRAVS_ENABLED)
@@ -275,7 +251,7 @@ public class ExteriorBlock extends FallingBlock implements BlockEntityProvider, 
     }
 
     public void onLanding(World world, BlockPos pos, BlockState fallingBlockState, BlockState currentStateInPos, FallingTardisEntity fallingTardisEntity) {
-        if(fallingTardisEntity.getTardis() == null) return;
+        if (fallingTardisEntity.getTardis() == null || world.isClient()) return;
         fallingTardisEntity.getTardis().getTravel().setPosition(new AbsoluteBlockPos.Directed(pos, world, fallingTardisEntity.getTardis().getTravel().getPosition().getDirection()));
 
         world.playSound(null, pos, AITSounds.LAND_THUD, SoundCategory.BLOCKS);
