@@ -211,6 +211,12 @@ public class ServerAITNetworkManager {
         Collection<UUID> tardisUUIDs = ServerTardisManager.getInstance().getLookup().keySet();
         Map<UUID, Identifier> uuidToExteriorVariantSchema = new HashMap<>();
         Map<UUID, Identifier> uuidToExteriorSchema = new HashMap<>();
+        for (UUID uuid : tardisUUIDs) {
+            Tardis tardis = ServerTardisManager.getInstance().getTardis(uuid);
+            if (tardis == null) continue;
+            uuidToExteriorVariantSchema.put(uuid, tardis.getExterior().getVariant().id());
+            uuidToExteriorSchema.put(uuid, tardis.getExterior().getType().id());
+        }
         data.writeCollection(tardisUUIDs, PacketByteBuf::writeUuid);
         data.writeMap(uuidToExteriorVariantSchema, PacketByteBuf::writeUuid, PacketByteBuf::writeIdentifier);
         data.writeMap(uuidToExteriorSchema, PacketByteBuf::writeUuid, PacketByteBuf::writeIdentifier);
