@@ -6,12 +6,11 @@ import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
-import mdteam.ait.core.blocks.ExteriorBlock;
 import mdteam.ait.network.ClientAITNetworkManager;
+import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
-import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import net.minecraft.util.Identifier;
@@ -29,13 +28,16 @@ public class ClientTardis {
     private final ClientTardisDesktop desktop;
     private final ClientTardisLoadedCache load_cache;
     private final ClientTardisExterior exterior;
+
     private Corners corners;
     private boolean subscribed_to_interior = false;
     private boolean subscribe_to_exterior = false;
     private boolean siege_mode = false;
     private boolean powered = false;
     private boolean alarms_enabled = false;
-    private double fuel;
+    private boolean falling = false;
+    private boolean is_crashing = false;
+    private boolean handbreak_active = false;
 
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
         this.tardis_ID = tardisID;
@@ -45,8 +47,27 @@ public class ClientTardis {
         this.exterior = new ClientTardisExterior(this, exteriorVariantSchema, exteriorSchema);
     }
 
+    public void setHandBreakState(boolean handbreak_active) {
+        this.handbreak_active = handbreak_active;
+    }
+
+    public boolean isHandbreakActive() {
+        return handbreak_active;
+    }
+
     public ClientTardisExterior getExterior() {
         return this.exterior;
+    }
+
+    public void setFalling(boolean falling) {
+        this.falling = falling;
+    }
+
+    public boolean isFalling() {
+        return falling;
+    }
+    public boolean isGrowth() {
+        return this.exterior.getExteriorVariantSchema().equals(ExteriorVariantRegistry.CORAL_GROWTH);
     }
 
     public void setSiegeMode(boolean siege_mode) {
@@ -66,12 +87,12 @@ public class ClientTardis {
         this.alarms_enabled = alarms_enabled;
     }
 
-    public void setFuel(double fuel) {
-        this.fuel = fuel;
+    public void setCrashingState(boolean is_crashing) {
+        this.is_crashing = is_crashing;
     }
 
-    public double getFuel() {
-        return fuel;
+    public boolean isCrashing() {
+        return is_crashing;
     }
 
     public void tick() {
@@ -137,9 +158,8 @@ public class ClientTardis {
     public class ClientTardisTravel {
         private final ClientTardis tardis;
         private int speed = 0;
+
         private TardisTravel.State state = TardisTravel.State.LANDED;
-        private AbsoluteBlockPos.Directed position;
-        private AbsoluteBlockPos.Directed destination;
 
         public ClientTardisTravel(ClientTardis tardis) {
             this.tardis = tardis;
@@ -164,23 +184,6 @@ public class ClientTardis {
         public TardisTravel.State getState() {
             return state;
         }
-
-        public void setPosition(AbsoluteBlockPos.Directed position) {
-            this.position = position;
-        }
-
-        public AbsoluteBlockPos.Directed getPosition() {
-            return position;
-        }
-
-        public void setDestination(AbsoluteBlockPos.Directed destination) {
-            this.destination = destination;
-
-        }
-
-        public AbsoluteBlockPos.Directed getDestination() {
-            return destination;
-        }
     }
 
     public class ClientTardisDesktop {
@@ -189,6 +192,7 @@ public class ClientTardis {
 
         private Corners corners = null;
         private BlockPos consolePos = null;
+
         private DoorHandler.DoorStateEnum tempInteriorDoorState = null;
 
         public ClientTardisDesktop(ClientTardis tardis) {
@@ -247,13 +251,16 @@ public class ClientTardis {
             return tardis;
         }
 
+        public ExteriorBlockEntity __getExteriorBlockEntity() {
+            return loadedExteriorBlockEntity;
+        }
+
         public void loadConsoleBlock(ConsoleBlockEntity consoleBlockEntity) {
             loadedConsoleBlockEntities.add(consoleBlockEntity);
         }
         public void loadExteriorBlock(ExteriorBlockEntity exteriorBlockEntity) {
             this.loadedExteriorBlockEntity = exteriorBlockEntity;
-            this.getTardis().getExterior().setExteriorBlockPos(new AbsoluteBlockPos.Directed(this.loadedExteriorBlockEntity.getPos(),
-                    this.loadedExteriorBlockEntity.getWorld(), this.loadedExteriorBlockEntity.getCachedState().get(ExteriorBlock.FACING)));
+            this.getTardis().getExterior().setExteriorBlockPos(this.loadedExteriorBlockEntity.getPos());
         }
         public void loadDoorBlock(DoorBlockEntity doorBlockEntity) {
             loadedDoorBlockEntities.add(doorBlockEntity);
@@ -304,7 +311,7 @@ public class ClientTardis {
 
     public class ClientTardisExterior {
         private final ClientTardis tardis;
-        private AbsoluteBlockPos.Directed exteriorBlockPos = null;
+        private BlockPos exteriorBlockPos = null;
         private DoorHandler.DoorStateEnum doorState = DoorHandler.DoorStateEnum.CLOSED;
         private ExteriorVariantSchema exterior_variant_schema;
         private ExteriorSchema exterior_schema;
@@ -334,7 +341,7 @@ public class ClientTardis {
             return cloaked;
         }
 
-        public void setExteriorBlockPos(AbsoluteBlockPos.Directed exteriorBlockPos) {
+        public void setExteriorBlockPos(BlockPos exteriorBlockPos) {
             this.exteriorBlockPos = exteriorBlockPos;
         }
 

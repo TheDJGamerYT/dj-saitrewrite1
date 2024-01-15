@@ -4,6 +4,7 @@ import mdteam.ait.AITMod;
 import mdteam.ait.client.animation.exterior.door.DoorAnimations;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.tardis.handler.DoorHandler;
+import mdteam.ait.tardis.util.TardisUtil;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -66,7 +67,7 @@ public class BoothDoorModel extends DoorModel {
     @Override
     public void renderWithAnimations(DoorBlockEntity door, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
-        this.k2.getChild("Door").yaw = door.getTardis().getDoor().isOpen() ? 1.575F : 0.0F;
+        this.k2.getChild("Door").yaw = (TardisUtil.isClient() ? door.getClientTardis().getExterior().isDoorOpen() : door.getTardis().getDoor().isOpen()) ? 1.575F : 0.0F;
         matrices.scale(1f, 1f, 1f);
         matrices.translate(0, -1.5f, 0);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));

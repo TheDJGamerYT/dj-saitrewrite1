@@ -321,6 +321,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             provider.addSound("tardis/creaks/creak_three", AITSounds.CREAK_THREE);
             provider.addSound("tardis/creaks/whisper", AITSounds.WHISPER);
 
+            // Secret
+            provider.addSound("tardis/secret/doom_door_open", AITSounds.DOOM_DOOR_OPEN);
+            provider.addSound("tardis/secret/doom_door_close", AITSounds.DOOM_DOOR_CLOSE);
+
             // Other
             provider.addSound("tardis/cloister", AITSounds.CLOISTER);
 
@@ -367,6 +371,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         generate_DE_AT_Language(pack); // de_at (German Austria)
         generate_DE_CH_Language(pack); // de_ch (German Switzerland)
         generate_NDS_DE_Language(pack); // nds_de (Nordic German)
+        generate_PT_BR_Language(pack); // pt_br (Portuguese Brazil)
+        generate_RU_RU_Language(pack); // ru_ru (Russian Russia)
     }
 
     /**
@@ -451,6 +457,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.monitor.desktop_settings", "Desktop Settings");
         provider.addTranslation("screen.ait.monitor.apply", "Apply");
         provider.addTranslation("screen.ait.monitor.fuel", "Fuel: ");
+        provider.addTranslation("screen.ait.monitor.traveltime", "Travel Time: ");
         provider.addTranslation("screen.ait.interiorsettings.title", "Interior Settings");
         provider.addTranslation("screen.ait.interiorsettings.back", "> Back");
         provider.addTranslation("screen.ait.interiorsettings.changeinterior", "> Change Interior");
@@ -735,6 +742,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         return aitLanguageProvider;
     }
+    public AITLanguageProvider addPortugueseTranslations(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture, LanguageType languageType) {
+        AITLanguageProvider provider = new AITLanguageProvider(output, languageType);
+        return provider;
+    }
 
     public void generate_DE_AT_Language(FabricDataGenerator.Pack pack) {
         pack.addProvider(((output, registriesFuture) -> addGermanTranslations(output, registriesFuture, LanguageType.DE_AT))); // de_at (German Austria)
@@ -810,5 +821,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
     public void generate_EN_NZ_Language(FabricDataGenerator.Pack pack) {
         pack.addProvider(((output, registriesFuture) -> addEnglishTranslations(output, registriesFuture, LanguageType.EN_NZ))); // en_nz (English New Zealand)
+    }
+    public void generate_PT_BR_Language(FabricDataGenerator.Pack pack) {
+        pack.addProvider(((output, registriesFuture) -> addPortugueseTranslations(output, registriesFuture, LanguageType.PT_BR))); // pt_br (Portuguese Brazil)
+    }
+    public void generate_RU_RU_Language(FabricDataGenerator.Pack pack) {
+        pack.addProvider(((output, registriesFuture) -> new AITLanguageProvider(output, LanguageType.RU_RU))); // ru_ru (Russian Russia)
     }
 }

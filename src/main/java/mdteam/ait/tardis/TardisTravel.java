@@ -305,6 +305,7 @@ public class TardisTravel extends TardisLink {
                 true
         );
         this.crashing = true;
+        ServerAITNetworkManager.setSendTardisCrashingUpdate(this.getTardis(), true);
         // Set speed to 0
         this.setSpeed(0);
         // Mark Tardis as dirty
@@ -629,6 +630,7 @@ public class TardisTravel extends TardisLink {
         //    return;
 
         this.crashing = false;
+        ServerAITNetworkManager.setSendTardisCrashingUpdate(this.getTardis(), false);
 
         if (PropertiesHandler.willAutoPilot(this.getTardis().getHandlers().getProperties())) {
             if (this.getSpeed() > 0) {

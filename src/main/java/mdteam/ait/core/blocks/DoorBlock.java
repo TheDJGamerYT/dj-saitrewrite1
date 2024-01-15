@@ -3,6 +3,7 @@ package mdteam.ait.core.blocks;
 import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blocks.types.HorizontalDirectionalBlock;
 import mdteam.ait.core.AITBlockEntityTypes;
+import mdteam.ait.tardis.util.TardisUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -26,10 +27,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 
-    public static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(0.0, 0.0, 13.1, 16.0, 32.0, 16.0);
-    public static final VoxelShape EAST_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 2.9, 32.0, 16.0);
-    public static final VoxelShape SOUTH_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 32.0, 2.9);
-    public static final VoxelShape WEST_SHAPE = Block.createCuboidShape(13.1, 0.0, 0.0, 16.0, 32.0, 16.0);
+    public static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(0.0, 0.0, 11.1, 16.0, 32.0, 16.0);
+    public static final VoxelShape EAST_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 4.9, 32.0, 16.0);
+    public static final VoxelShape SOUTH_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 32.0, 4.9);
+    public static final VoxelShape WEST_SHAPE = Block.createCuboidShape(11.1, 0.0, 0.0, 16.0, 32.0, 16.0);
 
     public DoorBlock(Settings settings) {
         super(settings);
@@ -37,9 +38,8 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (world.getBlockEntity(pos) instanceof DoorBlockEntity door) {
-            if (door.getTardis() != null && door.getTardis().isSiegeMode()) return VoxelShapes.empty();
-        }
+        if (world.getBlockEntity(pos) instanceof DoorBlockEntity doorBlockEntity && (TardisUtil.isClient() ? doorBlockEntity.getClientTardis() : doorBlockEntity.getTardis()) == null &&
+                (TardisUtil.isClient() ? doorBlockEntity.getClientTardis().isInSiegeMode() : doorBlockEntity.getTardis().isSiegeMode())) return VoxelShapes.empty();
 
         return switch (state.get(FACING)) {
             case NORTH -> NORTH_SHAPE;

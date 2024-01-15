@@ -634,7 +634,7 @@ public class BorealisConsoleModel extends ConsoleModel {
 
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (console.getTardis() == null) return;
+        if (console.getClientTardis() == null) return;
         matrices.push();
         // fixme id do it but i genuinely dont want to bc i cba
 
@@ -642,7 +642,7 @@ public class BorealisConsoleModel extends ConsoleModel {
         ModelPart northControls = this.base_console.getChild("NORTH").getChild("northcontrolpanel");
         ModelPart southControls = this.base_console.getChild("SOUTH").getChild("southcontrolpanel");
 
-        boolean isInFlight = console.getTardis().getTravel().getState() == TardisTravel.State.DEMAT || console.getTardis().getTravel().getState() == TardisTravel.State.FLIGHT;
+        boolean isInFlight = console.getClientTardis().getTravel().getState() == TardisTravel.State.DEMAT || console.getClientTardis().getTravel().getState() == TardisTravel.State.FLIGHT;
         boolean isHandbrakeActive = PropertiesHandler.getBool(console.getTardis().getHandlers().getProperties(), PropertiesHandler.HANDBRAKE);
         boolean leftDoor = console.getTardis().getDoor().getDoorState() == DoorHandler.DoorStateEnum.FIRST;
         boolean rightDoor = console.getTardis().getDoor().getDoorState() == DoorHandler.DoorStateEnum.SECOND;

@@ -135,7 +135,7 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
 
         if (isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
 
         return ServerTardisManager.getInstance().getTardis(this.tardisId);
@@ -152,14 +152,16 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
 
     public void setTardis(Tardis tardis) {
         this.tardisId = tardis.getUuid();
+        this.markDirty();
     }
 
     private void findTardisFromPosition() { // should only be used if tardisId is null so we can hopefully refind the tardis
         Tardis found = findTardisByPosition(this.getPos());
 
         if (found == null) return;
-
         this.tardisId = found.getUuid();
+        markDirty();
+
     }
 
     @Override

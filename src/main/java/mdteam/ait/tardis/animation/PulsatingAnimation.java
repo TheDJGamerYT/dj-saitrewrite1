@@ -5,6 +5,7 @@ import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.sounds.MatSound;
 import mdteam.ait.tardis.TardisTravel;
+import mdteam.ait.tardis.util.TardisUtil;
 
 public class PulsatingAnimation extends ExteriorAnimation {
     private int pulses = 0;
@@ -20,11 +21,11 @@ public class PulsatingAnimation extends ExteriorAnimation {
         if (exterior.getTardis() == null)
             return;
 
-        TardisTravel.State state = exterior.getTardis().getTravel().getState();
+        TardisTravel.State state = TardisUtil.isClient() ? exterior.getClientTardis().getTravel().getState() : exterior.getTardis().getTravel().getState();
 
 
         if (this.timeLeft < 0)
-            this.setupAnimation(exterior.getTardis().getTravel().getState()); // fixme is a jank fix for the timeLeft going negative on client
+            this.setupAnimation(state); // @TODO: is a jank fix for the timeLeft going negative on client
 
         if (state == TardisTravel.State.DEMAT) {
             this.setAlpha(1f - getPulseAlpha());
@@ -60,9 +61,9 @@ public class PulsatingAnimation extends ExteriorAnimation {
             return;
         }
 
-        MatSound sound = exterior.getTardis().getExterior().getVariant().getSound(state);
+        MatSound sound = TardisUtil.isClient() ? exterior.getClientTardis().getExterior().getExteriorVariantSchema().getSound(state) : exterior.getTardis().getExterior().getVariant().getSound(state);
 
-        if (exterior.getTardis().getTravel().isCrashing()) {
+        if (TardisUtil.isClient() ? exterior.getClientTardis().isCrashing() : exterior.getTardis().getTravel().isCrashing()) {
             sound = AITSounds.GHOST_MAT_ANIM;
         }
 

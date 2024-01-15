@@ -12,6 +12,7 @@ import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.TardisUtil;
+import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -84,7 +85,7 @@ public class SonicItem extends Item {
                 Block block = world.getBlockState(pos).getBlock();
 
                 if (entity instanceof ExteriorBlockEntity exteriorBlock) {
-                    TardisTravel.State state = exteriorBlock.getTardis().getTravel().getState();
+                    TardisTravel.State state = (world.isClient() ? exteriorBlock.getClientTardis().getTravel().getState() : tardis.getTravel().getState());
 
                     if (!(state == TardisTravel.State.LANDED || state == TardisTravel.State.FLIGHT)) {
                         return;
@@ -117,7 +118,7 @@ public class SonicItem extends Item {
 
                 BlockEntity entity = world.getBlockEntity(pos);
                 if (entity instanceof ExteriorBlockEntity exteriorBlock) {
-                    TardisTravel.State state = exteriorBlock.getTardis().getTravel().getState();
+                    TardisTravel.State state = (TardisUtil.isClient() ? exteriorBlock.getClientTardis().getTravel().getState() : tardis.getTravel().getState());
                     if (!(state == TardisTravel.State.LANDED || state == TardisTravel.State.FLIGHT))
                         return;
                     /*tardis.markDirty();
@@ -296,7 +297,7 @@ public class SonicItem extends Item {
         NbtCompound tag = stack.getOrCreateNbt();
         String text = tag.contains("tardis") ? tag.getString("tardis").substring(0, 8)
                 : Text.translatable("message.ait.sonic.none").getString();
-
+        String position = Text.translatable("message.ait.sonic.none").getString();
         if (tag.contains("tardis")) { // Adding the sonics mode
             tooltip.add(Text.translatable("message.ait.sonic.mode").formatted(Formatting.BLUE));
 
@@ -308,6 +309,8 @@ public class SonicItem extends Item {
 
         tooltip.add(Text.literal("TARDIS: ").formatted(Formatting.BLUE));
         tooltip.add(Text.literal("> " + text).formatted(Formatting.GRAY));
+        tooltip.add(Text.literal("Position: ").formatted(Formatting.BLUE));
+        tooltip.add(Text.literal("> " + position).formatted(Formatting.GRAY));
     }
 
     public Mode intToMode(int mode) {

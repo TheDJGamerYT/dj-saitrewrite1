@@ -93,7 +93,7 @@ public class KeyItem extends Item {
 
         if (TardisUtil.isClient()) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
 
         return ServerTardisManager.getInstance().getTardis(uuid);

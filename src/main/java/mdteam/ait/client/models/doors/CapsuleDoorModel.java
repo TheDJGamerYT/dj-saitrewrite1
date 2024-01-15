@@ -62,7 +62,8 @@ public class CapsuleDoorModel extends DoorModel {
 
         ModelPartData door_right = doors.addChild("door_right", ModelPartBuilder.create().uv(161, 95).cuboid(0.4706F, -11.0F, -0.5F, 6.0F, 32.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(-6.5F, 0.0F, -8.5F));
 
-        ModelPartData door_left = doors.addChild("door_left", ModelPartBuilder.create().uv(161, 162).cuboid(-6.5294F, -11.0F, -0.5F, 6.0F, 32.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(6.5F, 0.0F, -8.5F));
+        ModelPartData door_left = doors.addChild("door_left", ModelPartBuilder.create().uv(162, 162).cuboid(-6.5294F, -11.0F, -0.5F, 6.0F, 32.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(6.5F, 0.0F, -8.5F));
+
         return TexturedModelData.of(modelData, 256, 256);
     }
 
@@ -88,7 +89,6 @@ public class CapsuleDoorModel extends DoorModel {
 
     @Override
     public void renderWithAnimations(DoorBlockEntity door, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (door.getTardis() == null) return;
         matrices.push();
         // matrices.scale(0.6F,0.6f,0.6f);
         matrices.translate(0, -1.5f, 0);
@@ -97,10 +97,8 @@ public class CapsuleDoorModel extends DoorModel {
         /*this.body.getChild("doors").getChild("left_door").yaw = door.getLeftDoorRotation();
         this.body.getChild("doors").getChild("right_door").yaw = -door.getRightDoorRotation();*/
 
-        DoorHandler handler = door.getTardis().getDoor();
-
-        this.body.getChild("doors").getChild("door_left").yaw = (handler.isLeftOpen() || handler.isOpen())  ? -5F : 0.0F;
-        this.body.getChild("doors").getChild("door_right").yaw = (handler.isRightOpen() || handler.isBothOpen()) ? 5F : 0.0F;
+        this.body.getChild("doors").getChild("door_left").yaw = (door.getClientTardis().getExterior().isLeftDoorOpen() || door.getClientTardis().getExterior().isBothDoorsOpen())  ? -5F : 0.0F;
+        this.body.getChild("doors").getChild("door_right").yaw = (door.getClientTardis().getExterior().isRightDoorOpen() || door.getClientTardis().getExterior().isBothDoorsOpen()) ? 5F : 0.0F;
 
          if (DependencyChecker.hasPortals())
              this.getPart().getChild("middle").getChild("back").visible = false;

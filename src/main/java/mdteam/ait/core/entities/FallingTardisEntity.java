@@ -6,9 +6,11 @@ import mdteam.ait.core.AITDamageTypes;
 import mdteam.ait.core.AITEntityTypes;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.blocks.ExteriorBlock;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.block.*;
@@ -107,12 +109,16 @@ public class FallingTardisEntity extends Entity {
     }
 
     public static FallingTardisEntity spawnFromBlock(World world, BlockPos pos, BlockState state) {
+        if (world.isClient()) {
+            return null;
+        }
         FallingTardisEntity fallingBlockEntity = new FallingTardisEntity(world, (double)pos.getX() + 0.5, (double)pos.getY(), (double)pos.getZ() + 0.5, state.contains(Properties.WATERLOGGED) ? (BlockState)state.with(Properties.WATERLOGGED, false) : state);
 
         if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior) {
             fallingBlockEntity.setTardisId(exterior.getTardis().getUuid());
 
             PropertiesHandler.setBool(exterior.getTardis().getHandlers().getProperties(), PropertiesHandler.IS_FALLING, true);
+            ServerAITNetworkManager.sendTardisFallingUpdate(exterior.getTardis(), true);
             // @TODO idk if we should have the alarm enabled when its falling that feels weird
             //PropertiesHandler.setBool(exterior.getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
             exterior.getTardis().markDirty();
@@ -131,10 +137,18 @@ public class FallingTardisEntity extends Entity {
 
         if (getWorld().isClient) {
             AITMod.LOGGER.error("Client side tardis should not be accessed!");
-            return null;
+            throw new RuntimeException("Client side tardis should not be accessed!");
         }
 
         return ServerTardisManager.getInstance().getTardis(getTardisId());
+    }
+
+    public ClientTardis getClientTardis() {
+        if (getTardisId() == null) {
+            LOGGER.error("TARDIS ID WAS NULL AT " + getPos());
+            return null;
+        }
+        return ClientTardisManager.getInstance().LOOKUP.get(getTardisId()).get();
     }
 
     public boolean isAttackable() {
