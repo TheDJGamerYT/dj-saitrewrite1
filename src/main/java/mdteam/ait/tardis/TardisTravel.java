@@ -17,6 +17,8 @@ import mdteam.ait.core.sounds.MatSound;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
+import mdteam.ait.tardis.wrapper.server.ServerTardis;
+import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -99,7 +101,7 @@ public class TardisTravel extends TardisLink {
                 this.tardisId = found.getUuid();
         }
 
-        return this.getTardis();
+        return ServerTardisManager.getInstance().getTardis(this.tardisId);
     }
 
     /*public boolean ifNotInFlightDemat(ServerPlayerEntity player) {

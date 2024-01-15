@@ -465,10 +465,10 @@ public class ClientTardis {
 
         public static String TEXTURE_PATH = "textures/blockentities/exteriors/";
         private boolean overgrown = false;
-
         private boolean locked = false;
-
         private DoorHandler.DoorStateEnum tempExteriorDoorState = null;
+        private String positionDimensionValue = "";
+        private String destinationDimensionValue = "";
 
         public void setDoorLocked(boolean locked) {
             this.locked = locked;
@@ -554,6 +554,21 @@ public class ClientTardis {
         public Identifier getOvergrownTexture() {
             ExteriorSchema exterior = getExterior().getExteriorSchema();
             return new Identifier(AITMod.MOD_ID, TEXTURE_PATH + exterior.toString().toLowerCase() + "/" + exterior.toString().toLowerCase() + "_" + "overgrown" + ".png");
+        }
+
+        public String getPositionDimensionValue() {
+            return positionDimensionValue;
+        }
+
+        public void setPositionDimensionValue(String dimensionValue) {
+            this.positionDimensionValue = dimensionValue;
+        }
+
+        public void setDestinationDimensionValue(String dimensionValue) {
+            this.destinationDimensionValue = dimensionValue;
+        }
+        public String getDestinationDimensionValue() {
+            return destinationDimensionValue;
         }
 
         public DoorHandler.DoorStateEnum getAnimationExteriorState() {

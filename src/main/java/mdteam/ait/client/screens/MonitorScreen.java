@@ -7,7 +7,6 @@ import mdteam.ait.client.registry.ClientExteriorVariantRegistry;
 import mdteam.ait.client.registry.exterior.ClientExteriorVariantSchema;
 import mdteam.ait.client.renderers.AITRenderLayers;
 import mdteam.ait.client.screens.interior.InteriorSettingsScreen;
-import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.network.ClientAITNetworkManager;
 import mdteam.ait.registry.ExteriorRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
@@ -274,17 +273,17 @@ public class MonitorScreen extends TardisScreen {
         AbsoluteBlockPos.Directed abpd = tardis().getTravel().getPosition();
         AbsoluteBlockPos.Directed dabpd = tardis().getTravel().getDestination();
         if(abpd == null) return;
-        if(abpd.getDimension() == null) return;
+        if(tardis().getExterior().getPositionDimensionValue() == null) return;
         String positionText = "> " + abpd.getX() + ", " + abpd.getY() + ", " + abpd.getZ();
-        String dimensionText = "> " + convertWorldValueToModified(abpd.getDimension().getValue());
+        String dimensionText = "> " + convertWorldValueToModified(tardis().getExterior().getPositionDimensionValue());
         String directionText = "> " + abpd.getDirection().toString().toUpperCase();
         String destinationText = "> " + dabpd.getX() + ", " + dabpd.getY() + ", " + dabpd.getZ();
-        String dDimensionText = "> " + convertWorldValueToModified(dabpd.getDimension().getValue());
+        String dDimensionText = "> " + convertWorldValueToModified(tardis().getExterior().getDestinationDimensionValue());
         String dDirectionText = "> " + dabpd.getDirection().toString().toUpperCase();
         String fuelText = "> " + Math.round((tardis().getFuel() / TARDIS_MAX_FUEL) * 100);
 
         //@TODO make this use the client flighthandler stuff that syncs the flight time as a percentage.
-        String flightTimeText = "> " + (tardis().getTravel().getState() == TardisTravel.State.LANDED ? "0" : "100");
+        String flightTimeText = "> " + (tardis().getTravel().getState() == TardisTravel.State.LANDED ? "0" : tardis().getTravel().getFlightTime());
 
         // position
         context.drawText(this.textRenderer, Text.literal("Position"), (width / 2 - 64), (height / 2 - 46), 5636095, true);

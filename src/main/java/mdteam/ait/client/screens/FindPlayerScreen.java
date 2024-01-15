@@ -20,7 +20,6 @@ public class FindPlayerScreen extends TardisScreen {
 
     public FindPlayerScreen(UUID tardis) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".find_player"), tardis);
-        updateTardis();
     }
 
     @Override
