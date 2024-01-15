@@ -19,7 +19,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
     public ConsoleRenderer(BlockEntityRendererFactory.Context ctx) {}
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if (entity.getTardis() == null) return;
+        if (entity.getClientTardis() == null) return;
 
         ClientConsoleVariantSchema variant = ClientConsoleVariantRegistry.withParent(entity.getVariant());
 
@@ -42,8 +42,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(60f));
         matrices.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(25f));
         matrices.scale(0.00325f, 0.00325f, 0.00325f);
-        AbsoluteBlockPos.Directed abpd = entity.getTardis().getTravel().getDestination();
-        AbsoluteBlockPos.Directed abpp = entity.getTardis().getTravel().getPosition();
+        AbsoluteBlockPos.Directed abpd = entity.getClientTardis().getTravel().getDestination();
+        AbsoluteBlockPos.Directed abpp = entity.getClientTardis().getTravel().getPosition();
         String positionPosText = " " + abpp.getX() + ", " + abpp.getY() + ", " + abpp.getZ();
         String positionDimensionText = " " + convertWorldValueToModified(abpp.getDimension().getValue());
         String positionDirectionText = " " + abpp.getDirection().toString().toUpperCase();
@@ -65,11 +65,11 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         //matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-f));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         if (console != null) {
-            if (entity.getTardis() == null) return; // for some it forgets the tardis can be null, fucking weird
+            if (entity.getClientTardis() == null) return; // for some it forgets the tardis can be null, fucking weird
             console.animateTile(entity);
             console.renderWithAnimations(entity, this.console.getPart(), matrices, vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay, 1, 1, 1, 1);
 
-            if (entity.getTardis().hasPower())
+            if (entity.getClientTardis().isPowered())
                 console.renderWithAnimations(entity, this.console.getPart(), matrices, vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentEmissive(variant.emission())), maxLight, overlay, 1, 1, 1, 1);
         }
         matrices.pop();

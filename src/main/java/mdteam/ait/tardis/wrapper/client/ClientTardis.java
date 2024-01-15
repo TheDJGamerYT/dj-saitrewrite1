@@ -165,8 +165,8 @@ public class ClientTardis {
         UNLOCKED_DESKTOPS.add(schema);
     }
 
-    public static void removeUnlockedDesktops() {
-        UNLOCKED_DESKTOPS.clear();
+    public static void removeUnlockedDesktops(TardisDesktopSchema schema) {
+        UNLOCKED_DESKTOPS.remove(schema);
     }
 
     public static List<TardisDesktopSchema> setUnlockedDesktops(List<TardisDesktopSchema> desktops) {
