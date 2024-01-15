@@ -141,6 +141,12 @@ public class ClientAITNetworkManager {
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.setCrashingState(crashing);
         }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_DOOR_LOCKED_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            boolean locked = buf.readBoolean();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getExterior().setDoorLocked(locked);
+        }));
     }
 
     public static void send_request_interior_change_from_monitor(UUID uuid, Identifier selected_interior) {

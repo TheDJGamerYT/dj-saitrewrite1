@@ -93,6 +93,7 @@ public class DoorHandler extends TardisLink {
 
     public void setLocked(boolean var) {
         this.locked = var;
+        ServerAITNetworkManager.sendTardisDoorLockedUpdate(this.getTardis(), this.locked);
         // should probs be in the method below
         if (var) setDoorState(DoorStateEnum.CLOSED);
 

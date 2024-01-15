@@ -1,5 +1,6 @@
 package mdteam.ait.tardis.control.impl;
 
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.control.Control;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -15,6 +16,7 @@ public class LandTypeControl extends Control {
     @Override
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
         PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.FIND_GROUND, !PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.FIND_GROUND));
+        ServerAITNetworkManager.sendTardisGroundSearchingUpdate(tardis, PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.FIND_GROUND));
         tardis.markDirty();
         messagePlayer(player, PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.FIND_GROUND));
 
