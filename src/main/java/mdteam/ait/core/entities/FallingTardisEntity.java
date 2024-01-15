@@ -296,6 +296,7 @@ public class FallingTardisEntity extends Entity {
     public void stopFalling(boolean antigravs) {
         if (antigravs) {
             PropertiesHandler.setBool(getTardis().getHandlers().getProperties(), PropertiesHandler.ANTIGRAVS_ENABLED, true);
+            ServerAITNetworkManager.sendTardisAntigravsUpdate(getTardis(), true);
             getTardis().markDirty();
         }
         Block block = this.block.getBlock();

@@ -299,6 +299,7 @@ public class TardisTravel extends TardisLink {
         PropertiesHandler.set(this.getTardis().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED, true);
         ServerAITNetworkManager.sendTardisAlarmsUpdate(this.getTardis(), true);
         PropertiesHandler.set(this.getTardis().getHandlers().getProperties(), PropertiesHandler.ANTIGRAVS_ENABLED, false);
+        ServerAITNetworkManager.sendTardisAntigravsUpdate(this.getTardis(), false);
         // Set the destination position at the topmost block of the world at the X and Z coordinates of the destination
         this.setDestination(
                 new AbsoluteBlockPos.Directed(

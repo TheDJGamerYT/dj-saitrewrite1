@@ -2,6 +2,7 @@ package mdteam.ait.core.item;
 
 import mdteam.ait.AITMod;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -133,6 +134,7 @@ public class KeyItem extends Item {
             player.getItemCooldownManager().set(stack.getItem(), 60 * 20);
 
             PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.HAIL_MARY, false); // should this just set the handbrake on instead?
+            ServerAITNetworkManager.sendTardisHailMaryStateUpdate(tardis, false);
             PropertiesHandler.setBool(tardis.getHandlers().getProperties(), PropertiesHandler.PREVIOUSLY_LOCKED, false); // so you get SUCKED up
 
             player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 5f, 0.1f); // like a sound to show its been called
