@@ -16,6 +16,7 @@ import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
+import mdteam.ait.tardis.sound.HumSound;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.util.TardisUtil;
@@ -55,10 +56,12 @@ public class ServerAITNetworkManager {
     public static final Identifier SEND_TARDIS_GROUND_SEARCHING_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_ground_searching_update");
     public static final Identifier SEND_TARDIS_POS_INCREMENT_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_pos_increment_update");
     public static final Identifier SEND_UNLOCKED_INTERIORS = new Identifier(AITMod.MOD_ID, "send_unlocked_interiors");
-    public static final Identifier SEND_FUEL_LEVEL = new Identifier(AITMod.MOD_ID, "send_fuel_level");
-    public static final Identifier SEND_FLIGHT_TIME = new Identifier(AITMod.MOD_ID, "send_flight_time");
-    public static final Identifier SEND_EXTERIOR_POSITION_UPDATE = new Identifier(AITMod.MOD_ID, "send_exterior_position_update");
-    public static final Identifier SEND_DESTINATION_POSITION_UPDATE = new Identifier(AITMod.MOD_ID, "send_destination_position_update");
+    public static final Identifier SEND_TARDIS_FUEL_LEVEL = new Identifier(AITMod.MOD_ID, "send_tardis_fuel_level");
+    public static final Identifier SEND_TARDIS_FLIGHT_TIME = new Identifier(AITMod.MOD_ID, "send_tardis_flight_time");
+    public static final Identifier SEND_TARDIS_EXTERIOR_POSITION_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_exterior_position_update");
+    public static final Identifier SEND_TARDIS_DESTINATION_POSITION_UPDATE = new Identifier(AITMod.MOD_ID, "send_tardis_destination_position_update");
+    public static final Identifier SEND_TARDIS_DESKTOP_SCHEMA = new Identifier(AITMod.MOD_ID, "send_tardis_desktop_schema");
+    public static final Identifier SEND_TARDIS_DESKTOP_HUM = new Identifier(AITMod.MOD_ID, "send_tardis_desktop_hum");
 
     public static void init() {
         ServerPlayConnectionEvents.DISCONNECT.register(((handler, server) -> {
@@ -345,7 +348,48 @@ public class ServerAITNetworkManager {
         __sendPacketToInteriorSubscribers(data, SEND_TARDIS_POS_INCREMENT_UPDATE);
     }
 
-    public static void sendTardisUnlockedInteriors(Tardis tardis, List<TardisDesktopSchema> interiors) {
+    public static void sendTardisUnlockedInteriors(List<TardisDesktopSchema> interiors) {
+        PacketByteBuf data = PacketByteBufs.create();
+        List<Identifier> interiorUUIDs = interiors.stream().map(TardisDesktopSchema::id).toList();
+        data.writeCollection(interiorUUIDs, PacketByteBuf::writeIdentifier);
+        __sendPacketToInteriorSubscribers(data, SEND_UNLOCKED_INTERIORS);
+    }
 
+    public static void sendTardisFuelLevel(Tardis tardis, double fuelLevel) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeDouble(fuelLevel);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_FUEL_LEVEL);
+    }
+
+    public static void sendTardisFlightTime(Tardis tardis, int flightTime) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeInt(flightTime);
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_FLIGHT_TIME);
+    }
+
+    public static void sendTardisExteriorPositionUpdate(Tardis tardis, AbsoluteBlockPos.Directed directed) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBlockPos(directed);
+        data.writeVector3f(directed.getDirection().getUnitVector());
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
+        __sendPacketToExteriorSubscribers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
+    }
+
+    public static void setSendTardisDestinationPositionUpdate(Tardis tardis, AbsoluteBlockPos.Directed directed) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeBlockPos(directed);
+        data.writeVector3f(directed.getDirection().getUnitVector());
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_DESTINATION_POSITION_UPDATE);
+    }
+
+    public static void sendTardisDesktopHum(Tardis tardis, HumSound sound) {
+        PacketByteBuf data = PacketByteBufs.create();
+        data.writeUuid(tardis.getUuid());
+        data.writeIdentifier(sound.id());
+        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_DESKTOP_HUM);
     }
 }
