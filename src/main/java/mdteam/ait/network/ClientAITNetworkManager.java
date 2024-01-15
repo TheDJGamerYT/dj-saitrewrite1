@@ -3,8 +3,10 @@ package mdteam.ait.network;
 import mdteam.ait.AITMod;
 import mdteam.ait.client.registry.exterior.ClientExteriorVariantSchema;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
+import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.registry.ExteriorRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
+import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
@@ -154,7 +156,14 @@ public class ClientAITNetworkManager {
             UUID tardisUUID = buf.readUuid();
             List<Identifier> interiorUUIDS = buf.readCollection(ArrayList::new, PacketByteBuf::readIdentifier);
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
-            clientTardis.
+            List<TardisDesktopSchema> unlocked_desktops = new ArrayList<>();
+            for (Identifier id : interiorUUIDS) {
+                TardisDesktopSchema tardisDesktopSchema = DesktopRegistry.get(id);
+                if (tardisDesktopSchema != null) {
+                    unlocked_desktops.add(tardisDesktopSchema);
+                }
+            }
+            clientTardis.setUnlockedDesktops(unlocked_desktops);
         }));
     }
 
