@@ -32,13 +32,13 @@ public abstract class ConsoleModel extends SinglePartEntityModel {
     // Thanks craig for help w animation code
     public void animateTile(ConsoleBlockEntity console) {
         this.getPart().traverse().forEach(ModelPart::resetTransform);
-        if (console.getTardis() == null)
+        if (console.getClientTardis() == null)
             return;
         // System.out.println(getAnimationForState(console.getTardis().getTravel().getState()));
 
-        TardisTravel.State state = console.getTardis().getTravel().getState();
+        TardisTravel.State state = console.getClientTardis().getTravel().getState();
 
-        if (!console.getTardis().hasPower()) return;
+        if (!console.getClientTardis().isPowered()) return;
 
         this.updateAnimation(console.ANIM_FLIGHT, getAnimationForState(state), console.animationTimer);
         /*if(console.getControlEntityFromName("direction") != null && console.getControlEntityFromName("direction").getControl() != null) {
@@ -49,7 +49,7 @@ public abstract class ConsoleModel extends SinglePartEntityModel {
     }
 
     public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (console.getTardis() == null) return;
+        if (console.getClientTardis() == null) return;
         root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
     }
 

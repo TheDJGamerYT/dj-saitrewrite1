@@ -27,7 +27,6 @@ import java.util.UUID;
 public class ClientTardis {
     private final UUID tardis_ID;
     private final ClientTardisTravel travel;
-
     private final ClientTardisDesktop desktop;
     private final ClientTardisLoadedCache load_cache;
     private final ClientTardisExterior exterior;
@@ -43,6 +42,11 @@ public class ClientTardis {
     private boolean is_crashing = false;
     private boolean handbrake_active = false;
     private boolean ground_searching = false;
+    private boolean is_refueling = false;
+    private boolean hail_mary = false;
+    private boolean anti_gravs = false;
+    private boolean auto_land = false;
+    private boolean has_cartridge = false;
     private double fuel = 0;
 
     public ClientTardis(UUID tardisID, ExteriorVariantSchema exteriorVariantSchema, ExteriorSchema exteriorSchema) {
@@ -115,6 +119,46 @@ public class ClientTardis {
 
     public double getFuel() {
         return fuel;
+    }
+
+    public void setIsRefueling(boolean isRefueling) {
+        this.is_refueling = isRefueling;
+    }
+
+    public boolean isRefueling() {
+        return is_refueling;
+    }
+
+    public void setHailMaryActive(boolean hailMary) {
+        this.hail_mary = hailMary;
+    }
+
+    public boolean hailMaryActive() {
+        return hail_mary;
+    }
+
+    public void setAntiGravsActive(boolean antiGravs) {
+        this.anti_gravs = antiGravs;
+    }
+
+    public boolean antiGravsActive() {
+        return anti_gravs;
+    }
+
+    public void setAutoLandActive(boolean autoLand) {
+        this.auto_land = autoLand;
+    }
+
+    public boolean autoLandActive() {
+        return auto_land;
+    }
+
+    public void setHasCartridge(boolean hasCartridge) {
+        this.has_cartridge = hasCartridge;
+    }
+
+    public boolean hasCartridge() {
+        return has_cartridge;
     }
 
     public static void addUnlockedDesktop(TardisDesktopSchema schema) {
@@ -204,6 +248,8 @@ public class ClientTardis {
         private TardisTravel.State state = TardisTravel.State.LANDED;
         private AbsoluteBlockPos.Directed position;
         private AbsoluteBlockPos.Directed destination;
+        private AbsoluteBlockPos.Directed last_position;
+        private int increment;
 
         public ClientTardisTravel(ClientTardis tardis) {
             this.tardis = tardis;
@@ -243,6 +289,22 @@ public class ClientTardis {
 
         public AbsoluteBlockPos.Directed getDestination() {
             return destination;
+        }
+
+        public void setLastPosition(AbsoluteBlockPos.Directed last_position) {
+            this.last_position = last_position;
+        }
+
+        public AbsoluteBlockPos.Directed getLastPosition() {
+            return last_position;
+        }
+
+        public void setIncrement(int increment) {
+            this.increment = increment;
+        }
+
+        public int getIncrement() {
+            return increment;
         }
     }
 
@@ -393,7 +455,6 @@ public class ClientTardis {
         private boolean cloaked = false;
 
         public static String TEXTURE_PATH = "textures/blockentities/exteriors/";
-
         private boolean overgrown = false;
 
         private boolean locked = false;
