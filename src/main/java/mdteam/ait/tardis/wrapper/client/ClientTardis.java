@@ -30,7 +30,7 @@ public class ClientTardis {
     private final ClientTardisDesktop desktop;
     private final ClientTardisLoadedCache load_cache;
     private final ClientTardisExterior exterior;
-    private static List<TardisDesktopSchema> UNLOCKED_DESKTOPS = new ArrayList<>(); // Unlocked Interiors
+    private List<TardisDesktopSchema> UNLOCKED_DESKTOPS = new ArrayList<>(); // Unlocked Interiors
 
     private Corners corners;
     private boolean subscribed_to_interior = false;
@@ -161,20 +161,20 @@ public class ClientTardis {
         return has_cartridge;
     }
 
-    public static void addUnlockedDesktop(TardisDesktopSchema schema) {
+    public void addUnlockedDesktop(TardisDesktopSchema schema) {
         UNLOCKED_DESKTOPS.add(schema);
     }
 
-    public static void removeUnlockedDesktops(TardisDesktopSchema schema) {
+    public void removeUnlockedDesktops(TardisDesktopSchema schema) {
         UNLOCKED_DESKTOPS.remove(schema);
     }
 
-    public static List<TardisDesktopSchema> setUnlockedDesktops(List<TardisDesktopSchema> desktops) {
+    public List<TardisDesktopSchema> setUnlockedDesktops(List<TardisDesktopSchema> desktops) {
         UNLOCKED_DESKTOPS = desktops;
         return UNLOCKED_DESKTOPS;
     }
 
-    public static List<TardisDesktopSchema> getUnlockedDesktops() {
+    public List<TardisDesktopSchema> getUnlockedDesktops() {
         return UNLOCKED_DESKTOPS;
     }
 

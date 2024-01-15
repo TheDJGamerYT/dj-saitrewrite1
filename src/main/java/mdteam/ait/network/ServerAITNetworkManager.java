@@ -360,7 +360,7 @@ public class ServerAITNetworkManager {
         __sendPacketToInteriorSubscribers(data, SEND_TARDIS_POS_INCREMENT_UPDATE);
     }
 
-    public static void sendTardisUnlockedInteriors(List<TardisDesktopSchema> interiors) {
+    public static void sendTardisUnlockedInteriors(Tardis tardis, List<TardisDesktopSchema> interiors) {
         PacketByteBuf data = PacketByteBufs.create();
         List<Identifier> interiorUUIDs = interiors.stream().map(TardisDesktopSchema::id).toList();
         data.writeCollection(interiorUUIDs, PacketByteBuf::writeIdentifier);

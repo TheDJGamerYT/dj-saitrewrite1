@@ -21,10 +21,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ClientAITNetworkManager {
     public static final Identifier SEND_REQUEST_ADD_TO_INTERIOR_SUBSCRIBERS = new Identifier(AITMod.MOD_ID, "send_request_add_to_interior_subscribers");
@@ -146,6 +143,18 @@ public class ClientAITNetworkManager {
             boolean locked = buf.readBoolean();
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
             clientTardis.getExterior().setDoorLocked(locked);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_POS_INCREMENT_UPDATE, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            int increment = buf.readInt();
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.getTravel().setIncrement(increment);
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_UNLOCKED_INTERIORS, ((client, handler, buf, responseSender) -> {
+            UUID tardisUUID = buf.readUuid();
+            List<Identifier> interiorUUIDS = buf.readCollection(ArrayList::new, PacketByteBuf::readIdentifier);
+            ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
+            clientTardis.
         }));
     }
 
