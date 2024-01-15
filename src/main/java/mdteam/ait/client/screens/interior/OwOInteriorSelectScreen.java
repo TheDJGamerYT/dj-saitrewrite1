@@ -11,6 +11,7 @@ import mdteam.ait.network.ClientAITNetworkManager;
 import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktopSchema;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -36,19 +37,13 @@ public class OwOInteriorSelectScreen extends BaseOwoScreen<FlowLayout> {
     int bgWidth = 256;
     int left, top;
 
-    public OwOInteriorSelectScreen(UUID tardis, Screen parent) {
+    public OwOInteriorSelectScreen(UUID tardisID, Screen parent) {
         this.parent = parent;
-        this.tardisid = tardis;
-        updateTardis();
+        this.tardisid = tardisID;
     }
 
-    protected Tardis tardis() {
-        AITMod.LOGGER.error("Client side tardis should not be accessed!");
-        return null;
-    }
-
-    protected Tardis updateTardis() {
-        return tardis();
+    protected ClientTardis tardis() {
+        return ClientTardisManager.getInstance().LOOKUP.get(tardisid).get();
     }
 
     @Override
@@ -62,7 +57,7 @@ public class OwOInteriorSelectScreen extends BaseOwoScreen<FlowLayout> {
 
     @Override
     protected void init() {
-        this.selectedDesktop = tardis().getDesktop().getSchema();
+        this.selectedDesktop = tardis().getDesktop().getDesktopSchema();
         this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
         this.left = (this.width - this.bgWidth) / 2;
 

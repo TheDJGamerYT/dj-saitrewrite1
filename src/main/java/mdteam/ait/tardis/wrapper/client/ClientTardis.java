@@ -8,9 +8,11 @@ import mdteam.ait.core.blockentities.DoorBlockEntity;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.network.ClientAITNetworkManager;
 import mdteam.ait.registry.ExteriorVariantRegistry;
+import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.exterior.ExteriorSchema;
 import mdteam.ait.tardis.handler.DoorHandler;
+import mdteam.ait.tardis.sound.HumSound;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.util.Corners;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
@@ -29,6 +31,7 @@ public class ClientTardis {
     private final ClientTardisDesktop desktop;
     private final ClientTardisLoadedCache load_cache;
     private final ClientTardisExterior exterior;
+    private static List<TardisDesktopSchema> UNLOCKED_DESKTOPS = new ArrayList<>(); // Unlocked Interiors
 
     private Corners corners;
     private boolean subscribed_to_interior = false;
@@ -112,6 +115,27 @@ public class ClientTardis {
 
     public double getFuel() {
         return fuel;
+    }
+
+    public static void addUnlockedDesktop(TardisDesktopSchema schema) {
+        UNLOCKED_DESKTOPS.add(schema);
+    }
+
+    public static void removeUnlockedDesktops() {
+        UNLOCKED_DESKTOPS.clear();
+    }
+
+    public static List<TardisDesktopSchema> setUnlockedDesktops(List<TardisDesktopSchema> desktops) {
+        UNLOCKED_DESKTOPS = desktops;
+        return UNLOCKED_DESKTOPS;
+    }
+
+    public static List<TardisDesktopSchema> getUnlockedDesktops() {
+        return UNLOCKED_DESKTOPS;
+    }
+
+    public boolean isDesktopUnlocked(TardisDesktopSchema unlockedInterior) {
+        return UNLOCKED_DESKTOPS.contains(unlockedInterior);
     }
 
     public void tick() {
@@ -223,13 +247,12 @@ public class ClientTardis {
     }
 
     public class ClientTardisDesktop {
-
         private final ClientTardis tardis;
-
         private Corners corners = null;
         private BlockPos consolePos = null;
-
         private DoorHandler.DoorStateEnum tempInteriorDoorState = null;
+        private TardisDesktopSchema desktopSchema;
+        private HumSound hum;
 
         public ClientTardisDesktop(ClientTardis tardis) {
             this.tardis = tardis;
@@ -269,6 +292,22 @@ public class ClientTardis {
 
         public void syncInteriorAnimationState() {
             this.tempInteriorDoorState = this.getTardis().getExterior().doorState;
+        }
+
+        public void setDesktopSchema(TardisDesktopSchema desktopSchema) {
+            this.desktopSchema = desktopSchema;
+        }
+
+        public TardisDesktopSchema getDesktopSchema() {
+            return desktopSchema;
+        }
+
+        public void setHumSound(HumSound hum) {
+            this.hum = hum;
+        }
+
+        public HumSound getHumSound() {
+            return hum;
         }
     }
 

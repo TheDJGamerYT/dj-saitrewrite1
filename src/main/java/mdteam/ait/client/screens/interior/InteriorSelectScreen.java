@@ -34,7 +34,6 @@ public class InteriorSelectScreen extends TardisScreen {
     public InteriorSelectScreen(UUID tardis, Screen parent) {
         super(Text.translatable("screen.ait.interor_select.title"), tardis);
         this.parent = parent;
-        updateTardis();
     }
 
     @Override
@@ -44,7 +43,7 @@ public class InteriorSelectScreen extends TardisScreen {
 
     @Override
     protected void init() {
-        this.selectedDesktop = tardis().getDesktop().getSchema();
+        this.selectedDesktop = tardis().getDesktop().getDesktopSchema();
         this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();
@@ -111,7 +110,7 @@ public class InteriorSelectScreen extends TardisScreen {
     }
 
     private void applyDesktop() {
-        ClientAITNetworkManager.send_request_interior_change_from_monitor(tardis().getUuid(), selectedDesktop.id());
+        ClientAITNetworkManager.send_request_interior_change_from_monitor(tardis().getTardisID(), selectedDesktop.id());
 
         MinecraftClient.getInstance().setScreen(null);
     }

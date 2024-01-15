@@ -46,7 +46,6 @@ public class InteriorSettingsScreen extends TardisScreen {
     public InteriorSettingsScreen(UUID tardis, Screen parent) {
         super(Text.translatable("screen.ait.interiorsettings.title"), tardis);
         this.parent = parent;
-        updateTardis();
     }
 
     @Override
@@ -56,7 +55,7 @@ public class InteriorSettingsScreen extends TardisScreen {
 
     @Override
     protected void init() {
-        this.selectedDesktop = tardis().getDesktop().getSchema();
+        this.selectedDesktop = tardis().getDesktop().getDesktopSchema();
         this.hum = getHumSound();
         this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
         this.left = (this.width - this.bgWidth) / 2;
@@ -67,7 +66,7 @@ public class InteriorSettingsScreen extends TardisScreen {
 
     private void sendCachePacket() {
         PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeUuid(this.tardis().getUuid());
+        buf.writeUuid(this.tardis().getTardisID());
         ClientPlayNetworking.send(TardisDesktop.CACHE_CONSOLE, buf);
         this.close();
     }
@@ -142,7 +141,7 @@ public class InteriorSettingsScreen extends TardisScreen {
         MinecraftClient.getInstance().setScreen(this.parent);
     }
     public void toSelectInteriorScreen() {
-        MinecraftClient.getInstance().setScreen(new OwOInteriorSelectScreen(tardis().getUuid(), this));
+        MinecraftClient.getInstance().setScreen(new OwOInteriorSelectScreen(tardis().getTardisID(), this));
     }
 
     @Override
@@ -172,7 +171,7 @@ public class InteriorSettingsScreen extends TardisScreen {
     }
 
     private HumSound getHumSound() {
-        return tardis().getHandlers().getHum().getHum();
+        return tardis().getDesktop().getHumSound();
     }
 
     private void applyHum() {
