@@ -54,7 +54,7 @@ public class ServerTardisManager extends TardisManager {
                     tardis.getTravel().forceLand();
                 }
 
-                tardis.getDoor().closeDoors();
+                //tardis.getDoor().closeDoors();
             }
 
             this.reset();

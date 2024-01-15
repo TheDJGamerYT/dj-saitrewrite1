@@ -115,7 +115,6 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
         }
         if (this.getAnimation() != null)
             this.getAnimation().setAlpha(nbt.getFloat("alpha"));
-        if(this.getTardis() != null && !isClient()) this.getTardis().markDirty();
     }
 
     public void onEntityCollision(Entity entity) {
