@@ -4,6 +4,7 @@ import mdteam.ait.AITMod;
 import mdteam.ait.api.tardis.TardisEvents;
 import mdteam.ait.core.interfaces.RiftChunk;
 import mdteam.ait.core.managers.DeltaTimeManager;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.Exclude;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
@@ -38,6 +39,7 @@ public class FuelHandler extends TardisLink {
         double prev = getFuel();
 
         PropertiesHandler.set(getTardis().getHandlers().getProperties(), FUEL_COUNT, fuel);
+        ServerAITNetworkManager.sendTardisFuelLevel(getTardis(), fuel);
         getTardis().markDirty();
 
         // fire the event if ran out of fuel

@@ -1,6 +1,7 @@
 package mdteam.ait.tardis.handler;
 
 import mdteam.ait.api.tardis.TardisEvents;
+import mdteam.ait.network.ServerAITNetworkManager;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.handler.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.FlightUtil;
@@ -24,13 +25,14 @@ public class FlightHandler extends TardisLink {
 
             flightTicks = 0;
             targetTicks = 0;
+            ServerAITNetworkManager.sendTardisFlightTime(getTardis(), getDurationAsPercentage());
         }));
         TardisEvents.DEMAT.register((tardis -> {
             if (!tardis.equals(this.getTardis())) return false;
 
             flightTicks = 0;
             targetTicks = FlightUtil.getFlightDuration(tardis.getTravel().getPosition(), tardis.getTravel().getDestination());
-
+            ServerAITNetworkManager.sendTardisFlightTime(getTardis(), getDurationAsPercentage());
             return false;
         }));
     }
@@ -49,6 +51,7 @@ public class FlightHandler extends TardisLink {
     private void onFlightFinished() {
         this.flightTicks = 0;
         this.targetTicks = 0;
+        ServerAITNetworkManager.sendTardisFlightTime(getTardis(), getDurationAsPercentage());
         FlightUtil.playSoundAtConsole(getTardis(), SoundEvents.BLOCK_BEACON_POWER_SELECT); // temp sound
 
         if (shouldAutoLand()) {
@@ -61,6 +64,7 @@ public class FlightHandler extends TardisLink {
 
     public void increaseFlightTime(int ticks) {
         targetTicks = targetTicks + ticks;
+        ServerAITNetworkManager.sendTardisFlightTime(getTardis(), getDurationAsPercentage());
     }
 
     public int getDurationAsPercentage() {
@@ -76,6 +80,7 @@ public class FlightHandler extends TardisLink {
     public void recalculate() {
         this.targetTicks = FlightUtil.getFlightDuration(getTardis().position(), getTardis().destination());
         this.flightTicks = this.isInFlight() ? MathHelper.clamp(this.flightTicks, 0, this.targetTicks) : 0;
+        ServerAITNetworkManager.sendTardisFlightTime(getTardis(), getDurationAsPercentage());
     }
 
     @Override

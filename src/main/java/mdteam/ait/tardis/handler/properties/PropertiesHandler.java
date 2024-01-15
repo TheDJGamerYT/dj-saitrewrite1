@@ -7,8 +7,10 @@ import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.handler.FuelHandler;
 import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 public class PropertiesHandler { // todo move more things over to properties
     // this is getting bloated
@@ -147,6 +149,14 @@ public class PropertiesHandler { // todo move more things over to properties
     }
     public static boolean isSchemaUnlocked(PropertiesHolder holder, TardisDesktopSchema schema) {
         return getBool(holder, schema.id().getPath() + "_unlocked");
+    }
+    public static List<TardisDesktopSchema> getUnlockedSchemas(PropertiesHolder holder) {
+        List<TardisDesktopSchema> unlocked_schemas = new ArrayList<>();
+        for (Iterator<TardisDesktopSchema> it = DesktopRegistry.iterator(); it.hasNext(); ) {
+            TardisDesktopSchema schema = it.next();
+            if (isSchemaUnlocked(holder, schema)) unlocked_schemas.add(schema);
+        }
+        return unlocked_schemas;
     }
 
     public static void setAutoPilot(PropertiesHolder handler, boolean val) {
