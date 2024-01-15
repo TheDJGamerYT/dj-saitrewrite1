@@ -248,6 +248,7 @@ public class TardisTravel extends TardisLink {
 
         // Increment the position manager by 1000
         this.getPosManager().increment = 1000;
+        ServerAITNetworkManager.sendTardisPosIncrementUpdate(this.getTardis(), 1000);
         // Randomize the Tardis destination
         // RandomiserControl.randomiseDestination(this.getTardis(), 10);
         // Play explosion sound and create explosion at console position if available
@@ -760,7 +761,7 @@ public class TardisTravel extends TardisLink {
 
     public PosManager getPosManager() {
         if (this.posManager == null)
-            this.posManager = new PosManager();
+            this.posManager = new PosManager(this.getTardis());
 
         return this.posManager;
     }

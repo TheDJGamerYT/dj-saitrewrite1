@@ -213,7 +213,7 @@ public class ServerAITNetworkManager {
         Map<UUID, Identifier> uuidToExteriorSchema = new HashMap<>();
         for (UUID uuid : tardisUUIDs) {
             Tardis tardis = ServerTardisManager.getInstance().getTardis(uuid);
-            if (tardis == null) continue;
+            sendTardisCorners(tardis, tardis.getDesktop().getCorners());
             uuidToExteriorVariantSchema.put(uuid, tardis.getExterior().getVariant().id());
             uuidToExteriorSchema.put(uuid, tardis.getExterior().getType().id());
         }
