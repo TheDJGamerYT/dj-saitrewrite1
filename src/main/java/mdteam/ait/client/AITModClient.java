@@ -118,6 +118,10 @@ public class AITModClient implements ClientModInitializer {
                 // @TODO: Find an alternative way of clearing exterior animation state
             }
             else if (block instanceof DoorBlockEntity door) {
+                if(door.getTardisId() == null) {
+                    AITMod.LOGGER.error("DoorBlockEntity with null tardisId at " + door.getPos());
+                    return;
+                }
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(door.getTardisId()).get();
                 if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isDoorBlockLoaded(door)) return;
                 clientTardis.getLoadCache().loadDoorBlock(door);
@@ -126,6 +130,10 @@ public class AITModClient implements ClientModInitializer {
                 // @TODO: Find an alternative way of clearing interior animation state
             }
             else if (block instanceof ConsoleBlockEntity console) {
+                if(console.getTardisId() == null) {
+                    AITMod.LOGGER.error("ConsoleBlockEntity with null tardisId at " + console.getPos());
+                    return;
+                }
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(console.getTardisId()).get();
                 if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isConsoleBlockLoaded(console)) return;
                 clientTardis.getLoadCache().loadConsoleBlock(console);
