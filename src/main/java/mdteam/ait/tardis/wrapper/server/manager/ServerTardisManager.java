@@ -175,8 +175,11 @@ public class ServerTardisManager extends TardisManager {
         UUID uuid = UUID.randomUUID();
 
         ServerTardis tardis = new ServerTardis(uuid, pos, schema, exteriorType, variantType, locked);
-        this.lookup.put(uuid, tardis);
         ServerAITNetworkManager.sendSyncNewTardis(tardis);
+        ServerAITNetworkManager.sendTardisExteriorPositionUpdate(tardis, pos);
+        ServerAITNetworkManager.sendExteriorSchemaUpdate(tardis, variantType, exteriorType);
+
+        this.lookup.put(uuid, tardis);
         ServerAITNetworkManager.sendTardisCorners(tardis, tardis.getDesktop().getCorners());
         tardis.getTravel().placeExterior();
         tardis.getTravel().runAnimations();

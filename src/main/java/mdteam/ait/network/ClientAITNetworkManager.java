@@ -193,8 +193,10 @@ public class ClientAITNetworkManager {
             BlockPos pos = buf.readBlockPos();
             Direction direction = Direction.byId(buf.readInt());
             String dimension_name = buf.readString();
+            if (ClientTardisManager.getInstance().LOOKUP.get(tardisUUID) == null) return;
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
-            AbsoluteBlockPos.Directed absoluteBlockPos = new AbsoluteBlockPos.Directed((AbsoluteBlockPos) pos, direction);
+            if (clientTardis == null) return;
+            AbsoluteBlockPos.Directed absoluteBlockPos = new AbsoluteBlockPos.Directed(new AbsoluteBlockPos(pos, (SerialDimension) null), direction);
             clientTardis.getExterior().setExteriorBlockPos(pos);
             clientTardis.getTravel().setPosition(absoluteBlockPos);
             clientTardis.getExterior().setPositionDimensionValue(dimension_name);

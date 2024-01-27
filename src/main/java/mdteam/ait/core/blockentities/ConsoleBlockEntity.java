@@ -145,10 +145,16 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
     }
 
     public ClientTardis getClientTardis() {
-        if (this.tardisId == null) {
-            AITMod.LOGGER.warn("Console at " + this.getPos() + " is finding TARDIS!");
+        if (!isClient()) return null;
+        ClientTardis tardis = ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
+        if (tardis == null) {
+            tardis = ClientTardisManager.getInstance().getClientTardisFromBlockPosition(this.getPos());
+            if (tardis == null) {
+                throw new RuntimeException("Tardis not found!");
+            }
+            return tardis;
         }
-        return ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
+        return tardis;
     }
 
     private void findTardis() {

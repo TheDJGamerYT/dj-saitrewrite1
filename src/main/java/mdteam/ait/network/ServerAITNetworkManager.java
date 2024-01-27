@@ -387,8 +387,7 @@ public class ServerAITNetworkManager {
         data.writeBlockPos(directed);
         data.writeInt(directed.getDirection().getId());
         data.writeString(directed.getDimension().getValue());
-        __sendPacketToInteriorSubscribers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
-        __sendPacketToExteriorSubscribers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
+        __sendPacketToAllPlayers(data, SEND_TARDIS_EXTERIOR_POSITION_UPDATE);
     }
 
     public static void sendTardisDestinationPositionUpdate(Tardis tardis, AbsoluteBlockPos.Directed directed) {

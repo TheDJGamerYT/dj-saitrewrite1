@@ -173,11 +173,12 @@ public class DoorBlockEntity extends BlockEntity {
     }
 
     public ClientTardis getClientTardis() {
-        if (this.tardisId == null) {
-            AITMod.LOGGER.warn("Door at " + this.getPos() + " is finding TARDIS!");
-            return null;
+        if (!isClient()) return null;
+        ClientTardis tardis = ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
+        if (tardis == null) {
+            return ClientTardisManager.getInstance().getClientTardisFromBlockPosition(this.getPos());
         }
-        return ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
+        return tardis;
     }
 
     private void findTardis() {

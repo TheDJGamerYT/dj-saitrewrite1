@@ -146,7 +146,11 @@ public class ExteriorBlockEntity extends BlockEntity implements BlockEntityTicke
 
     public ClientTardis getClientTardis() {
         if (!isClient()) return null;
-        return ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
+        ClientTardis tardis = ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
+        if (tardis == null) {
+            return ClientTardisManager.getInstance().getClientTardisFromBlockPosition(this.getPos());
+        }
+        return tardis;
     }
 
     public void setTardisId(UUID tardisid) {

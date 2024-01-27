@@ -8,7 +8,8 @@ import mdteam.ait.client.registry.exterior.ClientExteriorVariantSchema;
 import mdteam.ait.client.renderers.AITRenderLayers;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.blocks.ExteriorBlock;
-import mdteam.ait.tardis.handler.properties.PropertiesHandler;
+import mdteam.ait.tardis.Tardis;
+import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -22,8 +23,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
-import mdteam.ait.tardis.TardisExterior;
-import org.joml.Quaternionf;
 
 public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEntityRenderer<T> {
     private ExteriorModel model;
@@ -55,16 +54,13 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if (entity.getClientTardis() == null) {
+        if (TardisUtil.isClient() ? entity.getClientTardis() == null : entity.getTardis() == null) {
+            matrices.pop();
             return;
         }
 
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema());
-        ClientTardis.ClientTardisExterior tardisExterior = entity.getClientTardis().getExterior();
-
-        if (tardisExterior == null) return;
-
+        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(TardisUtil.isClient() ? entity.getClientTardis().getExterior().getExteriorVariantSchema() : entity.getTardis().getExterior().getVariant());
         Class<? extends ExteriorModel> modelClass = exteriorVariant.model().getClass();
 
         if (model != null && !(model.getClass().isInstance(modelClass))) // fixme this is bad it seems to constantly create a new one anyway but i didnt realise.
@@ -81,22 +77,30 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         // Doom Custom Stuff, might move to a different class or a subclass
 
-        if(MinecraftClient.getInstance().player == null) return;
+//        if(MinecraftClient.getInstance().player == null) {
+//            matrices.pop();
+//            return;
+//        }
 
         Identifier texture = exteriorVariant.texture();
         Identifier emission = exteriorVariant.emission();
-
-        float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() +
-                (entity.getClientTardis().getTravel().getPosition().getDirection() == Direction.NORTH ||
-                        entity.getClientTardis().getTravel().getPosition().getDirection() == Direction.SOUTH ? f + 180f : f));
-
-        if(exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM)) {
-            texture = getTextureForRotation(wrappedDegrees, entity.getClientTardis());
-            emission = getEmissionForRotation(getTextureForRotation(wrappedDegrees, entity.getClientTardis()), entity.getClientTardis());
-        }
-
-        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(!exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM) ? f :
-                MinecraftClient.getInstance().player.getHeadYaw() + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)));
+//        Direction direction = TardisUtil.isClient() ? entity.getClientTardis().getTravel().getPosition().getDirection() : entity.getTardis().getTravel().getPosition().getDirection();
+//        float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() +
+//                (direction == Direction.NORTH ||
+//                        direction == Direction.SOUTH ? f + 180f : f));
+//
+//        if(exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM)) {
+//            if (TardisUtil.isClient()) {
+//                texture = getTextureForRotationClient(wrappedDegrees, entity.getClientTardis());
+//                emission = getEmissionForRotationClient(texture, entity.getClientTardis());
+//            } else {
+//                texture = getTextureForRotationServer(wrappedDegrees, entity.getTardis());
+//                emission = getEmissionForRotationServer(texture, entity.getTardis());
+//            }
+//        }
+//
+//        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(!exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM) ? f :
+//                MinecraftClient.getInstance().player.getHeadYaw() + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)));
 
         //System.out.println(wrappedDegrees);
 
@@ -104,7 +108,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        if (entity.getClientTardis().isInSiegeMode()) {
+        if (TardisUtil.isClient() ? entity.getClientTardis().isInSiegeMode() : entity.getTardis().isSiegeMode()) {
             if (siege == null) siege = new SiegeModeModel(SiegeModeModel.getTexturedModelData().createModel());
             siege.renderWithAnimations(entity, this.siege.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(SiegeModeModel.TEXTURE)), maxLight, overlay, 1, 1, 1, 1);
             matrices.pop();
@@ -114,12 +118,16 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         if (model != null) {
             model.animateTile(entity);
             model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1, 1, 1);
-            if (entity.getClientTardis() == null) return; // WHY IS THIS NULL HERE, BUT NOT AT THE BEGINNING OF THIS FUCKING FUNCTION THREAD
-            if (entity.getClientTardis().getExterior().isOvergrown()) {
-                model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(entity.getClientTardis().getExterior().getOvergrownTexture())), light, overlay, 1, 1, 1, 1);
+            if (TardisUtil.isClient() ? entity.getClientTardis() == null : entity.getTardis() == null) {
+                matrices.pop();
+                return; // WHY IS THIS NULL HERE, BUT NOT AT THE BEGINNING OF THIS FUCKING FUNCTION THREAD
             }
-            if (emission != null && entity.getClientTardis().isPowered()) {
-                boolean alarms = entity.getClientTardis().isAlarmsEnabled();
+            if (TardisUtil.isClient() ? entity.getClientTardis().getExterior().isOvergrown() : entity.getTardis().getHandlers().getOvergrownHandler().isOvergrown()) {
+                Identifier overgrown_texture = TardisUtil.isClient() ? entity.getClientTardis().getExterior().getOvergrownTexture() : entity.getTardis().getHandlers().getOvergrownHandler().getOvergrownTexture();
+                model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(overgrown_texture)), light, overlay, 1, 1, 1, 1);
+            }
+            if (emission != null && (TardisUtil.isClient() ? entity.getClientTardis().isPowered() : entity.getTardis().hasPower())) {
+                boolean alarms = TardisUtil.isClient() ? entity.getClientTardis().isAlarmsEnabled() : entity.getTardis().getHandlers().getAlarms().isEnabled();
 
                 model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisRenderEmissionCull(emission, false)), maxLight, overlay, 1, alarms ? 0.3f : 1 , alarms ? 0.3f : 1, 1);
             }
@@ -132,7 +140,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         return true;
     }
 
-    public Identifier getTextureForRotation(float rotation, ClientTardis tardis) {
+    public Identifier getTextureForRotationClient(float rotation, ClientTardis tardis) {
         boolean bl = tardis.getExterior().isDoorOpen();
         if (rotation > 70 && rotation < 110) {
             return bl ? DOOM_RIGHT_SIDE_OPEN : DOOM_RIGHT_SIDE;
@@ -149,8 +157,41 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         }
     }
 
-    public Identifier getEmissionForRotation(Identifier identifier, ClientTardis tardis) {
+    public Identifier getTextureForRotationServer(float rotation, Tardis tardis) {
+        boolean bl = tardis.getDoor().isOpen();
+        if (rotation > 70 && rotation < 110) {
+            return bl ? DOOM_RIGHT_SIDE_OPEN : DOOM_RIGHT_SIDE;
+        } else if (rotation < -90 && rotation > -110) {
+            return bl ? DOOM_LEFT_SIDE_OPEN : DOOM_LEFT_SIDE;
+        }else if (rotation > 25 && rotation < 70) {
+            return bl ? DOOM_RIGHT_DIAGONAL_OPEN : DOOM_RIGHT_DIAGONAL;
+        } else if (rotation < -25 && rotation > -90 ) {
+            return bl ? DOOM_LEFT_DIAGONAL_OPEN : DOOM_LEFT_DIAGONAL;
+        } else if (rotation > 110 && rotation < 155 || rotation < -110 && rotation > -155) {
+            return DOOM_BLANK_DIAGONAL;
+        } else {
+            return bl ? DOOM_FRONT_BACK_OPEN : DOOM_FRONT_BACK;
+        }
+    }
+
+    public Identifier getEmissionForRotationClient(Identifier identifier, ClientTardis tardis) {
         boolean bl = tardis.getExterior().isDoorOpen();
+        if(identifier == DOOM_RIGHT_DIAGONAL || identifier == DOOM_RIGHT_DIAGONAL_OPEN) {
+            return bl ? DOOM_RIGHT_DIAGONAL_OPEN_EMISSION : DOOM_DIAGONAL_EMISSION;
+        } else if (identifier == DOOM_LEFT_DIAGONAL || identifier == DOOM_LEFT_DIAGONAL_OPEN) {
+            return bl ? DOOM_LEFT_DIAGONAL_OPEN_EMISSION : DOOM_DIAGONAL_EMISSION;
+        } else if (identifier == DOOM_BLANK_DIAGONAL) {
+            return DOOM_DIAGONAL_EMISSION;
+        } else if (identifier == DOOM_LEFT_SIDE || identifier == DOOM_LEFT_SIDE_OPEN) {
+            return DOOM_LEFT_SIDE_EMISSION;
+        } else if (identifier == DOOM_RIGHT_SIDE || identifier == DOOM_RIGHT_SIDE_OPEN) {
+            return DOOM_RIGHT_SIDE_EMISSION;
+        } else {
+            return bl ? DOOM_FRONT_BACK_OPEN_EMISSION : DOOM_TEXTURE_EMISSION;
+        }
+    }
+    public Identifier getEmissionForRotationServer(Identifier identifier, Tardis tardis) {
+        boolean bl = tardis.getDoor().isOpen();
         if(identifier == DOOM_RIGHT_DIAGONAL || identifier == DOOM_RIGHT_DIAGONAL_OPEN) {
             return bl ? DOOM_RIGHT_DIAGONAL_OPEN_EMISSION : DOOM_DIAGONAL_EMISSION;
         } else if (identifier == DOOM_LEFT_DIAGONAL || identifier == DOOM_LEFT_DIAGONAL_OPEN) {

@@ -110,7 +110,7 @@ public class AITModClient implements ClientModInitializer {
                     AITMod.LOGGER.error("ExteriorBlockEntity with null tardisId at " + exterior.getPos());
                     return;
                 }
-                ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(exterior.getTardisId()).get();
+                ClientTardis clientTardis = exterior.getClientTardis();
                 if (clientTardis == null || clientTardis.isSubscribedToExterior() || clientTardis.getLoadCache().isExteriorBlockLoaded(exterior)) return;
                 clientTardis.getLoadCache().loadExteriorBlock(exterior);
                 clientTardis.subscribeToExterior();
@@ -118,7 +118,7 @@ public class AITModClient implements ClientModInitializer {
                 // @TODO: Find an alternative way of clearing exterior animation state
             }
             else if (block instanceof DoorBlockEntity door) {
-                ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(door.getTardisId()).get();
+                ClientTardis clientTardis = door.getClientTardis();
                 if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isDoorBlockLoaded(door)) return;
                 clientTardis.getLoadCache().loadDoorBlock(door);
                 clientTardis.subscribeToInterior();
@@ -126,7 +126,7 @@ public class AITModClient implements ClientModInitializer {
                 // @TODO: Find an alternative way of clearing interior animation state
             }
             else if (block instanceof ConsoleBlockEntity console) {
-                ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(console.getTardisId()).get();
+                ClientTardis clientTardis = console.getClientTardis();
                 if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isConsoleBlockLoaded(console)) return;
                 clientTardis.getLoadCache().loadConsoleBlock(console);
                 clientTardis.subscribeToInterior();
