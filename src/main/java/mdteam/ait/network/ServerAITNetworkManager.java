@@ -166,8 +166,9 @@ public class ServerAITNetworkManager {
     }
 
     private static void __sendPacketToInteriorSubscribers(PacketByteBuf data, Identifier packetID) {
+        if(ServerTardisManager.getInstance().interior_subscribers.isEmpty()) return;
         UUID id = data.readUuid();
-        if (ServerTardisManager.getInstance().interior_subscribers.isEmpty() || !ServerTardisManager.getInstance().interior_subscribers.containsKey(id)) return;
+        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(id)) return;
         for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(id)) {
             ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
             if (player == null) continue;

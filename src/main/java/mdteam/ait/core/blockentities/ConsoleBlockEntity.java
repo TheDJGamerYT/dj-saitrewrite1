@@ -102,7 +102,6 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
 
         spawnControls();
         markNeedsSyncing();
-        markDirty();
     }
 
     @Override
@@ -120,7 +119,6 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
             nbt.putString("variant", variant.toString());
         markNeedsControl();
         markNeedsSyncing();
-        markDirty();
         return nbt;
     }
 
@@ -146,7 +144,7 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
 
     public ClientTardis getClientTardis() {
         if (!isClient()) return null;
-        ClientTardis tardis = ClientTardisManager.getInstance().LOOKUP.get(this.tardisId).get();
+        ClientTardis tardis = ClientTardisManager.getInstance().LOOKUP.get(this.getTardisId()).get();
         if (tardis == null) {
             tardis = ClientTardisManager.getInstance().getClientTardisFromBlockPosition(this.getPos());
             if (tardis == null) {
@@ -212,22 +210,19 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
             return;
         }
 
-        this.tardisId = tardis.getUuid();
-        // force re-link a desktop if it's not null
-        this.linkDesktop();
+        this.setTardis(tardis.getUuid());
     }
 
     public void setTardis(UUID uuid) {
         this.tardisId = uuid;
 
+        markDirty();
         this.linkDesktop();
     }
 
     public void linkDesktop() {
-        if (this.getTardis() == null)
-            return;
-        if (this.getTardis() != null)
-            this.setDesktop(this.getDesktop());
+        if (this.getTardis() == null || this.getDesktop() == null) return;
+        this.setDesktop(this.getDesktop());
     }
 
     public TardisDesktop getDesktop() {
@@ -328,6 +323,7 @@ public class ConsoleBlockEntity extends BlockEntity implements BlockEntityTicker
         desktop.setConsolePos(new AbsoluteBlockPos.Directed(
                 this.pos, TardisUtil.getTardisDimension(), this.getCachedState().get(HorizontalDirectionalBlock.FACING))
         );
+        markDirty();
     }
 
     public boolean wasPowered() {

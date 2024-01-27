@@ -89,11 +89,11 @@ public class CapsuleExteriorModel extends ExteriorModel {
 
     @Override
     public void renderRealWorld(TardisRealEntity realEntity, ModelPart root, MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
-        matrices.push();
-        matrices.translate(0, -1.5f, 0);
-
         ClientTardis clientTardis = realEntity.getClientTardis();
         if (clientTardis == null) return;
+
+        matrices.push();
+        matrices.translate(0, -1.5f, 0);
 
         this.body.getChild("doors").getChild("left_door").yaw = (clientTardis.getExterior().isLeftDoorOpen())  ? -5F : 0.0F;
         this.body.getChild("doors").getChild("right_door").yaw = (clientTardis.getExterior().isRightDoorOpen()) ? 5F : 0.0F;

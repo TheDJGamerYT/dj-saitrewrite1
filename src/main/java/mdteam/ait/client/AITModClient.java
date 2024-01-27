@@ -106,10 +106,7 @@ public class AITModClient implements ClientModInitializer {
 
         ClientBlockEntityEvents.BLOCK_ENTITY_LOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exterior) {
-                if (exterior.getTardisId() == null) {
-                    AITMod.LOGGER.error("ExteriorBlockEntity with null tardisId at " + exterior.getPos());
-                    return;
-                }
+                if(exterior.getClientTardis() == null) return;
                 ClientTardis clientTardis = exterior.getClientTardis();
                 if (clientTardis == null || clientTardis.isSubscribedToExterior() || clientTardis.getLoadCache().isExteriorBlockLoaded(exterior)) return;
                 clientTardis.getLoadCache().loadExteriorBlock(exterior);
@@ -118,6 +115,7 @@ public class AITModClient implements ClientModInitializer {
                 // @TODO: Find an alternative way of clearing exterior animation state
             }
             else if (block instanceof DoorBlockEntity door) {
+                if (door.getClientTardis() == null) return;
                 ClientTardis clientTardis = door.getClientTardis();
                 if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isDoorBlockLoaded(door)) return;
                 clientTardis.getLoadCache().loadDoorBlock(door);
@@ -126,6 +124,7 @@ public class AITModClient implements ClientModInitializer {
                 // @TODO: Find an alternative way of clearing interior animation state
             }
             else if (block instanceof ConsoleBlockEntity console) {
+                if(console.getClientTardis() == null) return;
                 ClientTardis clientTardis = console.getClientTardis();
                 if (clientTardis == null || clientTardis.isSubscribedToInterior() || clientTardis.getLoadCache().isConsoleBlockLoaded(console)) return;
                 clientTardis.getLoadCache().loadConsoleBlock(console);
@@ -135,12 +134,14 @@ public class AITModClient implements ClientModInitializer {
 
         ClientBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((block, world) -> {
             if (block instanceof ExteriorBlockEntity exteriorBlock) {
+                if(exteriorBlock.getClientTardis() == null) return;
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(exteriorBlock.getTardisId()).get();
                 if (clientTardis == null || !clientTardis.getLoadCache().isExteriorBlockLoaded(exteriorBlock) || !clientTardis.isSubscribedToExterior()) return;
                 clientTardis.getLoadCache().unloadExteriorBlock();
                 clientTardis.unsubscribeToExterior();
             }
             else if (block instanceof DoorBlockEntity doorBlockEntity) {
+                if (doorBlockEntity.getClientTardis() == null) return;
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(doorBlockEntity.getTardisId()).get();
                 if (clientTardis == null || !clientTardis.getLoadCache().isDoorBlockLoaded(doorBlockEntity) || !clientTardis.isSubscribedToInterior()) return;
                 clientTardis.getLoadCache().unloadDoorBlock(doorBlockEntity);
@@ -148,6 +149,7 @@ public class AITModClient implements ClientModInitializer {
                 clientTardis.unsubscribeToInterior();
             }
             else if (block instanceof ConsoleBlockEntity consoleBlockEntity) {
+                if (consoleBlockEntity.getClientTardis() == null) return;
                 ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(consoleBlockEntity.getTardisId()).get();
                 if (clientTardis == null || !clientTardis.getLoadCache().isConsoleBlockLoaded(consoleBlockEntity) || !clientTardis.isSubscribedToInterior()) return;
                 clientTardis.getLoadCache().unloadConsoleBlock(consoleBlockEntity);

@@ -20,6 +20,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         if (entity.getClientTardis() == null) return;
+        System.out.println("what the fuck " + entity);
 
         ClientConsoleVariantSchema variant = ClientConsoleVariantRegistry.withParent(entity.getVariant());
 

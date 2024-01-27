@@ -8,6 +8,7 @@ import mdteam.ait.client.renderers.AITRenderLayers;
 import mdteam.ait.core.blocks.ExteriorBlock;
 import mdteam.ait.core.entities.FallingTardisEntity;
 import mdteam.ait.tardis.TardisExterior;
+import mdteam.ait.tardis.wrapper.client.ClientTardis;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -27,10 +28,10 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
     public void render(FallingTardisEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
 
-        if (entity.getTardis() == null) return;
+        if (entity.getClientTardis() == null) return;
 
-        TardisExterior tardisExterior = entity.getTardis().getExterior();
-        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(tardisExterior.getVariant());
+        ClientTardis.ClientTardisExterior tardisExterior = entity.getClientTardis().getExterior();
+        ClientExteriorVariantSchema exteriorVariant = ClientExteriorVariantRegistry.withParent(tardisExterior.getExteriorVariantSchema());
 
         if (tardisExterior == null || exteriorVariant == null) return;
         Class<? extends ExteriorModel> modelClass = exteriorVariant.model().getClass();
@@ -49,7 +50,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
 
         if (getModel(entity) == null) return;
 
-        if (entity.getTardis().isSiegeMode()) {
+        if (entity.getClientTardis().isInSiegeMode()) {
             model = new SiegeModeModel(SiegeModeModel.getTexturedModelData().createModel());
             model.renderFalling(entity, getModel(entity).getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(SiegeModeModel.TEXTURE)), light,1,1,1,1,1);
             matrices.pop();
@@ -65,8 +66,8 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
     }
 
     private ExteriorModel getModel(FallingTardisEntity entity) {
-        if (model == null && entity.getTardis() != null) {
-            model = ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant()).model();
+        if (model == null && entity.getClientTardis() != null) {
+            model = ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema()).model();
         }
 
         return model;
@@ -74,14 +75,14 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
 
     @Override
     public Identifier getTexture(FallingTardisEntity entity) {
-        if (entity.getTardis() == null) return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; // random texture just so i dont crash
+        if (entity.getClientTardis() == null) return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; // random texture just so i dont crash
 
-        return ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant()).texture();
+        return ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema()).texture();
     }
 
     public Identifier getEmission(FallingTardisEntity entity) {
-        if (entity.getTardis() == null) return getTexture(entity);
+        if (entity.getClientTardis() == null) return getTexture(entity);
 
-        return ClientExteriorVariantRegistry.withParent(entity.getTardis().getExterior().getVariant()).emission();
+        return ClientExteriorVariantRegistry.withParent(entity.getClientTardis().getExterior().getExteriorVariantSchema()).emission();
     }
 }

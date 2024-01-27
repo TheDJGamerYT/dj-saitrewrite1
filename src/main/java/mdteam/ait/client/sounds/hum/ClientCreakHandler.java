@@ -90,7 +90,7 @@ public class ClientCreakHandler extends SoundHandler {
     public void tick(MinecraftClient client) {
         if (this.sounds == null) this.generateCreaks();
 
-        if (client.player == null) return;
+        if (tardis() == null || client.player == null) return;
 
         if (!ClientTardisUtil.isPlayerInATardis() || tardis().hasPower()) { // todo should they play even with power? just make them more rare??
             this.stopSounds();

@@ -54,8 +54,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if (TardisUtil.isClient() ? entity.getClientTardis() == null : entity.getTardis() == null) {
-            matrices.pop();
+        if (entity.getClientTardis() == null) {
             return;
         }
 
@@ -108,18 +107,15 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        if (TardisUtil.isClient() ? entity.getClientTardis().isInSiegeMode() : entity.getTardis().isSiegeMode()) {
+        if (entity.getClientTardis().isInSiegeMode()) {
             if (siege == null) siege = new SiegeModeModel(SiegeModeModel.getTexturedModelData().createModel());
             siege.renderWithAnimations(entity, this.siege.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(SiegeModeModel.TEXTURE)), maxLight, overlay, 1, 1, 1, 1);
-            matrices.pop();
-            return;
         }
 
         if (model != null) {
             model.animateTile(entity);
             model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1, 1, 1);
-            if (TardisUtil.isClient() ? entity.getClientTardis() == null : entity.getTardis() == null) {
-                matrices.pop();
+            if (entity.getClientTardis() == null) {
                 return; // WHY IS THIS NULL HERE, BUT NOT AT THE BEGINNING OF THIS FUCKING FUNCTION THREAD
             }
             if (TardisUtil.isClient() ? entity.getClientTardis().getExterior().isOvergrown() : entity.getTardis().getHandlers().getOvergrownHandler().isOvergrown()) {
@@ -128,7 +124,6 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             }
             if (emission != null && (TardisUtil.isClient() ? entity.getClientTardis().isPowered() : entity.getTardis().hasPower())) {
                 boolean alarms = TardisUtil.isClient() ? entity.getClientTardis().isAlarmsEnabled() : entity.getTardis().getHandlers().getAlarms().isEnabled();
-
                 model.renderWithAnimations(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisRenderEmissionCull(emission, false)), maxLight, overlay, 1, alarms ? 0.3f : 1 , alarms ? 0.3f : 1, 1);
             }
         }

@@ -272,7 +272,7 @@ public class MonitorScreen extends TardisScreen {
         if (tardis() == null) return;
         AbsoluteBlockPos.Directed abpd = tardis().getTravel().getPosition();
         AbsoluteBlockPos.Directed dabpd = tardis().getTravel().getDestination();
-        if(abpd == null) return;
+        if(abpd == null || dabpd == null) return;
         if(tardis().getExterior().getPositionDimensionValue() == null) return;
         String positionText = "> " + abpd.getX() + ", " + abpd.getY() + ", " + abpd.getZ();
         String dimensionText = "> " + convertWorldValueToModified(tardis().getExterior().getPositionDimensionValue());
