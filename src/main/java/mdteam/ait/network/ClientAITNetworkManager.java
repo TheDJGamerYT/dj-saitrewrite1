@@ -116,8 +116,9 @@ public class ClientAITNetworkManager {
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_TARDIS_EXTERIOR_DOOR_STATE_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();
+            int doorState = buf.readInt();
             ClientTardis clientTardis = ClientTardisManager.getInstance().LOOKUP.get(tardisUUID).get();
-            clientTardis.getExterior().setDoorState(DoorHandler.DoorStateEnum.values()[buf.readInt()]);
+            clientTardis.getExterior().setDoorState(DoorHandler.DoorStateEnum.values()[doorState]);
         }));
         ClientPlayNetworking.registerGlobalReceiver(ServerAITNetworkManager.SEND_EXTERIOR_SCHEMA_UPDATE, ((client, handler, buf, responseSender) -> {
             UUID tardisUUID = buf.readUuid();

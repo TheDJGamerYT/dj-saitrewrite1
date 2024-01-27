@@ -166,8 +166,9 @@ public class ServerAITNetworkManager {
     }
 
     private static void __sendPacketToInteriorSubscribers(PacketByteBuf data, Identifier packetID) {
-        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(data.readUuid())) return;
-        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(data.readUuid())) {
+        UUID id = data.readUuid();
+        if (ServerTardisManager.getInstance().interior_subscribers.isEmpty() || !ServerTardisManager.getInstance().interior_subscribers.containsKey(id)) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(id)) {
             ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
             if (player == null) continue;
             ServerPlayNetworking.send(player, packetID, data);
@@ -175,8 +176,9 @@ public class ServerAITNetworkManager {
     }
 
     private static void __sendPacketToExteriorSubscribers(PacketByteBuf data, Identifier packetID) {
-        if (!ServerTardisManager.getInstance().exterior_subscribers.containsKey(data.readUuid())) return;
-        for (UUID uuid : ServerTardisManager.getInstance().exterior_subscribers.get(data.readUuid())) {
+        UUID id = data.readUuid();
+        if (ServerTardisManager.getInstance().exterior_subscribers.isEmpty() || !ServerTardisManager.getInstance().exterior_subscribers.containsKey(id)) return;
+        for (UUID uuid : ServerTardisManager.getInstance().exterior_subscribers.get(id)) {
             ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
             if (player == null) continue;
             ServerPlayNetworking.send(player, packetID, data);
@@ -195,11 +197,13 @@ public class ServerAITNetworkManager {
         ServerPlayNetworking.send(player, SEND_TARDIS_CONSOLE_BLOCK_POS, data);
     }
     public static void sendTardisConsoleBlockPosToSubscribers(Tardis tardis, BlockPos consolePos) {
+        if(consolePos == null) return;
         PacketByteBuf data = PacketByteBufs.create();
-        data.writeUuid(tardis.getUuid());
+        UUID tardisid = tardis.getUuid();
+        data.writeUuid(tardisid);
         data.writeBlockPos(consolePos);
-        if (!ServerTardisManager.getInstance().interior_subscribers.containsKey(tardis.getUuid())) return;
-        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardis.getUuid())) {
+        if(ServerTardisManager.getInstance().interior_subscribers.isEmpty() || !ServerTardisManager.getInstance().interior_subscribers.containsKey(tardisid)) return;
+        for (UUID uuid : ServerTardisManager.getInstance().interior_subscribers.get(tardisid)) {
             ServerPlayerEntity player = TardisUtil.getServer().getPlayerManager().getPlayer(uuid);
             if (player == null) continue;
             ServerPlayNetworking.send(player, SEND_TARDIS_CONSOLE_BLOCK_POS, data);
@@ -368,6 +372,7 @@ public class ServerAITNetworkManager {
     }
 
     public static void sendTardisFuelLevel(Tardis tardis, double fuelLevel) {
+        if(tardis == null) return;
         PacketByteBuf data = PacketByteBufs.create();
         data.writeUuid(tardis.getUuid());
         data.writeDouble(fuelLevel);
