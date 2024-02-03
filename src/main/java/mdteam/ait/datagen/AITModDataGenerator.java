@@ -445,6 +445,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.CORAL_PLANT, "TARDIS Coral");
         provider.addTranslation(AITBlocks.MONITOR_BLOCK, "Monitor");
         provider.addTranslation(AITBlocks.ARTRON_COLLECTOR_BLOCK, "Artron Collector");
+        // TARDIS Components
+        provider.addTranslation(AITItems.DEMAT_CIRCUIT, "Dematerialisation Circuit");
+        provider.addTranslation(AITItems.FLUID_LINK, "Fluid Link");
         provider.addTranslation("death.attack.tardis_squash", "%1$s got squashed by a TARDIS!");
         provider.addTranslation("message.ait.riftscanner.info1", "Artron Chunk Info: ");
         provider.addTranslation("message.ait.riftscanner.info2", "Artron left in chunk: ");

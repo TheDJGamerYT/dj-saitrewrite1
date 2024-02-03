@@ -1,5 +1,6 @@
 package mdteam.ait.client.renderers.coral;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mdteam.ait.AITMod;
 import mdteam.ait.client.models.coral.CoralGrowthModel;
 import mdteam.ait.core.blockentities.CoralBlockEntity;
@@ -34,9 +35,9 @@ public class CoralRenderer<T extends CoralBlockEntity> implements BlockEntityRen
         BlockState blockState = entity.getCachedState();
         float f = blockState.get(CoralPlantBlock.FACING).asRotation();
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(f));
-        ModelPart currentAgeModel = getCurrentAge(blockState.get(CoralPlantBlock.AGE), this.coralModel);
+        ModelPart currentAgeModel = getCurrentAge(blockState.get(CoralPlantBlock.AGE), this.coralModel);;
         currentAgeModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(
-                CORAL_GROWTH_TEXTURE, true)), light, overlay, 1, 1, 1, 1);
+                CORAL_GROWTH_TEXTURE, true)), light, overlay, 1f, 1f, 1f, 1);
         matrices.pop();
     }
 

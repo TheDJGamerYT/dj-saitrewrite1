@@ -36,4 +36,8 @@ public class AITItems implements NeptuneItemInit {
 
     // Waypoint-related
     public static final Item WAYPOINT_CARTRIDGE = new WaypointItem(new NeptuneItemSettings().group(() -> AITMod.AIT_ITEM_GROUP).maxCount(1));
+
+    // TARDIS Components
+    public static final Item DEMAT_CIRCUIT = new ComponentItem(new NeptuneItemSettings().group(() -> AITMod.AIT_ITEM_GROUP).maxCount(1), "demat_circuit");
+    public static final Item FLUID_LINK = new ComponentItem(new NeptuneItemSettings().group(() -> AITMod.AIT_ITEM_GROUP).maxCount(1), "fluid_link");
 }
