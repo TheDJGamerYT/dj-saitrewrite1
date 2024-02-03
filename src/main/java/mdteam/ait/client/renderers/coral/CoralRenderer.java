@@ -1,20 +1,16 @@
 package mdteam.ait.client.renderers.coral;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mdteam.ait.AITMod;
 import mdteam.ait.client.models.coral.CoralGrowthModel;
 import mdteam.ait.core.blockentities.CoralBlockEntity;
 import mdteam.ait.core.blocks.CoralPlantBlock;
-import mdteam.ait.core.blocks.ExteriorBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.CoralBlock;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
@@ -35,7 +31,7 @@ public class CoralRenderer<T extends CoralBlockEntity> implements BlockEntityRen
         BlockState blockState = entity.getCachedState();
         float f = blockState.get(CoralPlantBlock.FACING).asRotation();
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(f));
-        ModelPart currentAgeModel = getCurrentAge(blockState.get(CoralPlantBlock.AGE), this.coralModel);;
+        ModelPart currentAgeModel = getCurrentAge(blockState.get(CoralPlantBlock.AGE), this.coralModel);
         currentAgeModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(
                 CORAL_GROWTH_TEXTURE, true)), light, overlay, 1f, 1f, 1f, 1);
         matrices.pop();
