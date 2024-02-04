@@ -67,7 +67,7 @@ public class AITMod implements ModInitializer {
         AIT_CUSTOM_CONFIG.init(MOD_ID);
         ConsoleRegistry.init();
         DesktopRegistry.init();
-        ExteriorRegistry.init();
+        CategoryRegistry.init();
         HumsRegistry.init();
         CreakRegistry.init();
         SequenceRegistry.init();
@@ -117,6 +117,7 @@ public class AITMod implements ModInitializer {
             SetNameCommand.register(dispatcher);
             GetNameCommand.register(dispatcher);
             SetMaxSpeedCommand.register(dispatcher);
+            SetSiegeCommand.register(dispatcher);
         }));
 
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register(((blockEntity, world) -> {

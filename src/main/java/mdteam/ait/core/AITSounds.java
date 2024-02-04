@@ -42,6 +42,7 @@ public class AITSounds implements NeptuneSoundEventInit {
     // Hums
     public static final SoundEvent TOYOTA_HUM = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/hums/toyota_hum"));
     public static final SoundEvent CORAL_HUM = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/hums/coral_hum"));
+    public static final SoundEvent EIGHT_HUM = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/hums/eight_hum"));
 
     public static final SoundEvent CLOISTER = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/cloister"));
 
@@ -49,6 +50,10 @@ public class AITSounds implements NeptuneSoundEventInit {
     public static final SoundEvent CREAK_ONE = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/creak_one"));
     public static final SoundEvent CREAK_TWO = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/creak_two"));
     public static final SoundEvent CREAK_THREE = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/creak_three"));
+    public static final SoundEvent CREAK_FOUR = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/creak_four"));
+    public static final SoundEvent CREAK_FIVE = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/creak_five"));
+    public static final SoundEvent CREAK_SIX = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/creak_six"));
+    public static final SoundEvent CREAK_SEVEN = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/creak_seven"));
     public static final SoundEvent WHISPER = SoundEvent.of(new Identifier(AITMod.MOD_ID, "tardis/creaks/whisper"));
 
     // Tools

@@ -15,6 +15,7 @@ import mdteam.ait.core.sounds.MatSound;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.data.DoorData;
 import mdteam.ait.tardis.data.properties.PropertiesHandler;
+import mdteam.ait.tardis.wrapper.server.ServerTardis;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -33,6 +34,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Random;
@@ -94,11 +96,21 @@ public class TardisTravel extends TardisLink {
         this.tickDemat();
         this.tickMat();
 
-        if (this.getSpeed() > 0 && this.getState() == State.LANDED && !(PropertiesHandler.getBool(this.getTardis().get().getHandlers().getProperties(), PropertiesHandler.HANDBRAKE))/* && !this.getTardis().get().getDoor().isOpen()*/) {
-            this.dematerialise(PropertiesHandler.willAutoPilot(this.getTardis().get().getHandlers().getProperties()));
+        ServerTardis tardis = (ServerTardis) this.getTardis().get();
+        int speed = this.getSpeed();
+        State state = this.getState();
+        boolean handbrake = PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.HANDBRAKE);
+        boolean autopilot = PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.AUTO_LAND);
+
+        if (speed > 0 && state == State.LANDED && !handbrake) {
+            this.dematerialise(autopilot);
         }
-        if (this.getSpeed() == 0 && this.getState() == State.FLIGHT) {
+        if (speed == 0 && state == State.FLIGHT) {
             this.materialise();
+        }
+        // Should we just disable autopilot if the speed goes above 1?
+        if (speed > 1 && state == State.FLIGHT && autopilot) {
+            this.setSpeed(speed - 1);
         }
 
         // fixme this is a mess
@@ -115,6 +127,14 @@ public class TardisTravel extends TardisLink {
     }
 
     public void increaseSpeed() {
+        // Stop speed from going above 1 if autopilot is enabled and we're in flight
+        if (this.getSpeed() + 1 > 1
+                && this.getState() == State.FLIGHT
+                && this.getTardis().isPresent()
+                && PropertiesHandler.getBool(this.getTardis().get().getHandlers().getProperties(), PropertiesHandler.AUTO_LAND)) {
+            return;
+        }
+
         this.setSpeed(MathHelper.clamp(this.getSpeed() + 1,0, this.getMaxSpeed()));
     }
     public void decreaseSpeed() {
@@ -218,10 +238,13 @@ public class TardisTravel extends TardisLink {
         if (this.getPosition() == null || this.getTardis().get().getDesktop() == null || this.getTardis().get().getDesktop().getConsolePos() == null) return;
 
         this.forceLand();
+        this.playThudSound();
+        AITMessages.sendToInterior(this.getTardis().get(), AITMessages.CANCEL_DEMAT_SOUND, PacketByteBufs.empty());
+    }
+    public void playThudSound() {
+        if (this.getTardis().isEmpty()) return;
         this.getPosition().getWorld().playSound(null, this.getPosition(), AITSounds.LAND_THUD, SoundCategory.AMBIENT);
         TardisUtil.getTardisDimension().playSound(null, this.getTardis().get().getDesktop().getConsolePos(), AITSounds.LAND_THUD, SoundCategory.AMBIENT);
-        AITMessages.sendToInterior(this.getTardis().get(), AITMessages.CANCEL_DEMAT_SOUND, PacketByteBufs.empty());
-
     }
     /**
      * Performs a crash for the Tardis.
@@ -323,10 +346,6 @@ public class TardisTravel extends TardisLink {
         // Disable autopilot
         // PropertiesHandler.setAutoPilot(this.getTardis().get().getHandlers().getProperties(), false);
 
-        // Get the server world of the destination
-        ServerWorld world = (ServerWorld) this.getDestination().getWorld();
-        world.getChunk(this.getDestination());
-
         this.setDestination(FlightUtil.getPositionFromPercentage(this.getTardis().get().position(), this.getTardis().get().destination(), this.getTardis().get().getHandlers().getFlight().getDurationAsPercentage()), true);
 
         // Check if materialization is on cooldown and return if it is
@@ -348,7 +367,6 @@ public class TardisTravel extends TardisLink {
 
         // Get the server world of the destination
         ServerWorld destWorld = (ServerWorld) this.getDestination().getWorld();
-        destWorld.getChunk(this.getDestination());
 
         // Play materialize sound at the destination
         this.getDestination().getWorld().playSound(null, this.getDestination(), this.getSoundForCurrentState(), SoundCategory.BLOCKS, 1f, 1f);
@@ -401,8 +419,6 @@ public class TardisTravel extends TardisLink {
         PropertiesHandler.setAutoPilot(this.getTardis().get().getHandlers().getProperties(), withRemat);
 
         ServerWorld world = (ServerWorld) this.getPosition().getWorld();
-        world.getChunk(this.getPosition());
-
 
         if (!ignoreChecks && TardisEvents.DEMAT.invoker().onDemat(getTardis().get())) {
             failToTakeoff();
@@ -436,12 +452,12 @@ public class TardisTravel extends TardisLink {
         this.getPosition().getWorld().playSound(null, this.getPosition(), AITSounds.FAIL_MAT, SoundCategory.BLOCKS, 1f, 1f);
 
         // Play failure sound at the Tardis console position if the interior is not empty
-        if (TardisUtil.isInteriorNotEmpty(getTardis().get())) {
+        if (TardisUtil.isInteriorNotEmpty(getTardis().get()) && this.getTardis().get().getDesktop().getConsolePos() != null) {
             TardisUtil.getTardisDimension().playSound(null, this.getTardis().get().getDesktop().getConsolePos(), AITSounds.FAIL_MAT, SoundCategory.BLOCKS, 1f, 1f);
         }
 
         // Send error message to the pilot
-        TardisUtil.sendMessageToPilot(this.getTardis().get(), Text.literal("Unable to land!"));
+        // TardisUtil.sendMessageToPilot(this.getTardis().get(), Text.literal("Unable to land!"));
 
         // Create materialization delay and return
         FlightUtil.createMaterialiseDelay(this.getTardis().get());
@@ -459,7 +475,7 @@ public class TardisTravel extends TardisLink {
             if(this.getTardis().get().getDesktop().getConsolePos() != null)
                 TardisUtil.getTardisDimension().playSound(null, this.getTardis().get().getDesktop().getConsolePos(), AITSounds.FAIL_DEMAT, SoundCategory.BLOCKS, 1f, 1f);
 
-        TardisUtil.sendMessageToPilot(this.getTardis().get(), Text.literal("Unable to takeoff!")); // fixme translatable
+        // TardisUtil.sendMessageToPilot(this.getTardis().get(), Text.literal("Unable to takeoff!")); // fixme translatable
         FlightUtil.createDematerialiseDelay(this.getTardis().get());
     }
 
@@ -622,7 +638,7 @@ public class TardisTravel extends TardisLink {
         this.deleteExterior();
     }
 
-    public void forceLand(ExteriorBlockEntity blockEntity) {
+    public void forceLand(@Nullable ExteriorBlockEntity blockEntity) {
         if (this.getTardis().isEmpty())
             return;
 
@@ -635,8 +651,33 @@ public class TardisTravel extends TardisLink {
         }
 
         this.setState(TardisTravel.State.LANDED);
-        if (blockEntity != null)
-            this.runAnimations(blockEntity);
+
+        if (blockEntity == null) {
+            ServerWorld world = (ServerWorld) this.getPosition().getWorld();
+            BlockEntity found = world.getBlockEntity(this.getPosition());
+
+            System.out.println(found);
+
+            // If there is already a matching exterior at this position
+            if (found instanceof ExteriorBlockEntity exterior
+                    && exterior.getTardis().isPresent()
+                    && Objects.equals(exterior.getTardis().get(), this.getTardis().get())) {
+                blockEntity = exterior;
+            } else {
+                ExteriorBlock block = (ExteriorBlock) AITBlocks.EXTERIOR_BLOCK;
+                BlockState state = block.getDefaultState().with(Properties.HORIZONTAL_FACING, this.getPosition().getDirection());
+                world.setBlockState(this.getPosition(), state);
+
+                ExteriorBlockEntity newEntity = new ExteriorBlockEntity(this.getPosition(), state);
+                world.addBlockEntity(newEntity);
+                newEntity.setTardis(this.getTardis().get());
+                blockEntity = newEntity;
+            }
+
+        }
+
+        this.runAnimations(blockEntity);
+
         if (DoorData.isClient()) return;
         DoorData.lockTardis(PropertiesHandler.getBool(this.getTardis().get().getHandlers().getProperties(), PropertiesHandler.PREVIOUSLY_LOCKED), this.getTardis().get(), null, false);
 
@@ -688,6 +729,26 @@ public class TardisTravel extends TardisLink {
         this.setDestination(pos, true);
     }
 
+    /**
+     * Sets the position of the tardis based off the flight's progress to the destination
+     * @param source Where this tardis originally took off from
+     */
+    public void setPositionToProgress(AbsoluteBlockPos.Directed source) {
+        if (this.getState() != State.FLIGHT) return;
+        if (this.getTardis().isEmpty()) return;
+
+        AbsoluteBlockPos.Directed pos = FlightUtil.getPositionFromPercentage(
+                source,
+                this.getDestination(),
+                this.getTardis().get().getHandlers().getFlight().getDurationAsPercentage()
+        );
+
+        this.setPosition(pos);
+    }
+    public void setPositionToProgress() {
+        this.setPositionToProgress(this.getPosition());
+    }
+
     public AbsoluteBlockPos.Directed getDestination() {
         if (this.destination == null) {
             if (this.getPosition() != null)
@@ -700,6 +761,7 @@ public class TardisTravel extends TardisLink {
 
         return destination;
     }
+
 
     public State getState() {
         return state;

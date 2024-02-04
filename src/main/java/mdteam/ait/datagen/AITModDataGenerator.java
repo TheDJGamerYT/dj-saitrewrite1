@@ -342,10 +342,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             // Hums
             provider.addSound("tardis/hums/toyota_hum", AITSounds.TOYOTA_HUM);
             provider.addSound("tardis/hums/coral_hum", AITSounds.CORAL_HUM);
+            provider.addSound("tardis/hums/eight_hum", AITSounds.EIGHT_HUM);
+
             // Creaks
             provider.addSound("tardis/creaks/creak_one", AITSounds.CREAK_ONE);
             provider.addSound("tardis/creaks/creak_two", AITSounds.CREAK_TWO);
             provider.addSound("tardis/creaks/creak_three", AITSounds.CREAK_THREE);
+            provider.addSound("tardis/creaks/creak_four", AITSounds.CREAK_FOUR);
+            provider.addSound("tardis/creaks/creak_five", AITSounds.CREAK_FIVE);
+            provider.addSound("tardis/creaks/creak_six", AITSounds.CREAK_SIX);
+            provider.addSound("tardis/creaks/creak_seven", AITSounds.CREAK_SEVEN);
             provider.addSound("tardis/creaks/whisper", AITSounds.WHISPER);
 
             // Secret
@@ -376,7 +382,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             aitModelProvider.registerDirectionalBlock(AITBlocks.EXTERIOR_BLOCK);
             aitModelProvider.registerDirectionalBlock(AITBlocks.DOOR_BLOCK);
             aitModelProvider.registerDirectionalBlock(AITBlocks.CORAL_PLANT);
-            aitModelProvider.registerDirectionalBlock(AITBlocks.MONITOR_BLOCK);
+            //aitModelProvider.registerDirectionalBlock(AITBlocks.MONITOR_BLOCK);
             aitModelProvider.registerDirectionalBlock(AITBlocks.ARTRON_COLLECTOR_BLOCK);
 
             //falloutModelProvider.registerSimpleBlock(AITBlocks.DEEPSLATE_URANIUM_ORE);
@@ -492,17 +498,19 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.hads.alarms_disabled", "Alarms: Disabled");
         provider.addTranslation("tardis.message.control.siege.enabled", "Siege Mode: Enabled");
         provider.addTranslation("tardis.message.control.siege.disabled", "Siege Mode: Disabled");
-        provider.addTranslation("screen.ait.monitor.desktop_settings", "Desktop Settings");
         provider.addTranslation("screen.ait.monitor.apply", "Apply");
-        provider.addTranslation("screen.ait.monitor.fuel", "Fuel: ");
-        provider.addTranslation("screen.ait.monitor.traveltime", "Travel Time: ");
+        provider.addTranslation("screen.ait.monitor.fuel", "Fuel");
+        provider.addTranslation("screen.ait.monitor.traveltime", "Travel Time");
         provider.addTranslation("screen.ait.interiorsettings.title", "Interior Settings");
         provider.addTranslation("screen.ait.interiorsettings.back", "> Back");
         provider.addTranslation("screen.ait.interiorsettings.changeinterior", "> Change Interior");
         provider.addTranslation("screen.ait.interiorsettings.cacheconsole", "> Cache Console");
+
         provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");
         provider.addTranslation("screen.ait.interior.settings.coral", "Coral");
         provider.addTranslation("screen.ait.interior.settings.toyota", "Toyota");
+        provider.addTranslation("screen.ait.interior.settings.eight", "Eighth");
+
         provider.addTranslation("screen.ait.interor_select.title", "Interior Select");
         provider.addTranslation("tardis.message.interiorchange.not_enough_fuel", "The TARDIS does not have enough fuel to change it's interior");
         provider.addTranslation("tardis.message.interiorchange.warning", "Interior reconfiguration started! Please leave the interior.");

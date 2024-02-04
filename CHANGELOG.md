@@ -1,16 +1,16 @@
-# 1.2.20
-- Fixed FuelData and rift chunks to reduce lag
-
-# 1.2.19
-- Update neptunelib to hopefully fix some lag
-
-# 1.2.18
-- Updated neptunelib so that people can't be pinged anymore
-
-# 1.2.17
-- Updated neptunelib
-
-# 1.2.16
-- Temporary removal of code causing critical lag/bugs
-- Made sonic TARDIS mode work up to 256 blocks
-- Made sonic TARDIS mode only set destination after radius
+# 1.2.26
+- Autopilot now only works on lowest speed
+- Flipping the handbrake with autopilot enabled now forces you to land instead of crashing
+- Updated monitor screen
+- Monitor can now be rotated freely
+- Added eighth doctor hum
+- Made a different particle show when refueling in a RiftChunk
+- Added four new creak sounds
+- Failing to takeoff/land no longer sends a message to the pilot
+- Flight sounds no longer play when out of power
+- Fixed being unable to turn off antigravs at max world height
+- Fixed issues with Siege Mode
+- Added a temporary command to force tardises out of siege mode
+- Created ArtronHolder interface
+- Renamed "ExteriorSchema" to "ExteriorCategory"
+- Moved "hasPortals" method into the individual variants

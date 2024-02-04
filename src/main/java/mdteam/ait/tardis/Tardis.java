@@ -6,7 +6,7 @@ import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.core.item.TardisItemBuilder;
 import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
-import mdteam.ait.tardis.exterior.ExteriorSchema;
+import mdteam.ait.tardis.exterior.ExteriorCategory;
 import mdteam.ait.tardis.data.FuelData;
 import mdteam.ait.tardis.data.TardisHandlersManager;
 import mdteam.ait.tardis.data.properties.PropertiesHandler;
@@ -23,9 +23,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -42,7 +39,7 @@ public class Tardis {
     protected TardisHandlersManager handlers;
     private boolean dirty = false;
 
-    public Tardis(UUID uuid, AbsoluteBlockPos.Directed pos, TardisDesktopSchema schema, ExteriorSchema exteriorType, ExteriorVariantSchema variant) {
+    public Tardis(UUID uuid, AbsoluteBlockPos.Directed pos, TardisDesktopSchema schema, ExteriorCategory exteriorType, ExteriorVariantSchema variant) {
         this(uuid, tardis -> new TardisTravel(tardis, pos), tardis -> new TardisDesktop(tardis, schema), (tardis) -> new TardisExterior(tardis, exteriorType, variant), false);
     }
 
@@ -150,7 +147,7 @@ public class Tardis {
     }
 
     public void setFuelCount(double i) {
-        this.getHandlers().getFuel().setFuelCount(i);
+        this.getHandlers().getFuel().setFuel(i);
     }
     public boolean isRefueling() {
         return this.getHandlers().getFuel().isRefueling();
@@ -196,7 +193,7 @@ public class Tardis {
     }
     public void enablePower() {
         if (getFuel() <= (0.01 * FuelData.TARDIS_MAX_FUEL)) return; // cant enable power if not enough fuel
-        if (isSiegeBeingHeld()) return; // cant re-enable while being held, this may become OP tho
+        // if (isSiegeBeingHeld()) return; // cant re-enable while being held, this may become OP tho
         if (isSiegeMode()) setSiegeMode(false);
         if (hasPower()) return;
 

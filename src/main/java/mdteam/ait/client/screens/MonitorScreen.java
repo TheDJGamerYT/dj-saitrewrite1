@@ -8,16 +8,15 @@ import mdteam.ait.client.registry.exterior.ClientExteriorVariantSchema;
 import mdteam.ait.client.renderers.AITRenderLayers;
 import mdteam.ait.client.screens.interior.InteriorSettingsScreen;
 import mdteam.ait.client.util.ClientTardisUtil;
-import mdteam.ait.registry.ExteriorRegistry;
+import mdteam.ait.registry.CategoryRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
 import mdteam.ait.tardis.TardisTravel;
-import mdteam.ait.tardis.exterior.BoothExterior;
-import mdteam.ait.tardis.exterior.ClassicExterior;
-import mdteam.ait.tardis.exterior.ExteriorSchema;
-import mdteam.ait.tardis.exterior.PoliceBoxExterior;
+import mdteam.ait.tardis.exterior.BoothCategory;
+import mdteam.ait.tardis.exterior.ClassicCategory;
+import mdteam.ait.tardis.exterior.ExteriorCategory;
+import mdteam.ait.tardis.exterior.PoliceBoxCategory;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
-import mdteam.ait.tardis.wrapper.client.manager.ClientTardisManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.*;
@@ -40,7 +39,7 @@ import static mdteam.ait.tardis.data.FuelData.TARDIS_MAX_FUEL;
 public class MonitorScreen extends TardisScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID, "textures/gui/tardis/consoles/monitors/exterior_changer.png");
     private final List<ButtonWidget> buttons = Lists.newArrayList();
-    private ExteriorSchema currentModel;
+    private ExteriorCategory currentModel;
     private ClientExteriorVariantSchema currentVariant;
     int backgroundHeight = 121;//101;
     int backgroundWidth = 220;//200;
@@ -66,15 +65,15 @@ public class MonitorScreen extends TardisScreen {
         this.createButtons();
     }
 
-    public ExteriorSchema getCurrentModel() {
-        return currentModel == null ? getFromUUID(tardisId).getExterior().getType() : currentModel;
+    public ExteriorCategory getCurrentModel() {
+        return currentModel == null ? getFromUUID(tardisId).getExterior().getCategory() : currentModel;
     }
 
-    public void setCurrentModel(ExteriorSchema currentModel) {
+    public void setCurrentModel(ExteriorCategory currentModel) {
         this.currentModel = currentModel;
 
         if (currentVariant == null) return;
-        if (this.currentVariant.parent().parent() != currentModel) {
+        if (this.currentVariant.parent().category() != currentModel) {
             currentVariant = null;
         }
     }
@@ -83,7 +82,7 @@ public class MonitorScreen extends TardisScreen {
         if (Objects.equals(currentVariant, ClientExteriorVariantRegistry.CORAL_GROWTH)) whichDirectionExterior(true);
 
         if (currentVariant == null)
-            if(getFromUUID(tardisId).getExterior().getType() != getCurrentModel()) {
+            if(getFromUUID(tardisId).getExterior().getCategory() != getCurrentModel()) {
                 setCurrentVariant(ExteriorVariantRegistry.withParentToList(getCurrentModel()).get(0));
             } else {
                 setCurrentVariant(getFromUUID(tardisId).getExterior().getVariant());
@@ -126,9 +125,9 @@ public class MonitorScreen extends TardisScreen {
                 this.textRenderer.getWidth(">"), 10, Text.literal(">").formatted(Formatting.LIGHT_PURPLE), button -> {
             whichDirectionVariant(true);
         }, this.textRenderer));
-        Text desktopSettingsText = Text.translatable("screen.ait.monitor.desktop_settings");
-        this.addButton(new PressableTextWidget((width / 2 - 28), (height / 2 + 42),
-                this.textRenderer.getWidth(desktopSettingsText), 10, Text.translatable("screen.ait.monitor.desktop_settings").formatted(Formatting.AQUA), button -> toInteriorSettingsScreen(), this.textRenderer));
+        Text desktopSettingsText = Text.literal("⚙");
+        this.addButton(new PressableTextWidget((width / 2 + 84), (height / 2 - 47),
+                this.textRenderer.getWidth(desktopSettingsText), 10, Text.literal("⚙").formatted(Formatting.WHITE), button -> toInteriorSettingsScreen(), this.textRenderer));
         this.buttons.forEach(buttons -> {
             // buttons.visible = false;
             buttons.active = true;
@@ -137,7 +136,7 @@ public class MonitorScreen extends TardisScreen {
 
     public void sendExteriorPacket() {
         if (getFromUUID(tardisId) != null) {
-            if (this.getCurrentModel() != getFromUUID(tardisId).getExterior().getType() || this.getCurrentVariant().parent() != getFromUUID(tardisId).getExterior().getVariant()) {
+            if (this.getCurrentModel() != getFromUUID(tardisId).getExterior().getCategory() || this.getCurrentVariant().parent() != getFromUUID(tardisId).getExterior().getVariant()) {
                 ClientTardisUtil.changeExteriorWithScreen(this.tardisId,
                         this.getCurrentModel().id().toString(), this.getCurrentVariant().id().toString(),
                         this.getCurrentVariant().parent() != getFromUUID(tardisId).getExterior().getVariant());
@@ -157,19 +156,19 @@ public class MonitorScreen extends TardisScreen {
         if (direction) setCurrentModel(nextExterior());
         else setCurrentModel(previousExterior());
 
-        if (this.currentModel == ExteriorRegistry.CORAL_GROWTH || (!("Loqor".equalsIgnoreCase(MinecraftClient.getInstance().player.getName().getString())) && this.currentModel == ExteriorRegistry.DOOM)) {
+        if (this.currentModel == CategoryRegistry.CORAL_GROWTH || (!("Loqor".equalsIgnoreCase(MinecraftClient.getInstance().player.getName().getString())) && this.currentModel == CategoryRegistry.DOOM)) {
             whichDirectionExterior(direction);
         }
     }
-    public ExteriorSchema nextExterior() {
-        List<ExteriorSchema> list = ExteriorRegistry.REGISTRY.stream().toList();
+    public ExteriorCategory nextExterior() {
+        List<ExteriorCategory> list = CategoryRegistry.REGISTRY.stream().toList();
 
         int idx = list.indexOf(getCurrentModel());
         if (idx < 0 || idx+1 == list.size()) return list.get(0);
         return list.get(idx + 1);
     }
-    public ExteriorSchema previousExterior() {
-        List<ExteriorSchema> list = ExteriorRegistry.REGISTRY.stream().toList();
+    public ExteriorCategory previousExterior() {
+        List<ExteriorCategory> list = CategoryRegistry.REGISTRY.stream().toList();
 
         int idx = list.indexOf(getCurrentModel());
         if (idx <= 0) return list.get(list.size() - 1);
@@ -183,7 +182,7 @@ public class MonitorScreen extends TardisScreen {
     }
 
     public ExteriorVariantSchema nextVariant() {
-        List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(getCurrentVariant().parent().parent()).stream().toList();
+        List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(getCurrentVariant().parent().category()).stream().toList();
 
         int idx = list.indexOf(getCurrentVariant().parent());
         if (idx < 0 || idx+1 == list.size()) return list.get(0);
@@ -191,7 +190,7 @@ public class MonitorScreen extends TardisScreen {
     }
 
     public ExteriorVariantSchema previousVariant() {
-        List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(getCurrentVariant().parent().parent()).stream().toList();
+        List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(getCurrentVariant().parent().category()).stream().toList();
 
         int idx = list.indexOf(getCurrentVariant().parent());
         if (idx <= 0) return list.get(list.size() - 1);
@@ -248,9 +247,9 @@ public class MonitorScreen extends TardisScreen {
             MatrixStack stack = context.getMatrices();
             // fixme is bad
             stack.push();
-            stack.translate(x, this.getCurrentModel() == ExteriorRegistry.REGISTRY.get(PoliceBoxExterior.REFERENCE) || this.getCurrentModel() == ExteriorRegistry.REGISTRY.get(ClassicExterior.REFERENCE) ? y + 8 : y, 100f);
-            if (this.getCurrentModel() == ExteriorRegistry.REGISTRY.get(PoliceBoxExterior.REFERENCE) || this.getCurrentModel() == ExteriorRegistry.REGISTRY.get(ClassicExterior.REFERENCE)) stack.scale(-10, 10, 10);
-            else if (this.getCurrentModel() == ExteriorRegistry.REGISTRY.get(BoothExterior.REFERENCE)) stack.scale(-scale, scale, scale);
+            stack.translate(x, this.getCurrentModel() == CategoryRegistry.REGISTRY.get(PoliceBoxCategory.REFERENCE) || this.getCurrentModel() == CategoryRegistry.REGISTRY.get(ClassicCategory.REFERENCE) ? y + 8 : y, 100f);
+            if (this.getCurrentModel() == CategoryRegistry.REGISTRY.get(PoliceBoxCategory.REFERENCE) || this.getCurrentModel() == CategoryRegistry.REGISTRY.get(ClassicCategory.REFERENCE)) stack.scale(-10, 10, 10);
+            else if (this.getCurrentModel() == CategoryRegistry.REGISTRY.get(BoothCategory.REFERENCE)) stack.scale(-scale, scale, scale);
             else stack.scale(-scale, scale, scale);
             //stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-180f));
             stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(mouseX));
@@ -289,17 +288,17 @@ public class MonitorScreen extends TardisScreen {
         context.drawText(this.textRenderer, Text.literal(directionText), (width / 2 - 64), (height / 2 - 16), 0xFFFFFF, true);
 
         // destination
-        context.drawText(this.textRenderer, Text.literal("Destination"), (width / 2 - 64), (height / 2 - 6), 5636095, true);
-        context.drawText(this.textRenderer, Text.literal(destinationText), (width / 2 - 64), (height / 2 + 4), 0xFFFFFF, true);
-        context.drawText(this.textRenderer, Text.literal(dDimensionText), (width / 2 - 64), (height / 2 + 14), 0xFFFFFF, true);
-        context.drawText(this.textRenderer, Text.literal(dDirectionText), (width / 2 - 64), (height / 2 + 24), 0xFFFFFF, true);
+        context.drawText(this.textRenderer, Text.literal("Destination"), (width / 2 - 64), (height / 2 + 14), 5636095, true);
+        context.drawText(this.textRenderer, Text.literal(destinationText), (width / 2 - 64), (height / 2 + 24), 0xFFFFFF, true);
+        context.drawText(this.textRenderer, Text.literal(dDimensionText), (width / 2 - 64), (height / 2 + 34), 0xFFFFFF, true);
+        context.drawText(this.textRenderer, Text.literal(dDirectionText), (width / 2 - 64), (height / 2 + 44), 0xFFFFFF, true);
 
         // fuel
         context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.fuel"), (width / 2 - 102), (height / 2 + 28), 0xFFFFFF, true);
         context.drawText(this.textRenderer, Text.literal(fuelText + "%"), (width / 2 - 108), (height / 2 + 38), 0xFFFFFF, true);
         // percentage of travel time to destination
-        context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.traveltime"), (width / 2 + 30), (height / 2 - 9), 0xFFFFFF, true);
-        context.drawText(this.textRenderer, Text.literal(flightTimeText + "%"), (width / 2 + 40), (height / 2 + 1), 0xFFFFFF, true);
+        context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.traveltime"), (width / 2 + 34), (height / 2 + 28), 0xFFFFFF, true);
+        context.drawText(this.textRenderer, Text.literal(flightTimeText + "%"), (width / 2 + 46), (height / 2 + 38), 0xFFFFFF, true);
     }
 
     @Override

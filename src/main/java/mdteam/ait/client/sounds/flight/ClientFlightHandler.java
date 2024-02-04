@@ -23,6 +23,7 @@ public class ClientFlightHandler extends SoundHandler {
     protected ClientFlightHandler() {}
 
     public LoopingSound getFlightLoop() {
+        if (tardis().getDesktop().getConsolePos() == null) return null;
         if (FLIGHT == null) FLIGHT = new FlightSound(AITSounds.FLIGHT_LOOP, SoundCategory.BLOCKS, tardis().getDesktop().getConsolePos(), 2.5f); // should this be positioned at the console pos or global?
 
         return FLIGHT;
@@ -57,8 +58,7 @@ public class ClientFlightHandler extends SoundHandler {
     public Tardis tardis() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return null;
-        Tardis found = TardisUtil.findTardisByInterior(player.getBlockPos(), false);
-        return found;
+        return TardisUtil.findTardisByInterior(player.getBlockPos(), false);
     }
 
     private void playFlightSound() {
@@ -70,7 +70,7 @@ public class ClientFlightHandler extends SoundHandler {
     }
 
     private boolean shouldPlaySounds() {
-        return inFlight() || hasThrottleAndHandbrakeDown();
+        return (inFlight() || hasThrottleAndHandbrakeDown()) && tardis().hasPower();
     }
 
     private boolean inFlight() {

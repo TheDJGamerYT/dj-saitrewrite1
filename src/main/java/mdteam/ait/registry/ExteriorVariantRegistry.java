@@ -1,7 +1,7 @@
 package mdteam.ait.registry;
 
 import mdteam.ait.AITMod;
-import mdteam.ait.tardis.exterior.ExteriorSchema;
+import mdteam.ait.tardis.exterior.ExteriorCategory;
 import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
 import mdteam.ait.tardis.variant.exterior.booth.*;
 import mdteam.ait.tardis.variant.exterior.box.*;
@@ -34,30 +34,40 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+// TODO - Move this over to a datapack compatible state like DesktopRegistry and then add datapack support
+/*
+    Example of json layout
+    {
+        "category": "ait:police_box",
+        "texture": "ait:exterior/coral.png",
+        "emission": "ait:exterior/coral_emission.png",
+        "parent": "ait:toyota" // this will be what portal placement and the model of the variant
+    }
+ */
 public class ExteriorVariantRegistry {
     public static final SimpleRegistry<ExteriorVariantSchema> REGISTRY = FabricRegistryBuilder.createSimple(RegistryKey.<ExteriorVariantSchema>ofRegistry(new Identifier(AITMod.MOD_ID, "exterior_variant"))).buildAndRegister();
     public static ExteriorVariantSchema register(ExteriorVariantSchema schema) {
         return Registry.register(REGISTRY, schema.id(), schema);
     }
 
-    public static Collection<ExteriorVariantSchema> withParent(ExteriorSchema parent) {
+    public static Collection<ExteriorVariantSchema> withParent(ExteriorCategory parent) {
         List<ExteriorVariantSchema> list = new ArrayList<>();
 
         for (Iterator<ExteriorVariantSchema> it = REGISTRY.iterator(); it.hasNext(); ) {
             ExteriorVariantSchema schema = it.next();
             //AITExteriors.iterator().forEach((System.out::println));
 
-            if (schema.parent().equals(parent)) list.add(schema);
+            if (schema.category().equals(parent)) list.add(schema);
         }
 
         return list;
     }
-    public static List<ExteriorVariantSchema> withParentToList(ExteriorSchema parent) {
+    public static List<ExteriorVariantSchema> withParentToList(ExteriorCategory parent) {
         List<ExteriorVariantSchema> list = new ArrayList<>();
 
         for (Iterator<ExteriorVariantSchema> it = REGISTRY.iterator(); it.hasNext(); ) {
             ExteriorVariantSchema schema = it.next();
-            if (schema.parent().equals(parent)) list.add(schema);
+            if (schema.category().equals(parent)) list.add(schema);
         }
 
         return list;
