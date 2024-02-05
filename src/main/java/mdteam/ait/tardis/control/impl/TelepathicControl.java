@@ -1,9 +1,11 @@
 package mdteam.ait.tardis.control.impl;
 
 import com.mojang.datafixers.util.Pair;
+import mdteam.ait.AITMod;
 import mdteam.ait.api.tardis.LinkableItem;
 import mdteam.ait.tardis.control.Control;
 import mdteam.ait.tardis.Tardis;
+import mdteam.ait.tardis.data.properties.PropertiesHandler;
 import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.NameTagItem;
@@ -35,6 +37,10 @@ public class TelepathicControl extends Control {
             world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
             return true;
         }
+        /*if (player.isSneaking() && PropertiesHandler.getBool(tardis.getHandlers().getProperties(), PropertiesHandler.HANDBRAKE)) {
+            AITMod.openScreen(player, 1, tardis.getUuid());
+            return true;
+        }*/
         if (player.getMainHandStack().getItem() instanceof NameTagItem) {
             ItemStack hand = player.getMainHandStack();
 

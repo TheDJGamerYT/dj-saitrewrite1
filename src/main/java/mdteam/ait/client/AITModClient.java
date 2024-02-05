@@ -5,6 +5,7 @@ import mdteam.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
 import mdteam.ait.client.renderers.machines.ArtronCollectorRenderer;
 import mdteam.ait.client.renderers.machines.EngineRenderer;
 import mdteam.ait.client.renderers.monitors.MonitorRenderer;
+import mdteam.ait.client.screens.OwOFindPlayerScreen;
 import mdteam.ait.core.*;
 import mdteam.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import mdteam.ait.core.item.RiftScannerItem;
@@ -194,7 +195,7 @@ public class AITModClient implements ClientModInitializer {
         return switch (id) {
             default -> null;
             case 0 -> new MonitorScreen(tardis); // todo new OwoMonitorScreen(tardis); god rest ye merry gentlemen
-            case 1 -> null;
+            case 1 -> new OwOFindPlayerScreen(tardis);
             case 2 -> new OwOInteriorSelectScreen(tardis, new MonitorScreen(tardis));
         };
     }

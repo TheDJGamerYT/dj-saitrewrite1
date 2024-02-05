@@ -45,8 +45,7 @@ public class MonitorScreen extends TardisScreen {
     int backgroundWidth = 220;//200;
     public MonitorScreen(UUID tardis) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".monitor"), tardis);
-        this.tardisId = tardis;
-        //AITMod.LOGGER.debug("@#!@@!: " + tardis + " | " + ClientTardisManager.getInstance().getLookup());
+        updateTardis();
     }
 
     @Override
