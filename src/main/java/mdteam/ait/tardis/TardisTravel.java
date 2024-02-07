@@ -7,6 +7,8 @@ import mdteam.ait.core.AITMessages;
 import mdteam.ait.core.AITSounds;
 import mdteam.ait.core.blockentities.ExteriorBlockEntity;
 import mdteam.ait.core.blocks.ExteriorBlock;
+import mdteam.ait.core.util.ForcedChunkUtil;
+import mdteam.ait.tardis.control.impl.SecurityControl;
 import mdteam.ait.tardis.control.impl.pos.PosType;
 import mdteam.ait.tardis.data.TardisLink;
 import mdteam.ait.tardis.util.FlightUtil;
@@ -46,7 +48,7 @@ import static mdteam.ait.AITMod.AIT_CUSTOM_CONFIG;
 // todo this class is like a monopoly, im gonna slash it into little corporate pieces
 public class TardisTravel extends TardisLink {
     private static final String MAX_SPEED_KEY = "max_speed";
-    private static final int DEFAULT_MAX_SPEED = 3;
+    private static final int DEFAULT_MAX_SPEED = 7;
     private State state = State.LANDED;
     private AbsoluteBlockPos.Directed position;
     private AbsoluteBlockPos.Directed destination;
@@ -300,7 +302,6 @@ public class TardisTravel extends TardisLink {
         this.getTardis().get().setLockedTardis(false);
         //this.getTardis().get().getHandlers().getDoor().openDoors();
         // Load the chunk of the Tardis destination
-        this.getDestination().getWorld().getChunk(this.getTardis().get().getTravel().getDestination());
         // Enable alarm and disable anti-mavity properties for Tardis
         PropertiesHandler.set(this.getTardis().get(), PropertiesHandler.ALARM_ENABLED, true);
         PropertiesHandler.set(this.getTardis().get(), PropertiesHandler.ANTIGRAVS_ENABLED, false);
@@ -637,6 +638,12 @@ public class TardisTravel extends TardisLink {
         this.setLastPosition(this.getPosition());
         this.setState(TardisTravel.State.FLIGHT);
         this.deleteExterior();
+
+        if (this.getTardis().isEmpty()) return;
+        boolean security = PropertiesHandler.getBool(this.getTardis().get().getHandlers().getProperties(), SecurityControl.SECURITY_KEY);
+        if (security) {
+            SecurityControl.runSecurityProtocols(this.getTardis().get());
+        }
     }
 
     public void forceLand(@Nullable ExteriorBlockEntity blockEntity) {
@@ -694,7 +701,6 @@ public class TardisTravel extends TardisLink {
 
     public void runAnimations() {
         ServerWorld level = (ServerWorld) this.getPosition().getWorld();
-        level.getChunk(this.getPosition());
         BlockEntity entity = level.getBlockEntity(this.getPosition());
         if (entity instanceof ExteriorBlockEntity exterior) {
             if (exterior.getAnimation() == null) return;
@@ -784,8 +790,11 @@ public class TardisTravel extends TardisLink {
     }
 
     public void deleteExterior() {
-        this.getPosition().getWorld().getChunk(this.getPosition());
         this.getPosition().getWorld().removeBlock(this.getPosition(), false);
+        if (TardisUtil.isServer()) {
+            ForcedChunkUtil.stopForceLoading((ServerWorld) this.getPosition().getWorld(), this.getPosition());
+        }
+
     }
 
     @NotNull

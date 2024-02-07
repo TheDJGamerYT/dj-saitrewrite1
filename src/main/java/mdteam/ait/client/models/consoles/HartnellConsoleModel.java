@@ -6,6 +6,7 @@ import mdteam.ait.client.animation.console.hartnell.HartnellAnimations;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTravel;
+import mdteam.ait.tardis.control.impl.SecurityControl;
 import mdteam.ait.tardis.control.impl.pos.IncrementManager;
 import mdteam.ait.tardis.data.FuelData;
 import mdteam.ait.tardis.data.properties.PropertiesHandler;
@@ -829,12 +830,8 @@ public class HartnellConsoleModel extends ConsoleModel {
 		if (console.getTardis().get().getTravel().getDestination().getX() != xDestination) {
 			xControl.roll = xControl.roll + 1.575f;
 			xControlLight.pivotY = xControlLight.pivotY + 1;
-
-			//ddd
-
 			xControl.roll = xControl.roll;
 			xControlLight.pivotY = xControlLight.pivotY;
-			//PUT A DELAY HERE LOQOR
 			xDestination = destination.getX();
 		}
 
@@ -946,15 +943,18 @@ public class HartnellConsoleModel extends ConsoleModel {
 			hadsAlarmsLightsOne.pivotY = hadsAlarmsLightsOne.pivotY;
 			hadsAlarmsLightsTwo.pivotY = hadsAlarmsLightsTwo.pivotY;
 		}
-		else if(!PropertiesHandler.getBool(console.getTardis().get().getHandlers().getProperties(), PropertiesHandler.ALARM_ENABLED)){
+		else {
 			hadsAlarms.roll = hadsAlarms.roll;
 			hadsAlarmsLightsOne.pivotY = hadsAlarmsLightsOne.pivotY + 1;
 			hadsAlarmsLightsTwo.pivotY = hadsAlarmsLightsTwo.pivotY + 1;
 		}
 
+		ModelPart security = this.bone.getChild("panels").getChild("p_6").getChild("bone132").getChild("bone133").getChild("bone134").getChild("s_lever_7").getChild("bone144");
+		security.roll = (PropertiesHandler.getBool(console.getTardis().get().getHandlers().getProperties(), SecurityControl.SECURITY_KEY)) ? security.roll + 1.75f : security.roll;
+
 		// Increment Control Movements
 		ModelPart increment = this.bone.getChild("panels").getChild("p_3").getChild("bone67").getChild("bone68").getChild("bone69").getChild("s_crank_3").getChild("bone74");
-		increment.yaw = IncrementManager.increment(console.getTardis().get()) >= 10 ? IncrementManager.increment(console.getTardis().get()) >= 100 ? IncrementManager.increment(console.getTardis().get()) >= 1000 ? increment.yaw + 1.5f : increment.yaw + 1f : increment.yaw + 0.5f : increment.yaw;
+		increment.yaw = IncrementManager.increment(console.getTardis().get()) >= 10 ? IncrementManager.increment(console.getTardis().get()) >= 100 ? IncrementManager.increment(console.getTardis().get()) >= 1000 ? IncrementManager.increment(console.getTardis().get()) >= 10000 ? increment.yaw + 2f : increment.yaw + 1.5f : increment.yaw + 1f : increment.yaw + 0.5f : increment.yaw;
 
 		// Direction Control Movements
 		ModelPart direction = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49").getChild("bone50").getChild("s_crank_1").getChild("bone59");

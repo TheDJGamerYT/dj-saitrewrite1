@@ -66,15 +66,15 @@ public class AITMod implements ModInitializer {
     public void onInitialize() {
         AIT_CUSTOM_CONFIG.init(MOD_ID);
         ConsoleRegistry.init();
-        DesktopRegistry.init();
-        CategoryRegistry.init();
+        DesktopRegistry.getInstance().init(); // this may cause init to be called twice
+        CategoryRegistry.getInstance().init(); // this may cause init to be called twice
         HumsRegistry.init();
         CreakRegistry.init();
         SequenceRegistry.init();
 
         // These 3 have client registries which also need registering to.
         ConsoleVariantRegistry.init();
-        ExteriorVariantRegistry.init();
+        ExteriorVariantRegistry.getInstance().init(); // this may cause init to be called twice
         DoorRegistry.init();
 
         NeptuneInitHandler.register(AITItems.class, MOD_ID);
@@ -118,6 +118,7 @@ public class AITMod implements ModInitializer {
             GetNameCommand.register(dispatcher);
             SetMaxSpeedCommand.register(dispatcher);
             SetSiegeCommand.register(dispatcher);
+            LinkCommand.register(dispatcher);
         }));
 
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register(((blockEntity, world) -> {
@@ -195,7 +196,7 @@ public class AITMod implements ModInitializer {
 
         ServerPlayNetworking.registerGlobalReceiver(InteriorChangingHandler.CHANGE_DESKTOP, ((server, player, handler, buf, responseSender) -> {
             Tardis tardis = ServerTardisManager.getInstance().getTardis(buf.readUuid());
-            TardisDesktopSchema desktop = DesktopRegistry.get(buf.readIdentifier());
+            TardisDesktopSchema desktop = DesktopRegistry.getInstance().get(buf.readIdentifier());
 
             if (tardis == null || desktop == null) return;
 
@@ -212,7 +213,9 @@ public class AITMod implements ModInitializer {
         }));
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            DesktopRegistry.syncToClient(handler.getPlayer());
+            DesktopRegistry.getInstance().syncToClient(handler.getPlayer());
+            CategoryRegistry.getInstance().syncToClient(handler.getPlayer());
+            ExteriorVariantRegistry.getInstance().syncToClient(handler.getPlayer());
 
             ServerTardisManager.getInstance().onPlayerJoin(handler.getPlayer());
         });

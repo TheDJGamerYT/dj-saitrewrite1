@@ -5,6 +5,7 @@ import mdteam.ait.client.animation.console.toyota.ToyotaAnimations;
 import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTravel;
+import mdteam.ait.tardis.control.impl.SecurityControl;
 import mdteam.ait.tardis.control.impl.pos.IncrementManager;
 import mdteam.ait.tardis.data.FuelData;
 import mdteam.ait.tardis.data.properties.PropertiesHandler;
@@ -870,7 +871,8 @@ public class ToyotaConsoleModel extends ConsoleModel {
 		alarmsLight.pivotY = (console.getTardis().get().getHandlers().getAlarms().isEnabled()) ? alarmsLight.pivotY : alarmsLight.pivotY + 1;
 		alarms.pitch = console.getTardis().get().getHandlers().getAlarms().isEnabled() ? alarms.pitch + 1f : alarms.pitch;
 
-
+		ModelPart security = this.toyota.getChild("panel4").getChild("controls4").getChild("coloredlever5");
+		security.pitch = PropertiesHandler.getBool(console.getTardis().get().getHandlers().getProperties(), SecurityControl.SECURITY_KEY) ? security.pitch + 1f : security.pitch;
 
 		//Auto Pilot Control
 		ModelPart autopilot = this.toyota.getChild("panel4").getChild("controls4").getChild("tinyswitch2");
@@ -903,7 +905,7 @@ public class ToyotaConsoleModel extends ConsoleModel {
 
 		// Increment Control
 		ModelPart increment = this.toyota.getChild("panel2").getChild("controls3").getChild("gears").getChild("largegear2").getChild("pivot5");
-		increment.yaw = IncrementManager.increment(console.getTardis().get()) >= 10 ? IncrementManager.increment(console.getTardis().get()) >= 100 ? IncrementManager.increment(console.getTardis().get()) >= 1000 ? increment.yaw + 1.5f : increment.yaw + 1f : increment.yaw + 0.5f : increment.yaw;
+		increment.yaw = IncrementManager.increment(console.getTardis().get()) >= 10 ? IncrementManager.increment(console.getTardis().get()) >= 100 ? IncrementManager.increment(console.getTardis().get()) >= 1000 ? IncrementManager.increment(console.getTardis().get()) >= 10000 ? increment.yaw + 1.5f : increment.yaw + 1.25f : increment.yaw + 1f : increment.yaw + 0.5f : increment.yaw;
 
 		// Refuel Light
 		ModelPart refuelLight = this.toyota.getChild("panel4").getChild("yellow6");

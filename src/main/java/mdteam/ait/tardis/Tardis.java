@@ -6,7 +6,7 @@ import mdteam.ait.client.util.ClientTardisUtil;
 import mdteam.ait.core.item.TardisItemBuilder;
 import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.registry.ExteriorVariantRegistry;
-import mdteam.ait.tardis.exterior.ExteriorCategory;
+import mdteam.ait.tardis.exterior.category.ExteriorCategory;
 import mdteam.ait.tardis.data.FuelData;
 import mdteam.ait.tardis.data.TardisHandlersManager;
 import mdteam.ait.tardis.data.properties.PropertiesHandler;
@@ -14,7 +14,7 @@ import mdteam.ait.tardis.util.AbsoluteBlockPos;
 import mdteam.ait.tardis.data.DoorData;
 import mdteam.ait.tardis.util.TardisChunkUtil;
 import mdteam.ait.tardis.util.TardisUtil;
-import mdteam.ait.tardis.variant.exterior.ExteriorVariantSchema;
+import mdteam.ait.tardis.exterior.variant.ExteriorVariantSchema;
 import mdteam.ait.tardis.wrapper.server.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.ItemEntity;
@@ -318,15 +318,14 @@ public class Tardis {
      */
     public void tick(MinecraftClient client) { // fixme should likely be in ClientTardis instead, same with  other server-only things should be in ServerTardis
         // referencing client stuff where it COULD be server causes problems
-        if(client.player != null &&
-                ClientTardisUtil.isPlayerInATardis() && ClientTardisUtil.getCurrentTardis().equals(this) &&
-                this.getTravel() != null && this.getTravel().getState() != TardisTravel.State.LANDED) {
-            /*if (ClientShakeUtil.shouldShake(this)) */
+        if(ClientShakeUtil.shouldShake(this)) {
             ClientShakeUtil.shakeFromConsole();
         }
 
-        ClientTardisUtil.tickPowerDelta();
-        ClientTardisUtil.tickAlarmDelta();
+        if (this.equals(ClientTardisUtil.getCurrentTardis())) {
+            ClientTardisUtil.tickPowerDelta();
+            ClientTardisUtil.tickAlarmDelta();
+        }
     }
 
     public boolean isDirty() {
@@ -351,7 +350,13 @@ public class Tardis {
         }
     }
 
+    // todo move these up
+
     public boolean isInDanger() {
         return this.getHandlers().getHADS().isInDanger();
+    }
+
+    public boolean inFlight() {
+        return this.getTravel().getState() != TardisTravel.State.LANDED;
     }
 }
