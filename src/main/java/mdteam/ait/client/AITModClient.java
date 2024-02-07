@@ -7,6 +7,7 @@ import mdteam.ait.client.renderers.machines.ArtronCollectorRenderer;
 import mdteam.ait.client.renderers.machines.EngineRenderer;
 import mdteam.ait.client.renderers.monitors.MonitorRenderer;
 import mdteam.ait.client.screens.OwOFindPlayerScreen;
+import mdteam.ait.client.screens.UpgradesScreen;
 import mdteam.ait.core.*;
 import mdteam.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import mdteam.ait.core.item.RiftScannerItem;
@@ -53,6 +54,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
@@ -74,8 +76,6 @@ import java.util.UUID;
 public class AITModClient implements ClientModInitializer {
 
     private static KeyBinding keyBinding;
-
-    private final Identifier PORTAL_EFFECT_SHADER = new Identifier(AITMod.MOD_ID, "shaders/core/portal_effect.json");
     public static final Identifier OPEN_SCREEN = new Identifier(AITMod.MOD_ID, "open_screen");
     public static final Identifier OPEN_SCREEN_TARDIS = new Identifier(AITMod.MOD_ID, "open_screen_tardis");
 
@@ -86,6 +86,7 @@ public class AITModClient implements ClientModInitializer {
         entityRenderRegister();
         sonicModelPredicate();
         riftScannerPredicate();
+        handledScreensRegistry();
         waypointPredicate();
         setKeyBinding();
 
@@ -149,7 +150,7 @@ public class AITModClient implements ClientModInitializer {
                     int p = buf.readInt();
                     UUID tardisId = buf.readUuid();
                     ClientTardisManager.getInstance().getTardis(tardisId, (tardis -> {
-                        if (tardis == null) return; // idk how the consumer works tbh, but im sure theo is gonna b happy
+                        if (tardis == null) return;
 
                        BlockEntity block = MinecraftClient.getInstance().world.getBlockEntity(tardis.getExterior().getExteriorPos()); // todo remember to use the right world in future !!
                        if (!(block instanceof ExteriorBlockEntity exterior)) return;
@@ -161,7 +162,6 @@ public class AITModClient implements ClientModInitializer {
                 }
         );
 
-        // does all this clientplaynetwrokigng shite really have to go in here, theres probably somewhere else it can go right??
         ClientPlayNetworking.registerGlobalReceiver(AITMessages.CANCEL_DEMAT_SOUND, (client, handler, buf, responseSender) -> {
             client.getSoundManager().stopSounds(AITSounds.DEMAT.getId(), SoundCategory.BLOCKS);
         });
@@ -187,8 +187,6 @@ public class AITModClient implements ClientModInitializer {
                 ClientTardisManager.getInstance().loadTardis(((LinkableBlockEntity) block).getTardis().get().getUuid(), (t) -> {});
             }
         });
-
-        // This entrypoint is suitable for setting up client-specific logic, such as rendering.
     }
 
 
@@ -293,19 +291,6 @@ public class AITModClient implements ClientModInitializer {
             else return 0.5f;
         });
     }
-
-
-    //@TODO Shader stuff, decide whether or not to use this or glScissor stuff. - Loqor
-	/*public void shaderStuffForBOTI() {
-		CoreShaderRegistrationCallback.EVENT.register(manager -> {
-			manager.register(PORTAL_EFFECT_SHADER, VertexFormats.POSITION_TEXTURE, ShaderProgram::attachReferencedShaders);
-		});
-	}
-
-	public ShaderProgram getShader() throws IOException {
-		return new FabricShaderProgram(MinecraftClient.getInstance().getResourceManager(), PORTAL_EFFECT_SHADER, VertexFormats.POSITION_TEXTURE);
-	}*/
-
     public void blockEntityRendererRegister() {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.AIT_RADIO_BLOCK_ENTITY_TYPE, AITRadioRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.CONSOLE_BLOCK_ENTITY_TYPE, ConsoleRenderer::new);
@@ -361,5 +346,9 @@ public class AITModClient implements ClientModInitializer {
     public void setupBlockRendering() {
         BlockRenderLayerMap map = BlockRenderLayerMap.INSTANCE;
         //map.putBlock(FMCBlocks.RADIO, RenderLayer.getCutout());
+    }
+
+    public void handledScreensRegistry() {
+        HandledScreens.register(AITScreenHandlerTypes.UPGRADES_SCREEN_HANDLER_TYPE, UpgradesScreen::new);
     }
 }

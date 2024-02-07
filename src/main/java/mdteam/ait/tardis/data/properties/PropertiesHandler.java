@@ -6,6 +6,7 @@ import mdteam.ait.registry.DesktopRegistry;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisDesktopSchema;
 import mdteam.ait.tardis.data.FuelData;
+import mdteam.ait.tardis.data.ProtocolConstants;
 import mdteam.ait.tardis.util.TardisUtil;
 import mdteam.ait.tardis.wrapper.server.manager.ServerTardisManager;
 import net.minecraft.util.Identifier;
@@ -255,6 +256,7 @@ public class PropertiesHandler { // todo move things out of properties
         map.put(MAT_TICKS,0);
         map.put(SPEED,0);
         map.put(IS_CLOAKED, false);
+        map.putAll(ProtocolConstants.init());
 
         unlockAllFreebies(map);
 

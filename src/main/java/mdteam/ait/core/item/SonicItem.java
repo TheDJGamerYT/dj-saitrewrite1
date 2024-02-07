@@ -1,8 +1,11 @@
 package mdteam.ait.core.item;
 
 import mdteam.ait.api.tardis.LinkableItem;
+import mdteam.ait.core.AITScreenHandlerTypes;
 import mdteam.ait.core.AITSounds;
+import mdteam.ait.core.blockentities.ConsoleBlockEntity;
 import mdteam.ait.core.managers.RiftChunkManager;
+import mdteam.ait.core.screenhandlers.UpgradesScreenHandler;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.TardisTravel;
 import mdteam.ait.tardis.animation.ExteriorAnimation;
@@ -19,7 +22,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenTexts;
+import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
@@ -111,6 +117,13 @@ public class SonicItem extends LinkableItem {
                 if (tardis == null) return;
 
                 if (world == TardisUtil.getTardisDimension()) {
+                    if(player.isSneaking() && world.getBlockEntity(pos) instanceof ConsoleBlockEntity console) {
+                        NamedScreenHandlerFactory namedScreenHandlerFactory = new SimpleNamedScreenHandlerFactory(((syncId, playerInventory, player1) ->
+                                new UpgradesScreenHandler(AITScreenHandlerTypes.UPGRADES_SCREEN_HANDLER_TYPE, syncId, playerInventory, tardis.getHandlers().getUpgrades())),
+                                Text.of("TARDIS Upgrades"));
+                        player.openHandledScreen(namedScreenHandlerFactory);
+                        return;
+                    }
                     world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F, 0.2F);
                     player.sendMessage(Text.translatable("message.ait.remoteitem.warning3"), true);
                     return;

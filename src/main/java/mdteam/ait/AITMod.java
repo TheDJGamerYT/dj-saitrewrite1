@@ -41,6 +41,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
@@ -65,6 +67,7 @@ public class AITMod implements ModInitializer {
     @Override
     public void onInitialize() {
         AIT_CUSTOM_CONFIG.init(MOD_ID);
+        AITScreenHandlerTypes.init();
         ConsoleRegistry.init();
         DesktopRegistry.getInstance().init(); // this may cause init to be called twice
         CategoryRegistry.getInstance().init(); // this may cause init to be called twice
@@ -82,7 +85,6 @@ public class AITMod implements ModInitializer {
         NeptuneInitHandler.register(AITSounds.class, MOD_ID);
         NeptuneInitHandler.register(AITBlockEntityTypes.class, MOD_ID);
         NeptuneInitHandler.register(AITEntityTypes.class, MOD_ID);
-
 
         TardisUtil.init();
         TardisManager.getInstance();
