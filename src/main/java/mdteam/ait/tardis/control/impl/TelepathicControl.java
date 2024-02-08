@@ -34,6 +34,8 @@ public class TelepathicControl extends Control {
     @Override
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
         boolean security = PropertiesHandler.getBool(tardis.getHandlers().getProperties(), SecurityControl.SECURITY_KEY);
+        boolean hasTelepathicLocator = tardis.getHandlers().getUpgrades().hasTelepathicLocator();
+        if(!hasTelepathicLocator) return false;
         if (!KeyItem.hasMatchingKeyInInventory(player, tardis) && security) return false;
         if (player.getMainHandStack().getItem() instanceof LinkableItem linker) {
             linker.link(player.getMainHandStack(), tardis);

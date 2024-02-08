@@ -10,6 +10,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.screen.*;
 import net.minecraft.screen.slot.ShulkerBoxSlot;
 import net.minecraft.screen.slot.Slot;
@@ -25,6 +26,8 @@ public class UpgradesScreenHandler extends ScreenHandler {
     public static UpgradesScreenHandler createDefault(int syncId, PlayerInventory playerInventory) {
         return new UpgradesScreenHandler(AITScreenHandlerTypes.UPGRADES_SCREEN_HANDLER_TYPE, syncId, playerInventory);
     }
+
+
 
     public UpgradesScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, Inventory inventory/*, PropertyDelegate propertyDelegate*/) {
         super(type, syncId);
@@ -63,7 +66,7 @@ public class UpgradesScreenHandler extends ScreenHandler {
         if (slot2 != null && slot2.hasStack()) {
             ItemStack itemStack2 = slot2.getStack();
             for(Item items : UpgradesData.getAllowedItems()) {
-                if(itemStack2.getItem() == items)
+                if(itemStack2.getItem() != items)
                     return itemStack;
             }
             itemStack = itemStack2.copy();
@@ -81,11 +84,7 @@ public class UpgradesScreenHandler extends ScreenHandler {
 
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-        for(Item items : UpgradesData.getAllowedItems()) {
-            if(stack.getItem() == items)
-                return super.canInsertIntoSlot(stack, slot);
-        }
-        return super.canInsertIntoSlot(ItemStack.EMPTY, slot);
+        return super.canInsertIntoSlot(stack, slot);
     }
 
     @Override

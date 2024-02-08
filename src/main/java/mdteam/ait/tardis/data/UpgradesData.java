@@ -1,11 +1,10 @@
 package mdteam.ait.tardis.data;
 
 import io.wispforest.owo.util.ImplementedInventory;
-import mdteam.ait.core.AITItems;
-import mdteam.ait.core.item.KeyItem;
 import mdteam.ait.tardis.Exclude;
 import mdteam.ait.tardis.Tardis;
 import mdteam.ait.tardis.data.properties.PropertiesHandler;
+import net.minecraft.block.TintedGlassBlock;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -14,10 +13,7 @@ import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
 
-public class UpgradesData extends TardisLink implements ImplementedInventory {
-
-    @Exclude
-    private final DefaultedList<ItemStack> items = DefaultedList.ofSize(8, ItemStack.EMPTY);
+public class UpgradesData extends TardisLink {
     public UpgradesData(Tardis tardis) {
         super(tardis, "upgrades");
     }
@@ -102,41 +98,16 @@ public class UpgradesData extends TardisLink implements ImplementedInventory {
         PropertiesHandler.set(getTardis().get().getHandlers().getProperties(), ProtocolConstants.HAS_SIEGE_MODE, hasSiegeMode);
     }
 
-    @Override
-    public void tick(ServerWorld world) {
-        super.tick(world);
-        this.getItems().forEach(itemStack -> {
-            this.setHasCloak(itemStack.getItem() == Items.GLASS);
-            this.setHasHailMary(itemStack.getItem() == Items.NETHERITE_HOE);
-            this.setHasAntigravs(itemStack.getItem() == Items.ENDER_PEARL);
-            this.setHasSecurity(itemStack.getItem() == Items.GHAST_TEAR);
-            this.setHasTelepathicLocator(itemStack.getItem() == Items.SCULK);
-            this.setHasGroundSearching(itemStack.getItem() == Items.SPYGLASS);
-            this.setHasAutopilot(itemStack.getItem() == Items.SCULK_CATALYST);
-            this.setHasSiegeMode(itemStack.getItem() == Items.CRYING_OBSIDIAN);
-        });
-    }
-
-    @Override
-    public DefaultedList<ItemStack> getItems() {
-        return items;
-    }
-
     public static ArrayList<Item> getAllowedItems() {
         ArrayList<Item> allowedItems = new ArrayList<>();
-        allowedItems.add(Items.GLASS);
-        allowedItems.add(Items.NETHERITE_HOE);
+        allowedItems.add(Items.TINTED_GLASS);
+        allowedItems.add(Items.IRON_SWORD);
         allowedItems.add(Items.ENDER_PEARL);
         allowedItems.add(Items.GHAST_TEAR);
         allowedItems.add(Items.SCULK);
-        allowedItems.add(Items.SPYGLASS);
+        allowedItems.add(Items.DIRT);
         allowedItems.add(Items.SCULK_CATALYST);
-        allowedItems.add(Items.CRYING_OBSIDIAN);
+        allowedItems.add(Items.LODESTONE);
         return allowedItems;
-    }
-
-    @Override
-    public int size() {
-        return ImplementedInventory.super.size();
     }
 }

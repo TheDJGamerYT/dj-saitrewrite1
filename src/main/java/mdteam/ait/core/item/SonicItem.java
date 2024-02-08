@@ -118,10 +118,10 @@ public class SonicItem extends LinkableItem {
 
                 if (world == TardisUtil.getTardisDimension()) {
                     if(player.isSneaking() && world.getBlockEntity(pos) instanceof ConsoleBlockEntity console) {
-                        NamedScreenHandlerFactory namedScreenHandlerFactory = new SimpleNamedScreenHandlerFactory(((syncId, playerInventory, player1) ->
-                                new UpgradesScreenHandler(AITScreenHandlerTypes.UPGRADES_SCREEN_HANDLER_TYPE, syncId, playerInventory, tardis.getHandlers().getUpgrades())),
-                                Text.of("TARDIS Upgrades"));
-                        player.openHandledScreen(namedScreenHandlerFactory);
+                        //NamedScreenHandlerFactory namedScreenHandlerFactory = new SimpleNamedScreenHandlerFactory(((syncId, playerInventory, player1) ->
+                        //        new UpgradesScreenHandler(AITScreenHandlerTypes.UPGRADES_SCREEN_HANDLER_TYPE, syncId, playerInventory, console)),
+                        //        Text.of("TARDIS Upgrades"));
+                        //player.openHandledScreen(namedScreenHandlerFactory);
                         return;
                     }
                     world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F, 0.2F);

@@ -21,6 +21,9 @@ public class CloakControl extends Control {
     @Override
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
 
+        boolean hasCloak = tardis.getHandlers().getUpgrades().hasCloak();
+        if(!hasCloak) return false;
+
         CloakData cloak = tardis.getHandlers().getCloak();
 
         cloak.toggle();

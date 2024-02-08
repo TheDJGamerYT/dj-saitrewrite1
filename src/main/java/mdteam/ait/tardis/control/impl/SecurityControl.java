@@ -29,6 +29,10 @@ public class SecurityControl extends Control {
 
     @Override
     public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world) {
+
+        boolean hasSecurity = tardis.getHandlers().getUpgrades().hasSecurity();
+        if(!hasSecurity) return false;
+
         if (!hasMatchingKey(player, tardis)) {
             return false;
         }
