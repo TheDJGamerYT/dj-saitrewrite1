@@ -295,7 +295,8 @@ public class TardisTravel extends TardisLink {
                 if (random.nextInt(1,3) == 1) {
                     is_z_negative = true;
                 }
-                player.addVelocity(0.5f * x_random * (is_x_negative ? -1 : 1), 0.25f * y_random, 0.5f * z_random * (is_z_negative ? -1 : 1));
+                int crash_intensity = getTardis().get().tardisHammerAnnoyance;
+                player.addVelocity(0.5f * x_random * (is_x_negative ? -1 : 1) * crash_intensity, 0.25f * y_random * crash_intensity, 0.5f * z_random * (is_z_negative ? -1 : 1) * crash_intensity);
                 player.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 100, 0 , false, false));
             }
         }
@@ -322,9 +323,13 @@ public class TardisTravel extends TardisLink {
         // Sync the tardis
         // Remove fuel from Tardis
         this.getTardis().get().removeFuel(80);
+        if (this.getTardis().get().tardisHammerAnnoyance > 0) {
+            this.getTardis().get().removeFuel(1000 * this.getTardis().get().tardisHammerAnnoyance);
+        }
         // Materialize the Tardis
         this.materialise();
         // Invoke the crash event
+        this.getTardis().get().tardisHammerAnnoyance = 0;
         TardisEvents.CRASH.invoker().onCrash(this.getTardis().get());
     }
 
@@ -662,7 +667,6 @@ public class TardisTravel extends TardisLink {
             ServerWorld world = (ServerWorld) this.getPosition().getWorld();
             BlockEntity found = world.getBlockEntity(this.getPosition());
 
-            System.out.println(found);
 
             // If there is already a matching exterior at this position
             if (found instanceof ExteriorBlockEntity exterior

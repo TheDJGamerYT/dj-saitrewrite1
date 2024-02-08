@@ -105,7 +105,7 @@ dependencies {
 
 	modCompileOnlyApi("curse.maven:forge-config-api-port-fabric-547434:4583000")
 
-	/*modImplementation*/modCompileOnlyApi("curse.maven:${project.regen_version}")
+	/*modImplementation*/modCompileOnlyApi("maven.modrinth:regeneration:42.0.0+fabric")
 
 	modCompileOnlyApi("maven.modrinth:k9-mod:${project.k9_version}")}
 

@@ -96,7 +96,7 @@ public class FlightData extends TardisLink {
 
         return PropertiesHandler.getInt(this.getTardis().get().getHandlers().getProperties(), FLIGHT_TICKS_KEY);
     }
-    private void setFlightTicks(int ticks) {
+    public void setFlightTicks(int ticks) {
        if (this.getTardis().isEmpty()) return;
 
        PropertiesHandler.set(this.getTardis().get(), FLIGHT_TICKS_KEY, ticks);
@@ -121,7 +121,6 @@ public class FlightData extends TardisLink {
     public void tick(MinecraftServer server) {
         super.tick(server);
         if(getTardis().isEmpty()) return;
-
         if ((this.getTargetTicks() > 0 || this.getFlightTicks() > 0) && this.getTardis().get().getTravel().getState() == TardisTravel.State.LANDED) {
             this.recalculate();
         }
