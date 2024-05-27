@@ -1,9 +1,11 @@
 package loqor.ait.core.item;
 
+import loqor.ait.core.AITDataComponents;
 import loqor.ait.core.blockentities.ExteriorBlockEntity;
 import loqor.ait.core.blockentities.ConsoleBlockEntity;
+import loqor.ait.tardis.link.LinkableBlockEntity;
 import net.minecraft.block.Block;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -31,32 +33,27 @@ public class ArtronCollectorItem extends Item {
 	@Override
 	public ItemStack getDefaultStack() {
 		ItemStack stack = new ItemStack(this);
-		NbtCompound nbt = stack.getOrCreateNbt();
-		nbt.putDouble(AU_LEVEL, 0);
+		stack.set(AITDataComponents.AU_LEVEL, 0.0f);
 		return super.getDefaultStack();
 	}
 
 	public static UUID getUuid(ItemStack stack) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-
-		if (nbt.contains(UUID_KEY)) return nbt.getUuid(UUID_KEY);
-		nbt.putUuid(UUID_KEY, UUID.randomUUID());
-		return nbt.getUuid(UUID_KEY);
+		if (stack.contains(AITDataComponents.UUID_KEY)) return UUID.fromString(stack.get(AITDataComponents.UUID_KEY));
+		UUID uuid = UUID.randomUUID();
+		stack.set(AITDataComponents.UUID_KEY, uuid.toString());
+		return uuid;
 	}
 
-	public static double getFuel(ItemStack stack) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-
-		if (nbt.contains(AU_LEVEL)) return nbt.getDouble(AU_LEVEL);
-		nbt.putDouble(AU_LEVEL, 0);
-		return 0d;
+	public static float getFuel(ItemStack stack) {
+		if (stack.contains(AITDataComponents.AU_LEVEL)) return stack.get(AITDataComponents.AU_LEVEL);
+		stack.set(AITDataComponents.AU_LEVEL, 0.0f);
+		return 0f;
 	}
 
-	public static double addFuel(ItemStack stack, double fuel) {
-		NbtCompound nbt = stack.getOrCreateNbt();
-		double currentFuel = getFuel(stack);
-		nbt.putDouble(AU_LEVEL, getFuel(stack) <= COLLECTOR_MAX_FUEL ? getFuel(stack) + fuel : COLLECTOR_MAX_FUEL);
-		if (getFuel(stack) > COLLECTOR_MAX_FUEL) nbt.putDouble(AU_LEVEL, COLLECTOR_MAX_FUEL);
+	public static float addFuel(ItemStack stack, float fuel) {
+		float currentFuel = getFuel(stack);
+		stack.set(AITDataComponents.AU_LEVEL, getFuel(stack) <= COLLECTOR_MAX_FUEL ? getFuel(stack) + fuel : COLLECTOR_MAX_FUEL);
+		if (getFuel(stack) > COLLECTOR_MAX_FUEL) stack.set(AITDataComponents.AU_LEVEL, (float)COLLECTOR_MAX_FUEL);
 		if (getFuel(stack) == COLLECTOR_MAX_FUEL)
 			return fuel - (COLLECTOR_MAX_FUEL - currentFuel);
 		return 0;
@@ -70,22 +67,14 @@ public class ArtronCollectorItem extends Item {
 		BlockPos clickedPos = context.getBlockPos();
 		Block block = world.getBlockState(clickedPos).getBlock();
 		ItemStack cellItemStack = context.getStack();
-		NbtCompound nbt = cellItemStack.getOrCreateNbt();
-
 		if (world.isClient()) return ActionResult.SUCCESS;
 
 		if (player.isSneaking()) {
-			if (world.getBlockEntity(clickedPos) instanceof ExteriorBlockEntity exterior) {
+			if (world.getBlockEntity(clickedPos) instanceof LinkableBlockEntity exterior) {
 				if (exterior.findTardis().isEmpty())
 					return ActionResult.FAIL;
-				double residual = exterior.findTardis().get().addFuel(nbt.getDouble(AU_LEVEL));
-				nbt.putDouble(AU_LEVEL, residual);
-				return ActionResult.CONSUME;
-			} else if (world.getBlockEntity(clickedPos) instanceof ConsoleBlockEntity console) {
-				if (console.findTardis().isEmpty())
-					return ActionResult.FAIL;
-				double residual = console.findTardis().get().addFuel(nbt.getDouble(AU_LEVEL));
-				nbt.putDouble(AU_LEVEL, residual);
+				double residual = exterior.findTardis().get().addFuel(cellItemStack.getOrDefault(AITDataComponents.AU_LEVEL, 0f));
+				cellItemStack.set(AITDataComponents.AU_LEVEL, (float) residual);
 				return ActionResult.CONSUME;
 			}
 			return ActionResult.FAIL;
@@ -95,9 +84,7 @@ public class ArtronCollectorItem extends Item {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-		NbtCompound tag = stack.getOrCreateNbt();
-		String text = tag.contains(AU_LEVEL) ? "" + tag.getDouble(AU_LEVEL) : "0.0";
-		tooltip.add(Text.literal(text + "au / " + COLLECTOR_MAX_FUEL + ".0au").formatted(Formatting.BLUE));
+	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+		tooltip.add(Text.literal(stack.getOrDefault(AITDataComponents.AU_LEVEL, 0f) + "au / " + COLLECTOR_MAX_FUEL + ".0au").formatted(Formatting.BLUE));
 	}
 }

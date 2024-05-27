@@ -1,5 +1,6 @@
 package loqor.ait.core.blocks;
 
+import com.mojang.serialization.MapCodec;
 import loqor.ait.core.AITBlockEntityTypes;
 import loqor.ait.core.blockentities.DetectorBlockEntity;
 import loqor.ait.tardis.Tardis;
@@ -7,7 +8,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.enums.WallMountLocation;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -25,6 +25,7 @@ import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class DetectorBlock extends WallMountedBlock implements BlockEntityProvider {
+	public static final MapCodec<DetectorBlock> CODEC = createCodec(DetectorBlock::new);
 	public static final BooleanProperty POWERED;
 	public static final BooleanProperty INVERTED;
 	public static final IntProperty POWER;
@@ -40,6 +41,11 @@ public class DetectorBlock extends WallMountedBlock implements BlockEntityProvid
 	public DetectorBlock(AbstractBlock.Settings settings) {
 		super(settings);
 		this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(INVERTED, false).with(POWER, 0).with(POWERED, false).with(FACE, WallMountLocation.WALL));
+	}
+
+	@Override
+	protected MapCodec<? extends WallMountedBlock> getCodec() {
+		return CODEC;
 	}
 
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
