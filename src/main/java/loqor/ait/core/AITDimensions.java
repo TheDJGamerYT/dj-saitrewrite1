@@ -18,6 +18,9 @@ public class AITDimensions {
             new Identifier(AITMod.MOD_ID, "time_vortex"));
     public static final RegistryKey<DimensionOptions> TARDIS_DIM_OPTIONS = RegistryKey.of(RegistryKeys.DIMENSION,
             new Identifier(AITMod.MOD_ID, "tardis_dimension"));
+
+    public static final RegistryKey<World> DJ_INSANITY_WORLD = RegistryKey.of(RegistryKeys.WORLD,
+            new Identifier(AITMod.MOD_ID, "dj's_insanity_world"));
     // public static final ResourceKey<DimensionType> TARDIS_DIM_TYPE =
     // ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY,
     // TARDIS_DIM_KEY.registry());

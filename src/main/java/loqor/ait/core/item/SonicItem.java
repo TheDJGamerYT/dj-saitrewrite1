@@ -48,7 +48,7 @@ import loqor.ait.tardis.link.LinkableItem;
 import loqor.ait.tardis.util.TardisUtil;
 
 public class SonicItem extends LinkableItem implements ArtronHolderItem {
-    public static final double MAX_FUEL = 1000;
+    public static final double MAX_FUEL = 1000000;
     public static final String MODE_KEY = "mode";
     public static final String PREV_MODE_KEY = "PreviousMode";
     public static final String INACTIVE = "inactive";
